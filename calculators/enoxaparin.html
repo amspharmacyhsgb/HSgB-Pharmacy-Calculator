@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anticoagulant (Clexane/Arixtra) Dose Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+    
+    <h2>Anticoagulant (Clexane/Arixtra) Dose Calculator</h2>
+    
+    <div class="form-group">
+        <label for="enox-indication">Indication</label>
+        <select id="enox-indication" onchange="updateEnoxaparinUI()" aria-required="true">
+            <option value="">Select an Indication</option>
+            <option value="pregnant-prophylaxis">Thromboprophylaxis for Pregnant Women</option>
+            <option value="vte-prophylaxis">VTE Prophylaxis in Medical or Non-major Orthopaedic Surgery Patients</option>
+            <option value="major-ortho-prophylaxis">VTE Prophylaxis in Major Orthopaedic Surgery (THA, TKA, Hip Fracture)</option>
+            <option value="dvt-pe-treatment">DVT or PE Treatment</option>
+            <option value="acs-treatment">ACS Treatment</option>
+        </select>
+        <p id="enox-treatment-footnote" class="footnote" style="display:none;">S/C Clexane Dose: 1 mg/kg BD</p>
+    </div>
+    
+    <div class="form-group">
+        <label for="enox-bw">Body Weight (kg)</label>
+        <input type="number" id="enox-bw" oninput="updateEnoxaparinUI()" aria-required="true" step="0.1" min="0">
+        <p id="enox-weight-range-footnote" class="footnote"></p>
+    </div>
+    
+    <div id="enoxaparin-output" style="display:none;">
+        <h3 id="enox-results-heading">Dosage Recommendation</h3>
+        <p style="margin-top: 20px;">For a body weight of <b id="enox-bw-display"></b> kg:</p>
+        <div id="enoxaparin-result-card"></div>
+    </div>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/enoxaparin.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iron Dextran (Cosmofer) Dose Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+    
+    <h2>Iron Dextran (Cosmofer) Dose Calculator</h2>
+    
+    <div class="form-group">
+        <label for="cosmofer-indication">Indication</label>
+        <select id="cosmofer-indication" onchange="calculateCosmofer()" aria-required="true">
+            <option value="">Select an Indication</option>
+            <option value="blood-loss">Blood loss, Eg: During labour</option>
+            <option value="ida">Iron Deficiency Anaemia (IDA)</option>
+        </select>
+        <p id="cosmofer-ida-footnote" class="footnote" style="display:none;">Additional dose: 500 mg</p>
+    </div>
+    
+    <div class="form-group">
+        <label for="cosmofer-bw">Body Weight (kg)</label>
+        <input type="number" id="cosmofer-bw" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0">
+        <div class="shaded-box-pink" style="font-size:0.8em;">
+            i) In pregnancy, use pre-pregnancy body weight.<br>
+            ii) In obese patients (BMI &gt; 30kg/m²), use <a href="body-weight.html">Ideal Body Weight (IBW)</a>.
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="cosmofer-target-hb">Target Hb (g/dL)</label>
+        <input type="number" id="cosmofer-target-hb" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="cosmofer-current-hb">Current Hb (g/dL)</label>
+        <input type="number" id="cosmofer-current-hb" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0">
+    </div>
+
+    <div id="cosmofer-outputs" style="display:none;">
+        <h3 id="cosmofer-results-heading">Results</h3>
+        
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Summary of Input</div>
+            <div class="sub-output-value" id="cosmofer-summary" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
+        </div>
+        
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Calculated dose (mg)</div>
+            <div class="sub-output-value" id="cosmofer-calculated-dose" style="font-size: 0.95em; font-weight: 600; color: #1a237e;"></div>
+            <p id="cosmofer-calculated-footnote" class="footnote" style="margin-top: 4px; color: #666;"></p>
+        </div>
+
+        <div class="output-box-cream">
+            <div class="output-title">Final Dose of Cosmofer (Test Dose Included)</div>
+            <div class="output-value" id="cosmofer-final-dose"></div>
+            <p class="footnote">*Dose rounded to the nearest 100 mg</p>
+        </div>
+
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Dose per Body Weight (mg/kg)</div>
+            <div class="sub-output-value" id="cosmofer-dose-per-bw" style="font-size: 0.95em; font-weight: 600; color: #1a237e;"></div>
+        </div>
+
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Remarks</div>
+            <div class="sub-output-value" id="cosmofer-remarks" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
+        </div>
+    </div>
+    
+    <p class="footer-link">
+        <a href="https://drive.google.com/file/d/1EjZOkMmgV2bRYdxenEfAlQm6cX5qI9RE/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+            🔗 Refer to PRIC Newsletter (Cosmofer Quick Guide)
+        </a>
+    </p>
+    
+    <p class="footer-formula">
+        <b>Formula:</b> Calculated dose (mg) = Body Weight (kg) x (Target Hb - Current Hb) x 2.4<br>
+        <b>Note:</b> For IDA, 500 mg has been added to the calculated dose.
+    </p>
+    
+    <!-- Step-by-Step Administration Guide -->
+    <div class="info-card">
+        <div class="expandable-header" onclick="toggleSection('admin-guide')">
+            <span class="info-card-title">📋 Step-by-Step Guide: How to Administer CosmoFer® (IV Iron Dextran)</span>
+            <span class="expand-icon" id="admin-guide-icon">▼</span>
+        </div>
+        
+        <div id="admin-guide" class="expandable-content">
+            <div class="step-section">
+                <div class="step-header">Step 1: Test Dose Preparation</div>
+                <ul class="step-list">
+                    <li>Dilute 1 vial (100 mg) of CosmoFer in 100 mL of NS/D5.</li>
+                </ul>
+            </div>
+            
+            <div class="step-section">
+                <div class="step-header">Step 2: Test Dose Administration</div>
+                <ul class="step-list">
+                    <li>Infuse 25 mg (= 25 mL) over 15 mins.</li>
+                    <li>Observe for hypersensitivity reactions.</li>
+                    <li>If no reaction occurs, administer the remaining portion (~75 mL) over 30 minutes.</li>
+                </ul>
+            </div>
+            
+            <div class="step-section">
+                <div class="step-header">Step 3: Total Dose Preparation & Administration</div>
+                <ul class="step-list">
+                    <li>Dilute the rest of the calculated Cosmofer dose (up to 20 mg/kg) with ~500 mL normal saline.</li>
+                    <li>Administer over 4–6 hours (rate can be increased to 45-60 drops/min progressively).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gap Rule Section - Standalone -->
+    <div class="info-card">
+        <div class="expandable-header" onclick="toggleSection('gap-rule')">
+            <span class="info-card-title">📌 Gap Rule for Multiple CosmoFer® (IV Iron Dextran) Infusions</span>
+            <span class="expand-icon" id="gap-rule-icon">▼</span>
+        </div>
+        
+        <div id="gap-rule" class="expandable-content">
+            <div class="gap-rule-box">
+                <p style="margin: 8px 0;">If calculated dose <strong style="color: #C62828;">exceeds 20 mg/kg</strong>, divide and give on separate days.</p>
+                <p style="margin: 8px 0; font-weight: 600;">Recommended interval: ➡️ ~1 week interval for every 600 mg of iron given.</p>
+                
+                <div class="gap-table">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th colspan="2" style="border: 1px solid #ddd; padding: 8px; background-color: #e8e8e8; text-align: center; font-weight: 600;">Suggested Gap Between Infusions</th>
+                            </tr>
+                            <tr>
+                                <th style="border: 1px solid #ddd; padding: 6px 8px; background-color: #f5f5f5; text-align: left;">First Infusion</th>
+                                <th style="border: 1px solid #ddd; padding: 6px 8px; background-color: #f5f5f5; text-align: left;">Wait Before Next Dose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 6px 8px;">600 mg</td>
+                                <td style="border: 1px solid #ddd; padding: 6px 8px;">~1 week</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 6px 8px;">1200 mg</td>
+                                <td style="border: 1px solid #ddd; padding: 6px 8px;">~2 weeks</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 6px 8px;">1800 mg</td>
+                                <td style="border: 1px solid #ddd; padding: 6px 8px;">~3 weeks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Oral Iron Guidance -->
+    <div class="info-card">
+        <div class="expandable-header" onclick="toggleSection('oral-iron')">
+            <span class="info-card-title">💊 Can Oral Iron Be Given Together with IV CosmoFer?</span>
+            <span class="expand-icon" id="oral-iron-icon">▼</span>
+        </div>
+        
+        <div id="oral-iron" class="expandable-content">
+            <div class="recommendation-box">
+                <div class="recommendation-header">Recommendation: ❌ Do not give oral iron concurrently with CosmoFer.</div>
+            </div>
+            
+            <div class="why-section">
+                <div class="why-header">Why?</div>
+                <ul class="why-list">
+                    <li>After IV iron, giving oral iron too soon is ineffective and may increase gastrointestinal side effects without benefit.</li>
+                </ul>
+            </div>
+            
+            <div class="what-to-do-section">
+                <div class="what-to-do-header">What to Do Instead:</div>
+                <ul class="what-to-do-list">
+                    <li>Stop oral iron while CosmoFer is being administered.</li>
+                    <li>Restart oral iron <strong>at least 5 days</strong> after the final CosmoFer dose.</li>
+                    <li>After this interval, oral iron may be used at standard doses.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/cosmofer.js"></script>
+<script>
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId);
+    const icon = document.getElementById(sectionId + '-icon');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        icon.textContent = '▶';
+    }
+}
+
+// Initialize sections as collapsed
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('admin-guide').style.display = 'none';
+    document.getElementById('gap-rule').style.display = 'none';
+    document.getElementById('oral-iron').style.display = 'none';
+    document.getElementById('admin-guide-icon').textContent = '▶';
+    document.getElementById('gap-rule-icon').textContent = '▶';
+    document.getElementById('oral-iron-icon').textContent = '▶';
+});
+</script>
+
+</body>
+</html>

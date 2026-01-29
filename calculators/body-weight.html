@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Body Weight Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+    
+    <h2>Body Weight (BW) Calculator</h2>
+    
+    <div class="form-group">
+        <label for="bw-actual-weight">Actual Body Weight (kg)</label>
+        <input type="number" id="bw-actual-weight" oninput="calculateBodyWeight()" aria-required="true" step="0.1" min="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="bw-height">Height (cm)</label>
+        <input type="number" id="bw-height" oninput="calculateBodyWeight()" aria-required="true" step="0.1" min="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="bw-gender">Gender</label>
+        <select id="bw-gender" onchange="calculateBodyWeight()">
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+        <p class="footnote">*Optional, required only for Ideal Body Weight & Adjusted Body Weight calculation.</p>
+    </div>
+
+    <div id="bw-outputs" style="display:none;">
+        <h3 id="bw-results-heading">Results</h3>
+        
+        <div class="output-box">
+            <div class="output-title">Body Mass Index (BMI)</div>
+            <div class="output-value" id="bw-bmi"></div>
+        </div>
+        
+        <div class="output-box">
+            <div class="output-title">Body Surface Area (BSA)</div>
+            <div class="output-value" id="bw-bsa"></div>
+        </div>
+        
+        <div class="output-box">
+            <div class="output-title">Ideal Body Weight (IBW)</div>
+            <div class="output-value" id="bw-ibw"></div>
+        </div>
+        
+        <div class="output-box">
+            <div class="output-title">Adjusted Body Weight (AdjBW)</div>
+            <div class="output-value" id="bw-adjbw"></div>
+        </div>
+    </div>
+
+    <p class="footer-formula">
+        <b>BMI:</b> Body Weight (kg) / (Height (m) x Height (m))<br>
+        <b>BSA:</b> √((Height (cm) x Weight (kg)) / 3600)<br>
+        <b>IBW (Devine):</b> Male: 50kg + 0.9kg x (Height (cm) - 152cm); Female: 45.5kg + 0.9kg x (Height (cm) - 152cm)<br>
+        <b>AdjBW:</b> IBW + 0.4 x (Actual Weight - IBW). Shown only when Actual > IBW.
+    </p>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/body-weight.js"></script>
+
+</body>
+</html>

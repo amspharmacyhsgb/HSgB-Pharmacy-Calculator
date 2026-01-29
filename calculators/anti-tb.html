@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-TB Dose Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+        .toggle-section {
+            margin: 15px 0;
+        }
+        
+        .toggle-button {
+            width: 100%;
+            padding: 12px 18px;
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            border: 2px solid var(--primary-blue);
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--primary-blue);
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .toggle-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,61,130,0.2);
+        }
+        
+        .toggle-button.active {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+            color: white;
+        }
+        
+        .toggle-arrow {
+            font-size: 1.1em;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-arrow.rotated {
+            transform: rotate(180deg);
+        }
+        
+        .toggle-content {
+            display: none;
+            margin-top: 10px;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .toggle-content.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .drug-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-left: 5px solid var(--primary-blue);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 6px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+        
+        .drug-name {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 6px;
+        }
+        
+        .dose-display {
+            color: white;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin: 5px 0;
+        }
+        
+        .dose-label {
+            font-size: 0.7em;
+            opacity: 0.9;
+            margin-bottom: 2px;
+        }
+        
+        .dose-value {
+            font-size: 1.1em;
+            font-weight: 700;
+        }
+        
+        .drug-footnotes {
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 6px 8px;
+            margin-top: 6px;
+            font-size: 0.75em;
+        }
+        
+        .drug-footnotes ul {
+            margin: 2px 0;
+            padding-left: 14px;
+        }
+        
+        .drug-footnotes li {
+            margin: 1px 0;
+            color: #555;
+        }
+        
+        .drugs-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+            max-width: 100%;
+        }
+        
+        .fdc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 12px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .drugs-grid, .fdc-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .drugs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1201px) {
+            .drugs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .regimen-section {
+            margin: 25px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary-blue);
+        }
+        
+        .regimen-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 12px;
+        }
+        
+        .regimen-duration {
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin: 12px 0;
+            text-align: center;
+            font-weight: 600;
+            color: #1B5E20;
+            font-size: 0.95em;
+        }
+        
+        .option-label {
+            font-weight: 600;
+            color: #666;
+            margin: 12px 0 8px 0;
+            font-size: 0.95em;
+        }
+        
+        .warning-box {
+            background: #FFF3E0;
+            border-left: 4px solid #F57C00;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #E65100;
+            font-weight: 500;
+        }
+        
+        .pyridoxine-warning {
+            background: #FFF3E0;
+            border-left: 4px solid #F57C00;
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin: 12px 0;
+            font-size: 0.95em;
+            color: #E65100;
+            font-weight: 600;
+        }
+        
+        .duration-box {
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .duration-label {
+            font-size: 0.85em;
+            color: #2E7D32;
+            font-weight: 500;
+        }
+        
+        .duration-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #1B5E20;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+    
+    <h2>Anti-TB Dose Calculator (Adult Patients)</h2>
+    
+    <div class="form-group">
+        <label for="tb-bw">Body Weight (kg)</label>
+        <input type="number" id="tb-bw" oninput="calculateAntiTB()" aria-required="true" step="0.1" min="0">
+        <div class="shaded-box-pink" style="font-size:0.85em;">
+            For obese patients, use <a href="body-weight.html">Adjusted Body Weight (AdjBW)</a>.
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="tb-indication">Indication</label>
+        <select id="tb-indication" onchange="calculateAntiTB()" aria-required="true">
+            <option value="">Select an Indication</option>
+            <option value="tb-treatment">TB Treatment</option>
+            <option value="ltbi-treatment">Latent TB Infection (LTBI) Treatment</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="tb-renal">Renal Function (CrCl)</label>
+        <select id="tb-renal" onchange="calculateAntiTB()" aria-required="true">
+            <option value="">Select Renal Function</option>
+            <option value="normal">Normal dose (CrCl ≥ 30 ml/min)</option>
+            <option value="impaired">Renal dose (CrCl < 30 ml/min)</option>
+        </select>
+        <div class="shaded-box-pink" style="font-size:0.85em;">
+            Use <a href="renal-function.html">Renal Function (CrCl) Calculator</a> if needed.
+        </div>
+    </div>
+
+    <div id="tb-outputs" style="display:none;">
+        <h3 id="tb-results-heading">Results</h3>
+        <div id="tb-results-content"></div>
+    </div>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/anti-tb.js"></script>
+
+</body>
+</html>

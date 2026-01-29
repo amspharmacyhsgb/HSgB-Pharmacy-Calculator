@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renal Function Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+    
+    <h2>Renal Function Calculator (CrCl)</h2>
+    
+    <div class="form-group">
+        <label for="crcl-age">Age (years old)</label>
+        <input type="number" id="crcl-age" oninput="calculateCrCl()" aria-required="true" step="1" min="0" max="120">
+    </div>
+    
+    <div class="form-group">
+        <label for="crcl-bw">Body Weight (kg)</label>
+        <input type="number" id="crcl-bw" oninput="calculateCrCl()" aria-required="true" step="0.1" min="0">
+        <div class="shaded-box-pink" style="font-size:0.8em;">
+            For obese patients, use <a href="body-weight.html">Adjusted Body Weight (AdjBW)</a>.
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="crcl-gender">Gender</label>
+        <select id="crcl-gender" onchange="calculateCrCl()" aria-required="true">
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="crcl-scr">Serum Creatinine (SCr) (μmol/L)</label>
+        <input type="number" id="crcl-scr" oninput="calculateCrCl()" aria-required="true" step="0.1" min="0">
+    </div>
+
+    <div id="crcl-outputs" style="display:none;">
+        <h3 id="crcl-results-heading">Results</h3>
+        
+        <div class="output-box-cream">
+            <div class="output-title">Creatinine Clearance (CrCl)</div>
+            <div class="output-value" id="crcl-result"></div>
+        </div>
+    </div>
+
+    <p class="footer-formula">
+        <b>Formula:</b> (140 - Age) x Body Weight x F / Serum creatinine (μmol/L)<br>
+        *F = 1.23 for males, 1.04 for females.<br>
+        *Formula from the Cockcroft-Gault equation.
+    </p>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/renal-function.js"></script>
+
+</body>
+</html>

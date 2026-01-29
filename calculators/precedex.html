@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precedex Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>On-Call Survival Kit for Pharmacists</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="window.location.href='../index.html'">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+    
+    <h2>Precedex (Dexmedetomidine) Supply Calculator</h2>
+    
+    <div class="form-group">
+        <label for="precedex-rate">Infusion Rate (mL/hr)</label>
+        <input type="number" id="precedex-rate" oninput="calculatePrecedex()" step="0.1" min="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="precedex-strength">Strength of preparation</label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="number" id="precedex-mcg" value="200" oninput="calculatePrecedex()" style="width: 100px;" step="1" min="0">
+            <span style="font-weight: 500;">mcg in</span>
+            <input type="number" id="precedex-ml" value="50" oninput="calculatePrecedex()" style="width: 100px;" step="1" min="0">
+            <span style="font-weight: 500;">mL diluent</span>
+        </div>
+        <p class="footnote">Pack size: 2 mL (200 mcg) per vial</p>
+        <div id="precedex-concentration-display" style="display:none; margin-top: 10px; padding: 10px; background: linear-gradient(to bottom, #E3F2FD, #BBDEFB); border-radius: 8px; border-left: 4px solid #1565C0;">
+            <span style="font-weight: 600; color: #1565C0;">Concentration: </span>
+            <span id="precedex-concentration-value" style="font-weight: 700; color: #0D47A1; font-size: 1.1em;"></span>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="precedex-duration">Duration (hours)</label>
+        <input type="number" id="precedex-duration" value="24" oninput="calculatePrecedex()" step="1" min="0" max="24">
+        <p class="footnote">Not to be infused for more than 24 hours</p>
+        <div id="precedex-duration-warning" style="display:none; margin-top: 10px; padding: 10px; background: #FFF9E6; border: 2px solid #FFB74D; border-radius: 8px; color: #E65100; font-weight: 600;">
+            ⚠️ Warning: Duration exceeds 24 hours. Precedex should not be infused for more than 24 hours.
+        </div>
+    </div>
+    
+    <div id="precedex-outputs" style="display:none;">
+        <h3 id="precedex-results-heading">Results</h3>
+        
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Summary of Input</div>
+            <div class="sub-output-value" id="precedex-summary" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
+        </div>
+        
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Preparation</div>
+            <div class="sub-output-value" id="precedex-preparation" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
+        </div>
+        
+        <div class="output-box-cream">
+            <div class="output-title">Quantity to supply:</div>
+            <div class="output-value" id="precedex-quantity"></div>
+        </div>
+    </div>
+    
+    <!-- Important Information -->
+    <div style="background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border: 3px solid #4CAF50; border-radius: 12px; padding: 15px; margin: 20px 0;">
+        <div style="font-weight: 700; color: #2E7D32; font-size: 1.1em; margin-bottom: 12px;">
+            📌 Important Information
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <div style="font-weight: 600; color: #1B5E20; margin-bottom: 5px;">Diluent:</div>
+            <div style="color: #2E7D32;">Normal Saline</div>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <div style="font-weight: 600; color: #1B5E20; margin-bottom: 8px;">Stability after dilution:</div>
+            <div style="background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 600; color: #1565C0; margin-bottom: 4px;">BRAND: Precedex</div>
+                <div style="color: #555; font-size: 0.95em;">
+                    • Use immediately (ROOM TEMP)<br>
+                    • 24 hours (FRIDGE)
+                </div>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 8px;">
+                <div style="font-weight: 600; color: #1565C0; margin-bottom: 4px;">BRAND: Dexmedetomidine KABI</div>
+                <div style="color: #555; font-size: 0.95em;">
+                    • 24 hours (ROOM TEMP and FRIDGE)
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div style="font-weight: 600; color: #1B5E20; margin-bottom: 5px;">Guide on dosing by body weight:</div>
+            <a href="../assets/images/Precedex Dosing Chart.jpg" target="_blank" rel="noopener noreferrer" style="color: #1565C0; font-weight: 600; text-decoration: none;">
+                📄 View Precedex (Dexmedetomidine) Dosing Chart
+            </a>
+        </div>
+    </div>
+    
+    <p class="footer-formula">
+        <b>Quantity to supply:</b> (Infusion rate (mL/hr) × Duration (hours)) / Volume of diluent per preparation (mL)<br>
+        <b>Ampoules per preparation:</b> Total mcg in preparation / 200 mcg per vial
+    </p>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/precedex.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAC Dose Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+    
+    <h2>NAC (N-Acetylcysteine) Dose Calculator</h2>
+    
+    <div class="form-group">
+        <label for="nac-indication">Indication</label>
+        <select id="nac-indication" onchange="updateNACUI()" aria-required="true">
+            <option value="">Select an Indication</option>
+            <option value="paracetamol">Paracetamol Poisoning</option>
+            <option value="liver-failure">Non-Paracetamol Acute Liver Failure</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="nac-age-group">Age Category</label>
+        <select id="nac-age-group" onchange="updateNACUI()" aria-required="true">
+            <option value="">Select Age Category</option>
+            <option value="adult">Adults</option>
+            <option value="paeds">Paeds</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="nac-weight">Weight (kg)</label>
+        <input type="number" id="nac-weight" oninput="calculateNAC()" aria-required="true" step="0.1" min="0">
+        <p class="footnote">If body weight > 110 kg, use 110 kg</p>
+        <div id="nac-weight-warning" style="display:none; background-color: #FFEBEE; border: 2px solid #E57373; border-radius: 8px; padding: 10px; margin-top: 8px; color: #C62828; font-weight: 600;">
+            ⚠️ Weight exceeds 110 kg. Please use 110 kg for calculation.
+        </div>
+    </div>
+    
+    <div class="form-group" id="nac-regimen-group" style="display:none;">
+        <label for="nac-regimen">Regimen</label>
+        <select id="nac-regimen" onchange="calculateNAC()" aria-required="true">
+            <option value="">Select Regimen</option>
+        </select>
+    </div>
+    
+    <!-- Visual Separator -->
+    <div id="nac-separator" style="display:none; height: 3px; background: linear-gradient(to right, #1565C0, #0D47A1, #1565C0); margin: 30px 0; border-radius: 2px;"></div>
+    
+    <div id="nac-paeds-warning" style="display:none;">
+        <div style="background-color: #FFF9E6; border: 2px solid #FFB74D; border-radius: 10px; padding: 15px; margin: 20px 0;">
+            <div style="font-weight: 700; color: #E65100; font-size: 1.1em; margin-bottom: 8px;">
+                ⚠️ Important Note
+            </div>
+            <p style="margin: 0; font-size: 0.95em; color: #555;">
+                IV NAC should <strong>ONLY BE USED</strong> for Paracetamol Poisoning in paediatric patients.
+            </p>
+        </div>
+    </div>
+
+    <div id="nac-outputs" style="display:none;">
+        <h3 id="nac-results-heading">Results</h3>
+        
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Summary of Input</div>
+            <div class="sub-output-value" id="nac-summary" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
+        </div>
+        
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Recommended Regimen</div>
+            <div class="sub-output-value" id="nac-regimen-display" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
+        </div>
+        
+        <div style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); border: 2px solid #c0c0c0; border-radius: 12px; padding: 15px; margin: 20px 0;">
+            <div style="font-weight: 700; color: #1a237e; font-size: 1.1em; margin-bottom: 12px; text-align: center;">
+                Calculated NAC Dose based on Weight
+            </div>
+            <div id="nac-bags-container"></div>
+            
+            <!-- Total Dose Summary -->
+            <div style="margin-top: 15px; padding-top: 12px; border-top: 2px dashed #c0c0c0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div style="flex: 1; min-width: 180px;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 4px;">Total NAC Dose</div>
+                        <div id="nac-total-dose" style="font-size: 1.2em; font-weight: 700; color: #1a237e;"></div>
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 4px;">Vials Needed (5g/25mL)</div>
+                        <div id="nac-vials-needed" style="font-size: 1.2em; font-weight: 700; color: #1a237e;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #C8E6C9 0%, #A5D6A7 100%); border: 3px solid #388E3C; border-radius: 12px; padding: 15px; margin: 20px 0;">
+            <div style="font-weight: 700; color: #2E7D32; font-size: 1.1em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                📋 Clinical Notes Template
+            </div>
+            <div id="nac-clinical-notes" style="font-size: 0.9em; color: #1B5E20; white-space: pre-line; font-family: 'Courier New', monospace; background: white; padding: 12px; border-radius: 6px; margin-top: 8px; line-height: 1.6;"></div>
+            <button onclick="copyNotes()" style="margin-top: 12px; padding: 10px 18px; background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95em; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                📋 Copy to Notes
+            </button>
+        </div>
+        
+        <div style="background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%); border: 2px solid #F57F17; border-radius: 10px; padding: 15px; margin: 20px 0;">
+            <div style="font-weight: 700; color: #E65100; font-size: 1em; margin-bottom: 10px;">
+                📌 Important Information
+            </div>
+            <p style="margin: 6px 0; font-size: 0.9em; color: #555;"><strong>Diluents:</strong> D5 (more preferred) or NS</p>
+            <p style="margin: 6px 0; font-size: 0.9em; color: #555;"><strong>Stability:</strong> 24 hrs after dilution (<30°C)</p>
+            <p id="nac-reminder" style="margin: 8px 0 0 0; font-size: 0.9em; color: #555;"></p>
+        </div>
+    </div>
+    
+    <p class="footer-link">
+        <a href="https://drive.google.com/file/d/1cmGcyHeENDmWx-CYgqdJbeRChzjeVIUL/view?usp=drive_link" target="_blank" rel="noopener noreferrer">
+            🔗 NAC 5g/25mL Inj Newsletter by PRIC HSgB (Updated July 2024)
+        </a>
+    </p>
+    
+    <!-- Quick Reference Section -->
+    <div class="info-card">
+        <div class="expandable-header" onclick="toggleSection('nac-quick-ref')">
+            <span class="info-card-title" style="font-size: 1em;">📚 Quick Reference: When to Use Each Regimen</span>
+            <span class="expand-icon" id="nac-quick-ref-icon">▼</span>
+        </div>
+        
+        <div id="nac-quick-ref" class="expandable-content">
+            <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                <div style="font-weight: 600; color: #1565C0; margin-bottom: 8px;">Paracetamol Poisoning</div>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.9em; line-height: 1.5;">
+                    <li><strong style="color: #2E7D32;">2 bags infusion (preferred):</strong> Standard protocol for most cases</li>
+                    <li><strong>3 bags infusion:</strong> Alternative regimen</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px;">
+                <div style="font-weight: 600; color: #1565C0; margin-bottom: 8px;">Non-Paracetamol Acute Liver Failure (Adults Only)</div>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.9em; line-height: 1.5;">
+                    <li><strong>ICU / Fluid Restricted:</strong> Undiluted NAC for critical patients or patients requiring fluid restriction</li>
+                    <li><strong>Non-ICU / No Fluid Restriction:</strong> Diluted NAC for stable patients</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MOA Section -->
+    <div class="info-card">
+        <div class="expandable-header" onclick="toggleSection('nac-moa')">
+            <span class="info-card-title" style="font-size: 1em;">🔬 NAC Mechanism of Action (MOA) in PCM Poisoning</span>
+            <span class="expand-icon" id="nac-moa-icon">▼</span>
+        </div>
+        
+        <div id="nac-moa" class="expandable-content">
+            <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.95em; line-height: 1.5;">
+                <p style="margin: 8px 0;">NAC is a glutathione precursor that decreases PCM toxicity by increasing hepatic glutathione stores.</p>
+                <p style="margin: 8px 0;">It helps prevent hepatic toxicity by inactivating the toxic PCM metabolite NAPQI before it can injure liver cells.</p>
+                <p style="margin: 8px 0;">However, it does not reverse damage to liver cells that have already occurred.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/nac.js"></script>
+<script>
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId);
+    const icon = document.getElementById(sectionId + '-icon');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.textContent = '▼';
+    } else {
+        content.style.display = 'none';
+        icon.textContent = '▶';
+    }
+}
+
+// Initialize section as collapsed
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('nac-moa').style.display = 'none';
+    document.getElementById('nac-moa-icon').textContent = '▶';
+    document.getElementById('nac-quick-ref').style.display = 'none';
+    document.getElementById('nac-quick-ref-icon').textContent = '▶';
+});
+</script>
+
+</body>
+</html>

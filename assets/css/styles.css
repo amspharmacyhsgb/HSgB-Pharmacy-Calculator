@@ -1,0 +1,777 @@
+/* HSgB Pharmacy Calculator - Shared Styles */
+
+:root {
+    /* Color scheme based on hospital branding */
+    --primary-blue: #003d82;
+    --primary-blue-light: #1565C0;
+    --primary-blue-dark: #0D47A1;
+    --header-dark-blue: #003d82;
+    --secondary-blue: #4FC3F7;
+    --accent-red: #E53935;
+    --accent-red-dark: #C62828;
+    --white: #ffffff;
+    --light-grey: #f5f5f5;
+    --dark-grey: #757575;
+    --light-bg: #f9f9f9;
+    --box-bg: #E3F2FD;
+    --border-color: #B3E5FC;
+    --text-dark: #263238;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--light-grey);
+    color: var(--text-dark);
+}
+
+/* Header Styles */
+.header {
+    background: linear-gradient(135deg, var(--header-dark-blue) 0%, #001f4d 100%);
+    color: var(--white);
+    padding: 18px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    gap: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    background: var(--white);
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.logo-pharmacy {
+    height: 50px;
+    width: auto;
+    background: var(--white);
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.header-text h1 {
+    margin: 0;
+    font-size: 1.6em;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.2;
+}
+
+.header-text p {
+    margin: 2px 0 0 0;
+    font-size: 0.85em;
+    font-weight: 400;
+    color: var(--white);
+    opacity: 0.9;
+    line-height: 1.2;
+}
+
+/* Navigation Styles */
+.navigation {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-top: 12px;
+    flex-wrap: wrap;
+}
+
+.nav-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--light-grey);
+    color: var(--primary-blue);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9em;
+}
+
+.nav-button:hover {
+    background-color: var(--secondary-blue);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.nav-button-home {
+    background-color: var(--primary-blue-light);
+    color: var(--white);
+    font-weight: 600;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9em;
+}
+
+.nav-button-home:hover {
+    background-color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Page Container */
+.container {
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    max-width: 900px;
+    width: 90%;
+    margin: 20px auto;
+    padding: 8px 20px 20px 20px;
+}
+
+.calculator-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.calculator-card {
+    background: linear-gradient(to bottom, #F4F4F4, var(--white));
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+    border: 1px solid #c0c0c0;
+    border-left: 8px solid #1a237e;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/* Desktop: taller cards */
+@media (min-width: 769px) {
+    .calculator-card {
+        padding: 20px 25px;
+    }
+}
+
+.calculator-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.card-title {
+    font-weight: 600;
+    color: #1a237e;
+    font-size: 1.2em;
+    margin: 0 0 5px 0;
+}
+
+.card-footnote {
+    font-size: 0.85em;
+    color: #666;
+    margin: 0;
+}
+
+/* Typography */
+h1 {
+    font-size: 1.8em;
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-top: 20px;
+}
+
+h2 {
+    font-size: 1.6em;
+    font-weight: 600;
+    color: #1565C0;
+    border-bottom: 2px solid var(--light-grey);
+    padding-bottom: 10px;
+    margin-top: 20px;
+}
+    box-shadow: 0 3px 10px rgba(255, 244, 163, 0.4);
+    position: relative;
+    text-transform: none;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+
+h3 {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--primary-blue);
+    margin-top: 20px;
+    scroll-margin-top: 100px;
+}
+
+.subtitle {
+    font-size: 0.95em;
+    color: #666;
+    margin-top: 10px;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+input[type="number"], 
+select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1em;
+    background-color: var(--white);
+    transition: border-color 0.3s;
+}
+
+input[type="number"]:focus, 
+select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+}
+
+/* Output Styles */
+.output-box {
+    background: linear-gradient(to bottom, #F4F4F4, var(--white));
+    border: 1px solid #c0c0c0;
+    border-left: 8px solid #1a237e;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+    scroll-margin-top: 100px;
+}
+
+.output-box-cream {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+    border: 3px solid #0D47A1;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    scroll-margin-top: 100px;
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+}
+
+.output-box-cream .output-title {
+    font-weight: 600;
+    color: var(--white);
+    font-size: 1.1em;
+}
+
+.output-box-cream .output-value {
+    font-weight: 700;
+    font-size: 1.8em;
+    color: var(--white);
+    margin-top: 5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.output-box-cream .footnote {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+.output-title {
+    font-weight: 600;
+    color: #555;
+    font-size: 1.1em;
+}
+
+.output-value {
+    font-weight: 700;
+    font-size: 1.6em;
+    color: #1a237e;
+    margin-top: 5px;
+}
+    color: var(--accent-red);
+    margin-top: 5px;
+}
+
+.sub-output-card {
+    background-color: var(--white);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    scroll-margin-top: 100px;
+}
+
+.sub-output-title {
+    font-weight: 500;
+    font-size: 0.9em;
+    color: var(--text-dark);
+}
+
+.sub-output-value {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--primary-blue);
+}
+
+/* Info Boxes */
+.shaded-box {
+    background-color: var(--box-bg);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.shaded-box-pink {
+    background-color: #FFEBEE;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+    color: #555;
+    border-left: 4px solid var(--accent-red);
+    box-sizing: border-box;
+}
+
+.shaded-box-pink a {
+    color: var(--primary-blue);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.shaded-box-pink a:hover {
+    text-decoration: underline;
+}
+
+/* Footnotes and Helper Text */
+.footnote {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 5px;
+}
+
+.footer-link {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 0.9em;
+    color: var(--accent-red);
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-link a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.footer-link a:hover {
+    opacity: 0.7;
+}
+
+.footer-formula {
+    margin-top: 20px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.8em;
+    color: #555;
+    background-color: var(--box-bg);
+}
+
+/* Table Styles */
+.enoxaparin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 0.9em;
+}
+
+.enoxaparin-table th, 
+.enoxaparin-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.enoxaparin-table th {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    font-weight: 600;
+}
+
+.enoxaparin-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.enoxaparin-table tr:hover {
+    background-color: #E3F2FD;
+}
+
+.enoxaparin-table td.highlight {
+    font-weight: 700;
+    background-color: #FFF3E0;
+    border: 2px solid var(--accent-red);
+}
+
+/* Disclaimer Section */
+.disclaimer-section {
+    font-size: 0.8em;
+    color: #555;
+    background-color: var(--light-grey);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    max-width: 900px;
+    width: 90%;
+    margin: 20px auto;
+    padding: 15px 20px;
+}
+
+.disclaimer-section b {
+    color: #000;
+}
+
+.disclaimer-section p.bold {
+    font-weight: 600;
+}
+
+.stronger-bold {
+    font-weight: 700;
+}
+
+.less-bold {
+    font-weight: 600;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none;
+}
+
+/* Input Summary Box */
+.input-summary {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin: 20px 0;
+}
+
+.input-summary-title {
+    font-weight: 600;
+    color: #2E7D32;
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.input-summary-content {
+    color: #1B5E20;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.input-summary-content ul {
+    margin: 5px 0;
+    padding-left: 20px;
+}
+
+.input-summary-content li {
+    margin: 5px 0;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .header {
+        padding: 12px 15px;
+    }
+
+    .logo-img {
+        height: 40px;
+        padding: 3px;
+    }
+
+    .logo-pharmacy {
+        height: 40px;
+        padding: 3px;
+    }
+
+    .header-text h1 {
+        font-size: 1.1em;
+    }
+
+    .header-text p {
+        font-size: 0.7em;
+        display: none;
+    }
+
+    .container {
+        padding: 8px 15px 15px 15px;
+        width: 95%;
+    }
+
+    h2 {
+        font-size: 1.4em;
+        padding: 16px 20px;
+        margin: 0 -15px 15px -15px;
+    }
+
+    h3 {
+        font-size: 1.1em;
+    }
+
+    .calculator-card {
+        padding: 8px 15px;
+    }
+
+    .card-title {
+        font-size: 1.1em;
+    }
+
+    .output-value {
+        font-size: 1.4em;
+    }
+
+    .enoxaparin-table {
+        font-size: 0.75em;
+    }
+
+    .enoxaparin-table th, 
+    .enoxaparin-table td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-pharmacy {
+        display: none;
+    }
+
+    .header-text h1 {
+        font-size: 0.9em;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--accent-red);
+    outline-offset: 2px;
+}
+
+/* Enoxaparin side-by-side grid responsive */
+@media (max-width: 768px) {
+    #enoxaparin-result-card [style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Cosmofer Info Cards */
+.info-card {
+    background: linear-gradient(to bottom, #F4F4F4, var(--white));
+    border: 1px solid #c0c0c0;
+    border-left: 8px solid #1a237e;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 20px 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.expandable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.expandable-header:hover {
+    opacity: 0.8;
+}
+
+.expand-icon {
+    font-size: 1.2em;
+    color: #1a237e;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.expandable-content {
+    margin-top: 12px;
+}
+
+.info-card-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #1a237e;
+    margin: 0;
+}
+
+.step-section {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0;
+}
+
+.step-header {
+    font-weight: 600;
+    color: #1565C0;
+    font-size: 1em;
+    margin-bottom: 6px;
+}
+
+.step-list {
+    margin: 0;
+    padding-left: 18px;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.step-list li {
+    margin: 4px 0;
+    line-height: 1.4;
+}
+
+.gap-rule-box {
+    background-color: #FFF9E6;
+    border: 2px solid #FFB74D;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+}
+
+.gap-rule-title {
+    font-weight: 700;
+    color: #E65100;
+    font-size: 1.05em;
+    margin-bottom: 8px;
+}
+
+.gap-rule-box p {
+    font-size: 0.95em;
+}
+
+.gap-table-header {
+    font-weight: 600;
+    color: #555;
+    margin-top: 8px;
+    font-size: 0.95em;
+}
+
+.gap-table table {
+    font-size: 0.9em;
+}
+
+.gap-table th,
+.gap-table td {
+    padding: 6px 8px !important;
+}
+
+.recommendation-box {
+    background-color: #FFEBEE;
+    border: 2px solid #E57373;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 12px 0;
+}
+
+.recommendation-header {
+    font-weight: 700;
+    color: #C62828;
+    font-size: 1em;
+}
+
+.why-section, .what-to-do-section {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0;
+}
+
+.why-header, .what-to-do-header {
+    font-weight: 600;
+    color: #1565C0;
+    font-size: 1em;
+    margin-bottom: 6px;
+}
+
+.why-list, .what-to-do-list {
+    margin: 0;
+    padding-left: 18px;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.why-list li, .what-to-do-list li {
+    margin: 4px 0;
+    line-height: 1.4;
+}
+
+/* NAC Calculator - Footnote Box */
+.footnote-box {
+    background-color: #F5F5F5;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin: 15px 0;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.footnote-box p {
+    margin: 6px 0;
+}
