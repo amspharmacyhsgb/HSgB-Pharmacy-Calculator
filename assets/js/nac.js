@@ -483,9 +483,31 @@ function copyNotes() {
     }
     
     navigator.clipboard.writeText(clinicalNotes).then(() => {
-        alert('Clinical notes copied to clipboard!');
+        const btn = document.getElementById('nac-copy-btn');
+        const originalText = btn.innerHTML;
+        
+        // Change button text
+        btn.innerHTML = '✓ Copied!';
+        btn.style.background = 'linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%)';
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)';
+        }, 2000);
     }).catch(err => {
         console.error('Failed to copy:', err);
-        alert('Failed to copy notes. Please copy manually.');
+        const btn = document.getElementById('nac-copy-btn');
+        const originalText = btn.innerHTML;
+        
+        // Show error in button
+        btn.innerHTML = '✗ Failed';
+        btn.style.background = 'linear-gradient(135deg, #EF5350 0%, #D32F2F 100%)';
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)';
+        }, 2000);
     });
 }
