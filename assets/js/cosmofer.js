@@ -77,7 +77,9 @@ function calculateCosmofer() {
     if (dosePerBw <= 20) {
         remarks = 'Dose is ≤ 20 mg/kg - may be administered as a single dose';
     } else {
-        const firstDose = Math.round(bw * 20); // 20 mg/kg for first infusion
+        // Round first dose (20 mg/kg) down to nearest 100 mg
+        const firstDoseRaw = bw * 20;
+        const firstDose = Math.floor(firstDoseRaw / 100) * 100;
         const remainder = roundedDose - firstDose;
         remarks = `Dose is > 20 mg/kg, suggest to administer ${firstDose} mg (20 mg/kg) in the 1st infusion, then the remainder (${remainder} mg) in the 2nd infusion.<br><br>`;
         remarks += '<div onclick="scrollToGapRule()" style="background: #FFF9E6; border: 2px solid #FFB74D; border-radius: 8px; padding: 10px; margin-top: 8px; color: #E65100; font-weight: 600; cursor: pointer; transition: background 0.3s;" onmouseover="this.style.background=\'#FFF3D6\'" onmouseout="this.style.background=\'#FFF9E6\'">📌 Refer to Gap Rule for Multiple CosmoFer® (IV Iron Dextran) Infusions (Click to view)</div>';
