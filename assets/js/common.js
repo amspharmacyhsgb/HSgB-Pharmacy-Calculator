@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (headerTitle && headerSubtitle) {
         headerTitle.textContent = 'HSgB Pharmacy Calculator';
-        headerSubtitle.textContent = 'On-Call Survival Kit for Pharmacists';
+        headerSubtitle.textContent = 'Rx On-call Calculation Kit (ROCK) for Pharmacists';
     }
     
     // Add disclaimer to the page if it doesn't exist
