@@ -1,5 +1,5 @@
 # HSgB-Pharmacy-Calculator
-HSgB Pharmacy Calculator - On-Call Survival Kit for Pharmacists
+HSgB Pharmacy Calculator - Rx On-call Calculation Kit (ROCK) for Pharmacists
 ---
 
 ## ⚠️ Disclaimer
