@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         disclaimer.className = 'disclaimer-section';
         disclaimer.innerHTML = `
             <p><span class="less-bold">Prepared by:</span> Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.<br>
-            <span class="less-bold">In collaboration with:</span> Hannah Md Mahir & Fong Siew Li (AMS Pharmacists) & PRIC.<br>
+            <span class="less-bold">In collaboration with:</span> AMS Pharmacy Team, PRIC, JK IT & Digital (Pharmacy Dept, HSgB)<br>
             <span class="less-bold">Approved by:</span> Dr Syamhanin Adnan (Head of Pharmacy Dept, Hospital Sungai Buloh)</p>
             <p style="margin-top: 8px;"><span class="less-bold">Launched:</span> Mar 2026.</p>
             <p class="stronger-bold">For Hosp Sungai Buloh Staff Use Only.</p>

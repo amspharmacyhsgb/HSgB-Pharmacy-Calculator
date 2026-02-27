@@ -198,7 +198,10 @@ function calculateVasoSupply() {
     const prepOutput = `${drugData.label} ${prepStrengthMg} mg in ${diluent} mL per preparation`;
 
     // Calculate quantity needed
-    const quantity = Math.ceil((rate * duration * strengthMultiplier) / diluent);
+    // Step 1: Number of preparations per day (rounded up)
+    const preparations = Math.ceil((rate * duration) / diluent);
+    // Step 2: Total vials = preparations × vials per preparation (based on strength)
+    const quantity = preparations * strengthMultiplier;
 
     // Display outputs in compact single-line format like NAC
     const summaryHTML = `
@@ -207,7 +210,9 @@ function calculateVasoSupply() {
         </div>
     `;
     setHTMLContent('vaso-summary', summaryHTML);
-    setTextContent('vaso-preparation', prepOutput);
+    const vialsPerPrep = strengthMultiplier === 1 ? '1 vial/prep (SS)' : '2 vials/prep (DS)';
+    const prepBreakdown = `[${preparations} prep(s) × ${vialsPerPrep}] = ${quantity} vial(s) required per ${duration} hour(s)`;
+    setHTMLContent('vaso-preparation', `${prepOutput}<br><span style="color:#555; font-size:0.93em;">${prepBreakdown}</span>`);
     setTextContent('vaso-quantity', `${quantity} ampoule(s) or vial(s)`);
     
     // Scroll to results after a short delay (800ms)
