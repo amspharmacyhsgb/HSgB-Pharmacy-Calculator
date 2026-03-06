@@ -440,12 +440,15 @@ function copyNotes() {
     // Reconstruct bags data for copy
     const bags = window.currentBags || [];
     
-    // Use uppercase and underscores for emphasis since bold doesn't paste well
-    let clinicalNotes = `IV NAC INFUSION\n\n`;
-    clinicalNotes += `Indication: ${indicationText}\n`;
-    clinicalNotes += `Age Category: ${ageText}\n`;
-    clinicalNotes += `Weight: ${weight} kg\n`;
-    clinicalNotes += `Regimen: ${regimenText}\n\n`;
+    // Use uppercase headers, dash point forms, and separator lines for plain text EMR
+    const SEP = `---------------------------\n`;
+    let clinicalNotes = `IV NAC INFUSION\n`;
+    clinicalNotes += SEP;
+    clinicalNotes += `- Indication: ${indicationText}\n`;
+    clinicalNotes += `- Age Category: ${ageText}\n`;
+    clinicalNotes += `- Weight: ${weight} kg\n`;
+    clinicalNotes += `- Regimen: ${regimenText}\n`;
+    clinicalNotes += SEP;
     clinicalNotes += `CALCULATED NAC DOSE BASED ON WEIGHT:\n`;
     
     let hasUndiluted = false;
@@ -456,8 +459,7 @@ function copyNotes() {
         
         if (bag.diluent === 'No diluent needed (UNDILUTED)') {
             hasUndiluted = true;
-            // Fixed sentence structure for UNDILUTED
-            clinicalNotes += `${bag.label}: NAC ${bag.doseCalc} mg (${bag.dose}) over ${bag.duration}, ${bag.diluent}\n`;
+            clinicalNotes += `- ${bag.label}: NAC ${bag.doseCalc} mg (${bag.dose}) over ${bag.duration}, ${bag.diluent}\n`;
         } else {
             hasDiluted = true;
             if (ageGroup === 'paeds' && bag.diluent.includes('mL/kg')) {
@@ -468,18 +470,18 @@ function copyNotes() {
             } else if (ageGroup === 'paeds') {
                 diluentText = `${bag.diluent} diluent`;
             } else if (ageGroup === 'adult') {
-                // Add "diluent" word for adult doses
                 diluentText = `${bag.diluent} diluent`;
             }
-            clinicalNotes += `${bag.label}: NAC ${bag.doseCalc} mg (${bag.dose}) in ${diluentText} over ${bag.duration}\n`;
+            clinicalNotes += `- ${bag.label}: NAC ${bag.doseCalc} mg (${bag.dose}) in ${diluentText} over ${bag.duration}\n`;
         }
     });
     
     // Add Remarks section only if dilution is required
     if (hasDiluted) {
-        clinicalNotes += `\nREMARKS:\n`;
-        clinicalNotes += `Diluents: D5 (more preferred) or NS\n`;
-        clinicalNotes += `Stability: 24 hrs after dilution (<30°C)\n`;
+        clinicalNotes += SEP;
+        clinicalNotes += `REMARKS:\n`;
+        clinicalNotes += `- Diluents: D5 (more preferred) or NS\n`;
+        clinicalNotes += `- Stability: 24 hrs after dilution (<30°C)\n`;
     }
     
     navigator.clipboard.writeText(clinicalNotes).then(() => {
