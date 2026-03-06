@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paediatric Drug Dosing - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+
+        /* ══ SECTION CARDS ══ */
+        .calc-section {
+            background: white; border-radius: 14px; padding: 22px 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.07); margin-bottom: 18px;
+        }
+        .calc-section h3 {
+            color: #1a237e; margin: 0 0 16px; font-size: 1.1em;
+            border-bottom: 2px solid #E3F2FD; padding-bottom: 8px;
+        }
+
+        /* ══ PATIENT INPUTS ══ */
+        .input-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .input-row label { min-width: 130px; font-size: 0.9em; font-weight: 600; color: #37474f; }
+        .input-row input[type="number"], .input-row select {
+            flex: 1; min-width: 140px; padding: 9px 12px; border: 1px solid #ccc;
+            border-radius: 8px; font-size: 0.95em; font-family: 'Poppins', sans-serif; outline: none;
+        }
+        .input-row input:focus, .input-row select:focus { border-color: #1565C0; }
+        .input-unit { font-size: 0.85em; color: #666; white-space: nowrap; }
+
+        /* ══ DRUG TABS ══ */
+        .drug-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .drug-tab {
+            padding: 9px 15px; background: #eceff1; border: 2px solid #cfd8dc;
+            border-radius: 10px; cursor: pointer; font-size: 0.87em; font-weight: 600;
+            color: #546e7a; transition: all 0.2s; line-height: 1.35; text-align: center;
+        }
+        .drug-tab .brand { display: block; font-size: 0.78em; font-weight: 400; color: #90a4ae; margin-top: 1px; }
+        .drug-tab.active { background: #1a237e; color: white; border-color: #1a237e; }
+        .drug-tab.active .brand { color: #90caf9; }
+        .drug-tab:hover:not(.active) { background: #e3f2fd; border-color: #1565C0; color: #1565C0; }
+        .drug-tab:hover:not(.active) .brand { color: #64b5f6; }
+
+        /* ══ DRUG SUB-PANELS ══ */
+        .drug-panel { display: none; }
+        .drug-panel.active { display: block; }
+        .drug-extra { margin-bottom: 16px; }
+        .drug-extra label { display: block; font-size: 0.88em; font-weight: 600; color: #37474f; margin-bottom: 6px; }
+        .drug-extra select {
+            width: 100%; padding: 9px 12px; border: 1px solid #ccc;
+            border-radius: 8px; font-size: 0.92em; font-family: 'Poppins', sans-serif; outline: none;
+        }
+        .drug-extra select:focus { border-color: #1565C0; }
+
+        /* ══ ACTION BUTTONS ══ */
+        .action-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+        .btn-calculate {
+            padding: 12px 32px; background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+            color: white; border: none; border-radius: 10px; cursor: pointer;
+            font-weight: 700; font-size: 1em; font-family: 'Poppins', sans-serif;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.18); transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn-calculate:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-clear {
+            padding: 12px 24px; background: white; color: #546e7a;
+            border: 2px solid #cfd8dc; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 1em; font-family: 'Poppins', sans-serif; transition: background 0.2s;
+        }
+        .btn-clear:hover { background: #eceff1; }
+
+        /* ══ BANNERS ══ */
+        .disclaimer-banner {
+            background: #fff3e0; border-left: 5px solid #f57c00; border-radius: 8px;
+            padding: 12px 16px; margin-bottom: 18px; font-size: 0.85em; color: #5d4037;
+        }
+        .age-warning-bar {
+            background: #fce4ec; border-left: 4px solid #e53935; border-radius: 6px;
+            padding: 10px 14px; font-size: 0.84em; color: #b71c1c; font-weight: 600;
+            margin-top: 6px; display: none;
+        }
+
+        /* ══ OUTPUT CARD ══ */
+        #output-section { display: none; }
+        .output-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.09); overflow: hidden; margin-bottom: 20px;
+        }
+        .output-header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            padding: 16px 22px; color: white;
+        }
+        .output-header h4 { margin: 0 0 3px; font-size: 1.15em; font-weight: 700; }
+        .output-header p  { margin: 0; font-size: 0.85em; opacity: 0.8; }
+
+        .out-row {
+            display: flex; align-items: stretch;
+            border-bottom: 1px solid #e8eaf6; min-height: 50px;
+        }
+        .out-row:last-child { border-bottom: none; }
+        .out-label {
+            min-width: 210px; max-width: 210px; padding: 12px 16px;
+            font-size: 0.84em; font-weight: 600; color: #546e7a;
+            background: #f5f7ff; border-right: 2px solid #e8eaf6;
+            display: flex; align-items: center;
+        }
+        .out-value {
+            flex: 1; padding: 12px 18px; font-size: 0.84em; color: #1a237e;
+            font-weight: 600; display: flex; align-items: flex-start;
+            flex-wrap: wrap; gap: 6px; flex-direction: column;
+        }
+        .out-value.normal   { font-weight: 500; color: #37474f; }
+        .out-value.highlight{ font-weight: 700; color: #0d47a1; background: #fff8e1; }
+        .out-value.warning  { color: #546e7a; font-size: 0.84em; font-weight: 500; background: #ffffff; flex-direction: row; align-items: center; }
+        .out-value.blocked  { color: #b71c1c; font-weight: 700; background: #fce4ec; }
+
+        /* Formulation badges by type */
+        .fbadge {
+            display: inline-flex; align-items: center; gap: 4px;
+            border-radius: 20px; padding: 3px 12px 3px 8px;
+            font-size: 0.84em; font-weight: 700; border: 1px solid;
+            white-space: nowrap;
+        }
+        .fbadge-syr  { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }   /* green  */
+        .fbadge-tab  { background: #e3f2fd; color: #1565C0; border-color: #90caf9; }   /* blue   */
+        .fbadge-cap  { background: #f3e5f5; color: #7b1fa2; border-color: #ce93d8; }   /* purple */
+        .fbadge-icon { font-size: 0.9em; }
+
+        /* Volume/calculation badges (inline in calculated row) */
+        .vbadge {
+            display: inline-block; background: #e3f2fd; color: #1565C0; border-radius: 6px;
+            padding: 2px 10px; font-size: 0.86em; font-weight: 700;
+            border: 1px solid #90caf9; white-space: nowrap;
+        }
+        .vbadge-green { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .vbadge-tab   { background: #e8eaf6; color: #3949ab; border-color: #9fa8da; }
+
+        /* Calc sub-row inside highlight cell */
+        .calc-sub {
+            width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+            font-size: 0.97em; padding: 2px 0;
+        }
+        .calc-sub-label {
+            font-size: 0.8em; font-weight: 700;
+            border-radius: 20px; padding: 2px 10px; white-space: nowrap;
+            background: #1565C0; color: white; border: none;
+        }
+        /* Age-based label gets green pill */
+        .calc-sub-label.label-age {
+            background: #2e7d32; color: white;
+        }
+        /* Severity labels (Augmentin) get orange */
+        .calc-sub-label.label-sev {
+            background: #e65100; color: white;
+        }
+        /* Teal — Pneumonia standard */
+        .calc-sub-label.label-teal {
+            background: #00695c; color: white;
+        }
+        /* Purple — Leptospirosis */
+        .calc-sub-label.label-purple {
+            background: #6a1b9a; color: white;
+        }
+        .calc-divider {
+            width: 100%; height: 1px; background: #c5cae9; margin: 4px 0;
+        }
+
+        /* Dose range — collapsible */
+        .dose-toggle {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.78em; font-weight: 600; color: #78909c;
+            cursor: pointer; user-select: none;
+            background: #f0f4f8; border: 1px solid #cfd8dc;
+            border-radius: 20px; padding: 3px 12px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .dose-toggle:hover { background: #e3f2fd; color: #1565C0; border-color: #90caf9; }
+        .dose-body { display: none; margin-top: 8px; width: 100%; }
+        .dose-body.open { display: block; }
+        .dose-group { margin-bottom: 6px; }
+        .dose-group-label {
+            font-size: 0.72em; font-weight: 700; border-radius: 20px;
+            padding: 1px 9px; white-space: nowrap; display: inline-block;
+            margin-bottom: 3px; background: #1565C0; color: white;
+        }
+        .dose-group-label.label-age    { background: #2e7d32; }
+        .dose-group-label.label-sev    { background: #e65100; }
+        .dose-group-label.label-teal   { background: #00695c; }
+        .dose-group-label.label-purple { background: #6a1b9a; }
+        .dose-items { list-style: disc; padding-left: 18px; margin: 0; }
+        .dose-items li {
+            font-size: 0.78em; color: #546e7a; line-height: 1.6;
+            font-weight: 500;
+        }
+        .dose-items li.dr-match { color: #1565C0; font-weight: 600; }
+
+        .footnote-text {
+            font-size: 0.82em; color: #6d4c41; background: #fff8e1;
+            border-left: 3px solid #f9a825; border-radius: 4px; padding: 4px 10px; margin-top: 4px;
+        }
+
+        /* Augmentin severity toggle */
+
+        @media (max-width: 520px) {
+            .out-label { min-width: 110px; max-width: 110px; font-size: 0.77em; }
+            .drug-tab  { font-size: 0.81em; padding: 7px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation" style="display:flex; gap:10px; align-items:center;">
+        <button class="nav-button-home" onclick="window.location.href='../index.html'">HOME</button>
+        <button class="btn-clear" id="top-clear-btn" onclick="clearAll()" style="padding:8px 20px; font-size:0.88em;">✕ Clear</button>
+    </div>
+    <h2>Paediatric Drug Dosing</h2>
+
+
+
+    <div class="disclaimer-banner">
+        ⚠️ <strong>Clinical Reminder:</strong> Always verify doses against patient's actual weight, age, and clinical condition. This tool is for guidance only — clinical judgement must be exercised at all times.
+    </div>
+
+    <!-- ① PATIENT DETAILS -->
+    <div class="calc-section">
+        <h3>① Patient Details</h3>
+        <div class="input-row">
+            <label>Body Weight</label>
+            <input type="number" id="pt-weight" placeholder="e.g. 15" min="1" max="200" step="0.1">
+            <span class="input-unit">kg</span>
+        </div>
+        <div class="input-row">
+            <label>Age</label>
+            <input type="number" id="pt-age-val" placeholder="e.g. 5" min="0" max="18" step="0.5">
+            <select id="pt-age-unit">
+                <option value="months">months</option>
+                <option value="years" selected>years</option>
+            </select>
+        </div>
+        <div class="age-warning-bar" id="age-warning-bar">
+            ⚠️ Infant / young child — some medications are NOT recommended in children &lt; 2 years of age. Please review remarks carefully.
+        </div>
+    </div>
+
+    <!-- ② SELECT DRUG -->
+    <div class="calc-section">
+        <h3>② Select Drug</h3>
+
+        <div class="drug-tabs">
+            <div class="drug-tab" onclick="selectDrug('pcm',this)">
+                Paracetamol <span class="brand">(PCM)</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('ibu',this)">
+                Ibuprofen <span class="brand">&nbsp;</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('chlor',this)">
+                Chlorpheniramine <span class="brand">(Piriton)</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('diph',this)">
+                Diphenhydramine <span class="brand">(Benadryl)</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('brm',this)">
+                Bromhexine <span class="brand">&nbsp;</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('amox',this)">
+                Amoxicillin <span class="brand">&nbsp;</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('ampi',this)">
+                Ampicillin <span class="brand">&nbsp;</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('aug',this)">
+                Amoxycillin/Clavulanate <span class="brand">(Augmentin)</span>
+            </div>
+            <div class="drug-tab" onclick="selectDrug('pred',this)">
+                Prednisolone <span class="brand">&nbsp;</span>
+            </div>
+        </div>
+
+        <!-- Sub-option panels — only drugs needing indication selector -->
+        <div class="drug-panel" id="panel-pcm"></div>
+        <div class="drug-panel" id="panel-ibu"></div>
+        <div class="drug-panel" id="panel-chlor"></div>
+        <div class="drug-panel" id="panel-diph"></div>
+        <div class="drug-panel" id="panel-brm"></div>
+        <div class="drug-panel" id="panel-amox"></div>
+        <div class="drug-panel" id="panel-ampi"></div>
+
+        <div class="drug-panel" id="panel-aug">
+            <div class="drug-extra">
+                <label>Formulation</label>
+                <select id="aug-formulation" onchange="toggleAugNote()">
+                    <option value="" disabled selected>— Select formulation —</option>
+                    <option value="syr">Syrup — 228mg/5ml  (Amox 200mg + Clav 28.5mg per 5ml)</option>
+                    <option value="tab">Tablet — 625mg  (Amox 500mg + Clav 125mg)</option>
+                </select>
+            </div>
+            <div id="aug-tab-note" style="display:none; background:#fff3e0; border-left:4px solid #f57c00; border-radius:6px; padding:9px 14px; font-size:0.84em; color:#5d4037; font-weight:600; margin-bottom:10px;">
+                💡 Augmentin Tablet dose is weight-based. Children &lt;25 kg should use the Syrup formulation.
+            </div>
+        </div>
+
+        <div class="drug-panel" id="panel-pred"></div>
+
+    </div>
+
+    <!-- ④ OUTPUT -->
+    <div id="output-section">
+        <div class="output-card">
+            <div class="output-header">
+                <h4 id="out-drug-name">—</h4>
+                <p id="out-patient-info">—</p>
+            </div>
+            <div class="output-body">
+
+                <div class="out-row">
+                    <div class="out-label">Formulation (HSgB)</div>
+                    <div class="out-value normal" id="out-formulation" style="flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px;"></div>
+                </div>
+
+                <div class="out-row">
+                    <div class="out-label">Route</div>
+                    <div class="out-value normal" id="out-route"></div>
+                </div>
+
+                <div class="out-row">
+                    <div class="out-label">Common Indication (HSgB)</div>
+                    <div class="out-value normal" id="out-indication"></div>
+                </div>
+
+                <div class="out-row">
+                    <div class="out-label">Dose Range &amp; Frequency</div>
+                    <div class="out-value normal" id="out-dose-range"></div>
+                </div>
+
+                <div class="out-row">
+                    <div class="out-label">Calculated Dose &amp; Frequency</div>
+                    <div class="out-value highlight" id="out-calc-dose"></div>
+                </div>
+
+                <div class="out-row">
+                    <div class="out-label">Dosing Limits</div>
+                    <div class="out-value normal" id="out-max-limits"></div>
+                </div>
+
+                <div class="out-row" id="out-footnote-row" style="display:none;">
+                    <div class="out-label">Footnote</div>
+                    <div class="out-value normal" id="out-footnote"></div>
+                </div>
+
+                <div class="out-row" id="out-remarks-row" style="display:none;">
+                    <div class="out-label">Remarks</div>
+                    <div class="out-value warning" id="out-remarks"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- Reference Documents -->
+<div style="max-width:900px;width:90%;margin:20px auto;">
+    <div style="background:white;border-radius:14px;padding:20px 24px;box-shadow:0 4px 10px rgba(0,0,0,0.07);">
+        <h3 style="color:#1a237e;margin:0 0 6px;font-size:1em;border-bottom:2px solid #E3F2FD;padding-bottom:8px;">📄 Reference Documents</h3>
+        <p style="font-size:0.83em;color:#546e7a;margin:8px 0 14px;">Dosing references used in this calculator (prepared by PRIC Hospital Sungai Buloh):</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            <a href="../assets/pdfs/Pain_Management_Paeds_July2023.pdf" target="_blank"
+               style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;
+                      background:linear-gradient(135deg,#1565C0 0%,#0D47A1 100%);
+                      color:white;border-radius:10px;text-decoration:none;
+                      font-size:0.87em;font-weight:600;font-family:'Poppins',sans-serif;
+                      box-shadow:0 3px 8px rgba(0,0,0,0.15);transition:opacity 0.2s;"
+               onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                📕 Pain Management in Paediatrics (Non-Opioids)
+            </a>
+            <a href="../assets/pdfs/Common_Ailment_Paeds.pdf" target="_blank"
+               style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;
+                      background:linear-gradient(135deg,#1565C0 0%,#0D47A1 100%);
+                      color:white;border-radius:10px;text-decoration:none;
+                      font-size:0.87em;font-weight:600;font-family:'Poppins',sans-serif;
+                      box-shadow:0 3px 8px rgba(0,0,0,0.15);transition:opacity 0.2s;"
+               onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                📗 Common Ailments in Paediatrics
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════════
+//  DRUG SELECTION
+// ══════════════════════════════════════════════════════
+let selectedDrug = null;
+
+function selectDrug(drug, el) {
+    document.querySelectorAll('.drug-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.drug-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + drug).classList.add('active');
+    selectedDrug = drug;
+    document.getElementById('output-section').style.display = 'none';
+    _doseRangeOpen = false;
+    resetSevRow();
+    // Reset Augmentin formulation to blank when switching away
+    if (drug !== 'aug') {
+        const augSel = document.getElementById('aug-formulation');
+        augSel.value = '';
+        document.getElementById('aug-tab-note').style.display = 'none';
+    }
+    scheduleCalc();
+}
+
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+function getWeight()    { return parseFloat(document.getElementById('pt-weight').value);   }
+function getAgeMonths() {
+    const v = parseFloat(document.getElementById('pt-age-val').value);
+    return document.getElementById('pt-age-unit').value === 'years' ? v * 12 : v;
+}
+function clamp(val, max) { return Math.min(val, max); }
+
+function fmg(mg) {
+    if (mg === 0) return '—';
+    if (mg >= 1000) return (mg / 1000).toFixed(1).replace(/\.0$/, '') + ' g';
+    return Number.isInteger(mg) ? mg + ' mg' : mg.toFixed(1) + ' mg';
+}
+function fml(ml) {
+    return Number.isInteger(ml) ? ml + ' ml' : ml.toFixed(1) + ' ml';
+}
+function volMl(dose_mg, conc_mg_per_5ml) {
+    return (dose_mg / conc_mg_per_5ml) * 5;
+}
+function patientLabel() {
+    const w  = document.getElementById('pt-weight').value;
+    const av = document.getElementById('pt-age-val').value;
+    const au = document.getElementById('pt-age-unit').value;
+    return (w && av) ? `Patient: ${w} kg  |  ${av} ${au}` : `Patient: ${w || '—'} kg`;
+}
+
+function validateInputs(silent) {
+    const w  = getWeight();
+    const av = parseFloat(document.getElementById('pt-age-val').value);
+    if (isNaN(w)  || w  <= 0) { if (!silent) alert('Please enter a valid patient weight.'); return false; }
+    if (isNaN(av) || av <  0) { if (!silent) alert('Please enter a valid age.');            return false; }
+    document.getElementById('age-warning-bar').style.display = getAgeMonths() < 24 ? 'block' : 'none';
+    return true;
+}
+
+// ── Render coloured formulation badges ──
+// formArr = [ { text, type } ]  type: 'syr' | 'tab' | 'cap'
+const FBADGE_ICON = { syr: '🥄', tab: '💊', cap: '💊' };
+function renderFormulations(formArr) {
+    const el = document.getElementById('out-formulation');
+    el.innerHTML = '';
+    formArr.forEach(f => {
+        const b = document.createElement('span');
+        b.className = `fbadge fbadge-${f.type}`;
+        b.innerHTML = `<span class="fbadge-icon">${FBADGE_ICON[f.type] || ''}</span>${f.text}`;
+        el.appendChild(b);
+    });
+}
+
+// ── Render calculated dose cell with sub-rows ──
+// rows = [ { label?, parts: [ {text, badge?, badgeClass?} ], freq? } ]
+function renderCalcCell(rows) {
+    const el = document.getElementById('out-calc-dose');
+    el.innerHTML = '';
+    rows.forEach((row, ri) => {
+        if (ri > 0) {
+            const div = document.createElement('div');
+            div.className = 'calc-divider';
+            el.appendChild(div);
+        }
+        const sub = document.createElement('div');
+        sub.className = 'calc-sub';
+
+        if (row.label) {
+            const lbl = document.createElement('span');
+            // Use explicit labelClass if provided, otherwise auto-colour by keyword
+            let cls = 'calc-sub-label';
+            if (row.labelClass) {
+                cls += ' ' + row.labelClass;
+            } else {
+                const lc = row.label.toLowerCase();
+                if (lc.includes('age') || lc.includes('yr') || lc.includes('year')) cls += ' label-age';
+                else if (lc.includes('mild') || lc.includes('mod') || lc.includes('sev')) cls += ' label-sev';
+            }
+            lbl.className = cls;
+            lbl.textContent = row.label;
+            sub.appendChild(lbl);
+        }
+
+        row.parts.forEach(p => {
+            if (p.badge) {
+                const b = document.createElement('span');
+                b.className = 'vbadge ' + (p.badgeClass || '');
+                b.textContent = p.text;
+                sub.appendChild(b);
+            } else {
+                sub.appendChild(document.createTextNode(p.text + ' '));
+            }
+        });
+
+        el.appendChild(sub);
+
+        if (row.freq) {
+            const hr = document.createElement('div');
+            hr.style.cssText = 'width:100%;height:1px;background:#c5cae9;margin:5px 0 4px;';
+            el.appendChild(hr);
+            const fs = document.createElement('div');
+            fs.style.cssText = 'font-size:0.84em;font-weight:600;font-style:italic;color:#1a1a1a;padding-left:2px;';
+            fs.textContent = '🕐 ' + row.freq;
+            el.appendChild(fs);
+        }
+    });
+}
+
+// ── Render dose range cell (collapsible, structured groups) ──
+// groups = [ { label, labelClass?, items: [{text, match?}] } ]
+let _doseRangeOpen = false;
+function renderDoseRange(groups) {
+    const el = document.getElementById('out-dose-range');
+    el.innerHTML = '';
+
+    // Toggle button
+    const toggle = document.createElement('span');
+    toggle.className = 'dose-toggle';
+    toggle.textContent = '📋 Dose reference ▾';
+
+    const body = document.createElement('div');
+    body.className = 'dose-body';
+    if (_doseRangeOpen) body.classList.add('open');
+
+    toggle.addEventListener('click', () => {
+        _doseRangeOpen = !_doseRangeOpen;
+        body.classList.toggle('open', _doseRangeOpen);
+        toggle.textContent = _doseRangeOpen ? '📋 Dose reference ▴' : '📋 Dose reference ▾';
+    });
+
+    // Build groups
+    groups.forEach(g => {
+        const grp = document.createElement('div');
+        grp.className = 'dose-group';
+
+        if (g.label) {
+            const lbl = document.createElement('span');
+            lbl.className = 'dose-group-label' + (g.labelClass ? ' ' + g.labelClass : '');
+            lbl.textContent = g.label;
+            grp.appendChild(lbl);
+        }
+
+        const ul = document.createElement('ul');
+        ul.className = 'dose-items';
+        g.items.forEach(item => {
+            const li = document.createElement('li');
+            if (item.match) li.className = 'dr-match';
+            li.textContent = item.text;
+            ul.appendChild(li);
+        });
+        grp.appendChild(ul);
+        body.appendChild(grp);
+    });
+
+    el.appendChild(toggle);
+    el.appendChild(body);
+}
+
+// ── Main setOutput ──
+function setOutput(opts) {
+    // opts: { drugName, formulations, route, indication, doseRangeHtml, calcRows, maxSingle, maxDaily, footnote, remarks }
+    document.getElementById('out-drug-name').textContent    = opts.drugName;
+    document.getElementById('out-patient-info').textContent = patientLabel();
+
+    renderFormulations(opts.formulations);
+    document.getElementById('out-route').textContent       = opts.route || 'Oral';
+    document.getElementById('out-indication').textContent  = opts.indication;
+    renderDoseRange(opts.doseRange || []);
+    renderCalcCell(opts.calcRows);
+
+    // Dosing limits — show only what's provided
+    const limEl = document.getElementById('out-max-limits');
+    limEl.innerHTML = '';
+    if (opts.maxSingle) {
+        const s = document.createElement('div'); s.textContent = 'Max single dose: ' + opts.maxSingle; limEl.appendChild(s);
+    }
+    if (opts.maxDaily) {
+        const d = document.createElement('div'); d.textContent = 'Max daily dose: ' + opts.maxDaily; limEl.appendChild(d);
+    }
+    if (!opts.maxSingle && !opts.maxDaily) limEl.textContent = '—';
+
+    const fnRow = document.getElementById('out-footnote-row');
+    if (opts.footnote) {
+        document.getElementById('out-footnote').innerHTML = `<span class="footnote-text">${opts.footnote}</span>`;
+        fnRow.style.display = 'flex';
+    } else { fnRow.style.display = 'none'; }
+
+    const rmRow = document.getElementById('out-remarks-row');
+    if (opts.remarks) {
+        const rmEl = document.getElementById('out-remarks');
+        const sentences = opts.remarks.split('\n').map(s => s.trim()).filter(Boolean);
+        if (sentences.length > 1) {
+            rmEl.innerHTML = '<ul style="margin:0;padding-left:18px;">' +
+                sentences.map(s => `<li style="margin-bottom:4px;">${s}</li>`).join('') +
+                '</ul>';
+        } else {
+            rmEl.textContent = opts.remarks;
+        }
+        rmRow.style.display = 'flex';
+    } else { rmRow.style.display = 'none'; }
+
+    const out = document.getElementById('output-section');
+    out.style.display = 'block';
+    setTimeout(scrollToOutput, 120);
+}
+
+// ── Show blocked output (for antihistamines < 2yr, ibu < 6mo) ──
+function showBlocked(drugName, reason) {
+    document.getElementById('out-drug-name').textContent    = drugName;
+    document.getElementById('out-patient-info').textContent = patientLabel();
+
+    document.getElementById('out-formulation').innerHTML  = '—';
+    document.getElementById('out-route').textContent      = '—';
+    document.getElementById('out-indication').textContent = '—';
+    document.getElementById('out-dose-range').innerHTML   = '—';
+
+    const el = document.getElementById('out-calc-dose');
+    el.className = 'out-value blocked';
+    el.textContent = '🚫 Cannot calculate — see Remarks';
+
+    document.getElementById('out-max-limits').textContent = '—';
+
+    document.getElementById('out-footnote-row').style.display = 'none';
+
+    const rmRow = document.getElementById('out-remarks-row');
+    document.getElementById('out-remarks').textContent = reason;
+    rmRow.style.display = 'flex';
+
+    const out = document.getElementById('output-section');
+    out.style.display = 'block';
+    setTimeout(scrollToOutput, 120);
+}
+
+// ── Scroll output into view, offset by sticky header height ──
+function scrollToOutput() {
+    const out    = document.getElementById('output-section');
+    const header = document.querySelector('.header');
+    const offset = header ? header.offsetHeight + 12 : 16;
+    const top    = out.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+}
+
+// Restore calc cell class after it may have been set to 'blocked'
+function resetCalcClass() {
+    const el = document.getElementById('out-calc-dose');
+    el.className = 'out-value highlight';
+    el.style.cssText = '';
+}
+
+// (severity toggle removed — no-op kept for safety)
+function resetSevRow() {}
+
+// ══════════════════════════════════════════════════════
+//  AUTO-CALCULATE WITH DEBOUNCE
+// ══════════════════════════════════════════════════════
+let _calcTimer = null;
+function scheduleCalc() {
+    clearTimeout(_calcTimer);
+    _calcTimer = setTimeout(() => {
+        const w  = parseFloat(document.getElementById('pt-weight').value);
+        const av = parseFloat(document.getElementById('pt-age-val').value);
+        if (!isNaN(w) && w > 0 && !isNaN(av) && av >= 0) {
+            // Update age warning bar silently
+            document.getElementById('age-warning-bar').style.display = getAgeMonths() < 24 ? 'block' : 'none';
+            calculate(true);  // silent = skip alert on bad inputs
+        }
+    }, 600);
+}
+
+// Wire up all inputs
+document.addEventListener('DOMContentLoaded', () => {
+    ['pt-weight','pt-age-val'].forEach(id =>
+        document.getElementById(id).addEventListener('input', scheduleCalc));
+    document.getElementById('pt-age-unit').addEventListener('change', scheduleCalc);
+    document.getElementById('aug-formulation').addEventListener('change', () => {
+        toggleAugNote();
+        scheduleCalc();
+    });
+});
+
+// ══════════════════════════════════════════════════════
+//  DISPATCHER
+// ══════════════════════════════════════════════════════
+function calculate(silent) {
+    if (!selectedDrug) return;
+    if (!validateInputs(silent)) return;
+    resetCalcClass();
+    const w    = getWeight();
+    const ageM = getAgeMonths();
+    const map  = { pcm: calcPCM, ibu: calcIbu, chlor: calcChlor, diph: calcDiph,
+                   brm: calcBrm, amox: calcAmox, ampi: calcAmpi, aug: calcAug, pred: calcPred };
+    map[selectedDrug](w, ageM);
+}
+
+function clearAll() {
+    clearTimeout(_calcTimer);
+    document.getElementById('pt-weight').value   = '';
+    document.getElementById('pt-age-val').value  = '';
+    document.getElementById('pt-age-unit').value = 'years';
+    document.getElementById('output-section').style.display  = 'none';
+    document.getElementById('age-warning-bar').style.display = 'none';
+    resetSevRow();
+    resetCalcClass();
+}
+
+// ── Format patient age band label for badges ──
+function ageLabel() {
+    const v = parseFloat(document.getElementById('pt-age-val').value);
+    const u = document.getElementById('pt-age-unit').value;
+    if (isNaN(v)) return '';
+    if (u === 'months') return v === 1 ? '1 month' : v + ' months';
+    return v === 1 ? '1 year' : v + ' years';
+}
+
+// ══════════════════════════════════════════════════════
+//  1. PARACETAMOL (PCM)
+//  Dose: 10–15 mg/kg/dose QID  |  Max daily: 60 mg/kg/day
+// ══════════════════════════════════════════════════════
+function calcPCM(w, ageM) {
+    const dose   = 15 * w;
+    const maxDay = 60 * w;
+    const v250   = volMl(dose, 250);
+
+    setOutput({
+        drugName: 'Paracetamol (PCM)',
+        formulations: [
+            { text: '250mg/5ml Syrup', type: 'syr' },
+            { text: '500mg Tablet',    type: 'tab' }
+        ],
+        route: 'Oral',
+        indication: 'Antipyretic / Analgesic',
+        doseRange: [{ label: 'By body weight', items: [
+            { text: '10–15 mg/kg/dose,  Every 6 hours (QID)', match: true }
+        ]}],
+        calcRows: [{
+            parts: [
+                { text: fmg(dose) + ' per dose' },
+                { text: '= ' + fml(v250) + ' of 250mg/5ml Syr', badge: true }
+            ],
+            freq: 'Every 6 hours (QID)'
+        }],
+        maxSingle: '1000 mg  (1 g)',
+        maxDaily:  fmg(maxDay) + '/day  (60 mg/kg/day)',
+        remarks: ''
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  2. IBUPROFEN
+//  ≥ 6 months: 5–10 mg/kg/dose TDS/QID  |  Max: 40 mg/kg/day
+//  Formulation: 200mg Tab | 20mg/ml Syr (not available in ED)
+// ══════════════════════════════════════════════════════
+function calcIbu(w, ageM) {
+    if (ageM < 6) {
+        showBlocked('Ibuprofen',
+            '🚫 Ibuprofen is NOT recommended for infants < 6 months of age.');
+        return;
+    }
+    const doseMin = 5  * w;
+    const doseMax = 10 * w;
+    const maxDay  = 40 * w;
+    const vMin    = volMl(doseMin, 100);  // 20mg/ml = 100mg/5ml
+    const vMax    = volMl(doseMax, 100);
+
+    setOutput({
+        drugName: 'Ibuprofen',
+        formulations: [
+            { text: '200mg Tablet',                   type: 'tab' },
+            { text: '20mg/ml Syrup (not in ED)', type: 'syr' }
+        ],
+        route: 'Oral',
+        indication: 'Antipyretic / Analgesic (for those contraindicated or not responding to PCM)',
+        doseRange: [{ label: 'By body weight', items: [
+            { text: '≥ 6 months: 5–10 mg/kg/dose,  Every 6–8 hours (TDS–QID)', match: true }
+        ]}],
+        calcRows: [{
+            parts: [
+                { text: fmg(doseMin) + ' – ' + fmg(doseMax) + ' per dose' },
+                { text: '= ' + fml(vMin) + ' – ' + fml(vMax) + ' of 20mg/ml Syr', badge: true }
+            ],
+            freq: 'Every 6–8 hours (TDS–QID)'
+        }],
+        maxSingle: fmg(doseMax),
+        maxDaily:  fmg(maxDay) + '/day  (40 mg/kg/day)',
+        remarks: 'Use Adjusted Body Weight in obese patients. Ibuprofen syrup (20mg/ml) is NOT available in the Emergency Department.'
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  3. CHLORPHENIRAMINE (Piriton)
+//  BW: 0.1 mg/kg q4–6h  |  Age bands  |  < 2 years: BLOCKED
+// ══════════════════════════════════════════════════════
+function calcChlor(w, ageM) {
+    const WARN = '⚠️ Warning! Products containing decongestant, antihistamine and antitussive are NOT recommended in children < 2 years of age due to serious side effects.';
+    if (ageM < 24) { showBlocked('Chlorpheniramine (Piriton)', WARN); return; }
+
+    const doseBW = 0.1 * w;
+    const vBW    = volMl(doseBW, 2);
+
+    let doseAge, maxDay, ageBand;
+    if      (ageM < 72)  { doseAge = 1; maxDay = 6;  ageBand = 'Age 2–5 years'; }
+    else if (ageM < 144) { doseAge = 2; maxDay = 12; ageBand = 'Age 6–11 years'; }
+    else                 { doseAge = 4; maxDay = 24; ageBand = 'Age ≥ 12 years'; }
+    const vAge = volMl(doseAge, 2);
+
+    const maxSingleDose = Math.max(doseBW, doseAge);
+
+    setOutput({
+        drugName: 'Chlorpheniramine (Piriton)',
+        formulations: [
+            { text: '2mg/5ml Syrup', type: 'syr' },
+            { text: '4mg Tablet',    type: 'tab' }
+        ],
+        route: 'Oral',
+        indication: 'Common cold (antihistamine)',
+        doseRange: [
+            { label: 'By body weight', items: [
+                { text: '0.1 mg/kg/dose,  Every 4–6 hours', match: true }
+            ]},
+            { label: 'By age', labelClass: 'label-age', items: [
+                { text: '2–5 yrs: 1 mg q4–6h  (Max: 6 mg/day)',   match: ageM < 72 },
+                { text: '6–11 yrs: 2 mg q4–6h  (Max: 12 mg/day)', match: ageM >= 72 && ageM < 144 },
+                { text: '≥ 12 yrs: 4 mg q4–6h  (Max: 24 mg/day)', match: ageM >= 144 }
+            ]}
+        ],
+        calcRows: [
+            {
+                label: 'By body weight',
+                parts: [
+                    { text: fmg(doseBW) + ' per dose' },
+                    { text: '= ' + fml(vBW) + ' of 2mg/5ml Syr', badge: true }
+                ],
+                freq: 'Every 4–6 hours'
+            },
+            {
+                label: 'By age (' + ageBand.replace('Age ', '') + ')',
+                parts: [
+                    { text: fmg(doseAge) + ' per dose  (' + ageBand + ')' },
+                    { text: '= ' + fml(vAge) + ' of 2mg/5ml Syr', badge: true, badgeClass: 'vbadge-green' }
+                ],
+                freq: 'Every 4–6 hours  |  Max: ' + fmg(maxDay) + '/day'
+            }
+        ],
+        maxSingle: fmg(maxSingleDose),
+        maxDaily:  fmg(maxDay) + '/day  (' + ageBand + ')',
+        remarks: WARN
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  4. DIPHENHYDRAMINE (Benadryl)
+//  BW: 1–2 mg/kg TDS–QID  |  Max 28 mg/dose  |  < 2 years: BLOCKED
+// ══════════════════════════════════════════════════════
+function calcDiph(w, ageM) {
+    const WARN = '⚠️ Warning! Products containing decongestant, antihistamine and antitussive are NOT recommended in children < 2 years of age due to serious side effects.';
+    if (ageM < 24) { showBlocked('Diphenhydramine (Benadryl)', WARN); return; }
+
+    let doseAgeMin, doseAgeMax, maxDay, ageBand;
+    if      (ageM < 72)  { doseAgeMin = 7;  doseAgeMax = 7;  maxDay = 56;  ageBand = 'Age 2–5 years'; }
+    else if (ageM < 156) { doseAgeMin = 7;  doseAgeMax = 14; maxDay = 84;  ageBand = 'Age 6–12 years'; }
+    else                 { doseAgeMin = 14; doseAgeMax = 28; maxDay = 168; ageBand = 'Age > 12 years'; }
+
+    const vAge7min  = volMl(doseAgeMin, 7);
+    const vAge7max  = volMl(doseAgeMax, 7);
+    const vAge14min = volMl(doseAgeMin, 14);
+    const vAge14max = volMl(doseAgeMax, 14);
+    const ageIsRange = doseAgeMin !== doseAgeMax;
+
+    const doseBWmin = clamp(1.0 * w, 28);
+    const doseBWmax = clamp(2.0 * w, 28);
+    const v7BWmin   = volMl(doseBWmin, 7);
+    const v7BWmax   = volMl(doseBWmax, 7);
+    const v14BWmin  = volMl(doseBWmin, 14);
+    const v14BWmax  = volMl(doseBWmax, 14);
+
+    const maxSingleDose = Math.max(doseAgeMax, doseBWmax);
+
+    setOutput({
+        drugName: 'Diphenhydramine (Benadryl)',
+        formulations: [
+            { text: '7mg/5ml Syrup (Paeds)',   type: 'syr' },
+            { text: '14mg/5ml Syrup (Adults)', type: 'syr' }
+        ],
+        route: 'Oral',
+        indication: 'Cough (antihistamine)',
+        doseRange: [
+            { label: 'By body weight', items: [
+                { text: '1–2 mg/kg/dose,  Every 6–8 hours (TDS–QID)  (Max: 28 mg/dose)', match: true }
+            ]},
+            { label: 'By age', labelClass: 'label-age', items: [
+                { text: '2–5 yrs: 7 mg TDS–QID  (Max: 56 mg/day)',      match: ageM < 72 },
+                { text: '6–12 yrs: 7–14 mg TDS–QID  (Max: 84 mg/day)', match: ageM >= 72 && ageM < 156 },
+                { text: '>12 yrs: 14–28 mg TDS–QID  (Max: 168 mg/day)', match: ageM >= 156 }
+            ]}
+        ],
+        calcRows: [
+            {
+                label: 'By age (' + ageBand.replace('Age ', '') + ')',
+                parts: [
+                    { text: (ageIsRange ? fmg(doseAgeMin) + ' – ' + fmg(doseAgeMax) : fmg(doseAgeMin)) + ' per dose  (' + ageBand + ')' },
+                    { text: '= ' + (ageIsRange ? fml(vAge7min) + ' – ' + fml(vAge7max) : fml(vAge7max)) + ' of 7mg/5ml Syr (Paeds)',     badge: true, badgeClass: 'vbadge-green' },
+                    { text: '= ' + (ageIsRange ? fml(vAge14min) + ' – ' + fml(vAge14max) : fml(vAge14max)) + ' of 14mg/5ml Syr (Adults)', badge: true, badgeClass: 'vbadge-green' }
+                ],
+                freq: 'Every 6–8 hours (TDS–QID)  |  Max: ' + fmg(maxDay) + '/day'
+            },
+            {
+                label: 'By body weight (1–2 mg/kg)',
+                parts: [
+                    { text: fmg(doseBWmin) + ' – ' + fmg(doseBWmax) + ' per dose' },
+                    { text: '= ' + fml(v7BWmin)  + ' – ' + fml(v7BWmax)  + ' of 7mg/5ml Syr (Paeds)',  badge: true },
+                    { text: '= ' + fml(v14BWmin) + ' – ' + fml(v14BWmax) + ' of 14mg/5ml Syr (Adults)', badge: true }
+                ],
+                freq: 'Every 6–8 hours (TDS–QID)'
+            }
+        ],
+        maxSingle: '28 mg (conservative)',
+        maxDaily:  fmg(maxDay) + '/day  (' + ageBand + ')',
+        remarks: WARN + '\nDoses above are based on diphenhydramine content.'
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  5. BROMHEXINE
+//  BW: 0.15–0.3 mg/kg TDS  |  Age bands
+// ══════════════════════════════════════════════════════
+function calcBrm(w, ageM) {
+    const doseBWmin = 0.15 * w;
+    const doseBWmax = 0.3  * w;
+    const vBWmin    = volMl(doseBWmin, 4);
+    const vBWmax    = volMl(doseBWmax, 4);
+
+    let doseAgeMin, doseAgeMax, maxDay, ageBand, ageFreqLabel;
+    if      (ageM < 24)  { doseAgeMin = 1; doseAgeMax = 1;  maxDay = 3;  ageBand = 'Age < 2 years';  ageFreqLabel = 'Every 8 hours (TDS)'; }
+    else if (ageM < 72)  { doseAgeMin = 2; doseAgeMax = 4;  maxDay = 8;  ageBand = 'Age 2–5 years';  ageFreqLabel = 'Every 8 hours (TDS)  or  Every 12 hours (BD)'; }
+    else if (ageM < 144) { doseAgeMin = 4; doseAgeMax = 8;  maxDay = 24; ageBand = 'Age 6–11 years'; ageFreqLabel = 'Every 8 hours (TDS)'; }
+    else                 { doseAgeMin = 8; doseAgeMax = 16; maxDay = 24; ageBand = 'Age ≥ 12 years'; ageFreqLabel = 'Every 8 hours (TDS)'; }
+
+    // For 2–5 yr: display as "2mg TDS or 4mg BD" (plain text, not a dose range)
+    const is2to5yr   = ageM >= 24 && ageM < 72;
+    const vAge2mg    = volMl(2, 4);
+    const vAge4mg    = volMl(4, 4);
+
+    const ageIsRange = !is2to5yr && (doseAgeMin !== doseAgeMax);
+    const vAgeMin    = volMl(doseAgeMin, 4);
+    const vAgeMax    = volMl(doseAgeMax, 4);
+    const ageDoseStr = ageIsRange ? fmg(doseAgeMin) + ' – ' + fmg(doseAgeMax) : fmg(doseAgeMin);
+    const ageVolStr  = ageIsRange ? fml(vAgeMin) + ' – ' + fml(vAgeMax) : fml(vAgeMin);
+
+    // Build age calc row parts
+    let ageCalcParts;
+    if (is2to5yr) {
+        ageCalcParts = [
+            { text: '2 mg TDS  (= ' + fml(vAge2mg) + ' of 4mg/5ml Syr)  or  4 mg BD  (= ' + fml(vAge4mg) + ' of 4mg/5ml Syr)' }
+        ];
+    } else {
+        ageCalcParts = [
+            { text: ageDoseStr + ' per dose  (' + ageBand + ')' },
+            { text: '= ' + ageVolStr + ' of 4mg/5ml Syr', badge: true, badgeClass: 'vbadge-green' }
+        ];
+    }
+
+    setOutput({
+        drugName: 'Bromhexine',
+        formulations: [
+            { text: '4mg/5ml Syrup', type: 'syr' },
+            { text: '8mg Tablet',    type: 'tab' }
+        ],
+        route: 'Oral',
+        indication: 'Cough (mucolytic)',
+        doseRange: [
+            { label: 'By body weight', items: [
+                { text: '0.15–0.3 mg/kg/dose,  Every 8 hours (TDS)', match: true }
+            ]},
+            { label: 'By age', labelClass: 'label-age', items: [
+                { text: '< 2 yrs: 1 mg,  Every 8 hours (TDS)',                  match: ageM < 24 },
+                { text: '2–5 yrs: 2 mg TDS  or  4 mg BD  (Max: 8 mg/day)',      match: ageM >= 24 && ageM < 72 },
+                { text: '6–11 yrs: 4–8 mg,  Every 8 hours (TDS)  (Max: 24 mg/day)', match: ageM >= 72 && ageM < 144 },
+                { text: '≥ 12 yrs: 8–16 mg,  Every 8 hours (TDS)  (Max: 24 mg/day)', match: ageM >= 144 }
+            ]}
+        ],
+        calcRows: [
+            {
+                label: 'By age (' + ageBand.replace('Age ', '') + ')',
+                parts: ageCalcParts,
+                freq: ageFreqLabel + '  |  Max: ' + fmg(maxDay) + '/day'
+            },
+            {
+                label: 'By body weight (0.15–0.3 mg/kg)',
+                parts: [
+                    { text: fmg(doseBWmin) + ' – ' + fmg(doseBWmax) + ' per dose' },
+                    { text: '= ' + fml(vBWmin) + ' – ' + fml(vBWmax) + ' of 4mg/5ml Syr', badge: true }
+                ],
+                freq: 'Every 8 hours (TDS)'
+            }
+        ],
+        maxSingle: fmg(doseAgeMax) + '  (' + ageBand + ')',
+        maxDaily:  fmg(maxDay) + '/day  (' + ageBand + ')',
+        remarks: ''
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  6. AMOXICILLIN
+//  URTI / Pneumonia / Mild Leptospirosis — indication-based dosing
+// ══════════════════════════════════════════════════════
+function calcAmox(w, ageM) {
+    // URTI & Leptospirosis: 15 mg/kg/dose, max 500 mg
+    const dose_urti  = clamp(15 * w, 500);
+    const v_urti     = volMl(dose_urti, 250);
+
+    // Pneumonia standard: 25–30 mg/kg/dose, usually capped at 500 mg
+    const pneu_s_min = clamp(25 * w, 500);
+    const pneu_s_max = clamp(30 * w, 500);
+    const pneu_s_same = pneu_s_min === pneu_s_max;
+    const v_ps_min   = volMl(pneu_s_min, 250);
+    const v_ps_max   = volMl(pneu_s_max, 250);
+
+    // Pneumonia severe: 25–30 mg/kg/dose, max 1 g
+    const pneu_v_min = clamp(25 * w, 1000);
+    const pneu_v_max = clamp(30 * w, 1000);
+    const pneu_v_same = pneu_v_min === pneu_v_max;
+    const v_pv_min   = volMl(pneu_v_min, 250);
+    const v_pv_max   = volMl(pneu_v_max, 250);
+
+    setOutput({
+        drugName: 'Amoxicillin',
+        formulations: [
+            { text: '250mg/5ml Syrup', type: 'syr' },
+            { text: '250mg Capsule',   type: 'cap' }
+        ],
+        route: 'Oral',
+        indication: 'URTI (Bacterial Tonsillitis / Pharyngitis / Rhinosinusitis)  ·  LRTI (Pneumonia)  ·  Mild Leptospirosis',
+        doseRange: [
+            { label: 'Bacterial Tonsillitis / Pharyngitis / Rhinosinusitis / URTI', items: [
+                { text: '15 mg/kg/dose q8H (max 500 mg/dose) × 7 days', match: true },
+                { text: 'Confirmed Grp A Strep / S. pneumoniae: up to 1 g/dose × 10 days' }
+            ]},
+            { label: 'Pneumonia / LRTI', labelClass: 'label-teal', items: [
+                { text: '25–30 mg/kg/dose q8H × 5–7 days  (standard: usually capped at 500 mg/dose)', match: true },
+                { text: 'Severe / confirmed Strep: up to 1 g/dose q8H' }
+            ]},
+            { label: 'Mild Leptospirosis', labelClass: 'label-purple', items: [
+                { text: '15 mg/kg/dose q8H (max 500 mg/dose) × 7 days', match: true },
+                { text: 'Moderate-severe Leptospirosis: use IV Benzylpenicillin / Penicillin G' }
+            ]}
+        ],
+        calcRows: [
+            {
+                label: 'Bacterial Tonsillitis / Pharyngitis / Rhinosinusitis / URTI',
+                labelClass: '',
+                parts: [
+                    { text: fmg(dose_urti) + ' per dose' },
+                    { text: '= ' + fml(v_urti) + ' of 250mg/5ml Syr', badge: true }
+                ],
+                freq: 'Every 8 hours (TDS) × 7 days'
+            },
+            {
+                label: 'Pneumonia / LRTI — standard',
+                labelClass: 'label-teal',
+                parts: [
+                    { text: (pneu_s_same ? fmg(pneu_s_min) : fmg(pneu_s_min) + ' – ' + fmg(pneu_s_max)) + ' per dose  (usually capped at 500 mg)' },
+                    { text: '= ' + (pneu_s_same ? fml(v_ps_min) : fml(v_ps_min) + ' – ' + fml(v_ps_max)) + ' of 250mg/5ml Syr', badge: true }
+                ],
+                freq: 'Every 8 hours (TDS) × 5–7 days'
+            },
+            {
+                label: 'Pneumonia / LRTI — severe *',
+                labelClass: 'label-sev',
+                parts: [
+                    { text: (pneu_v_same ? fmg(pneu_v_min) : fmg(pneu_v_min) + ' – ' + fmg(pneu_v_max)) + ' per dose  (max 1 g — severe / confirmed Strep)' },
+                    { text: '= ' + (pneu_v_same ? fml(v_pv_min) : fml(v_pv_min) + ' – ' + fml(v_pv_max)) + ' of 250mg/5ml Syr', badge: true }
+                ],
+                freq: 'Every 8 hours (TDS) × 5–7 days'
+            },
+            {
+                label: 'Mild Leptospirosis',
+                labelClass: 'label-purple',
+                parts: [
+                    { text: fmg(dose_urti) + ' per dose' },
+                    { text: '= ' + fml(v_urti) + ' of 250mg/5ml Syr', badge: true }
+                ],
+                freq: 'Every 8 hours (TDS) × 7 days'
+            }
+        ],
+        maxSingle: '500 mg (standard)  ·  1000 mg (severe / confirmed Strep)',
+        maxDaily:  '',
+        footnote:  '* Severe cases or confirmed Group A Streptococcus / Streptococcus pneumoniae: dose may be increased up to 1 g/dose q8H for 10 days (URTI) or as clinically indicated (Pneumonia).',
+        remarks:   'For moderate-severe Leptospirosis, use IV Benzylpenicillin / Penicillin G instead.'
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  7. AMPICILLIN
+//  Dysentery: 25 mg/kg/dose q6H  |  Max: 500 mg/dose  |  Duration: 5–7 days
+// ══════════════════════════════════════════════════════
+function calcAmpi(w, ageM) {
+    const dose = clamp(25 * w, 500);
+    const vol  = volMl(dose, 125);
+
+    setOutput({
+        drugName: 'Ampicillin',
+        formulations: [
+            { text: '125mg/5ml Syrup', type: 'syr' }
+        ],
+        route: 'Oral',
+        indication: 'Dysentery',
+        doseRange: [{ label: 'Dysentery', items: [
+            { text: '25 mg/kg/dose,  Every 6 hours (QID) × 5–7 days', match: true }
+        ]}],
+        calcRows: [{
+            parts: [
+                { text: fmg(dose) + ' per dose' },
+                { text: '= ' + fml(vol) + ' of 125mg/5ml Syr', badge: true }
+            ],
+            freq: 'Every 6 hours (QID) × 5–7 days'
+        }],
+        maxSingle: '500 mg',
+        maxDaily:  '',
+        remarks:   'Do NOT convert dysentery IV Ampicillin to Oral Syrup Amoxycillin.\nSyrup Ampicillin has better coverage for dysentery compared to Syrup Amoxycillin.'
+    });
+}
+
+// ══════════════════════════════════════════════════════
+//  8. AMOXYCILLIN/CLAVULANATE (Augmentin)
+// ══════════════════════════════════════════════════════
+function toggleAugNote() {
+    const form = document.getElementById('aug-formulation').value;
+    document.getElementById('aug-tab-note').style.display = form === 'tab' ? 'block' : 'none';
+}
+
+function calcAug(w, ageM) {
+    const form = document.getElementById('aug-formulation').value;
+
+    // Always reset the severity toggle visibility
+    resetSevRow();
+
+    if (!form) {
+        document.getElementById('output-section').style.display = 'none';
+        return;
+    }
+
+    if (form === 'syr') {
+        // ── SYRUP — show both severity tiers simultaneously ──
+        const MAX_SYR     = 570;
+        const mildMin     = clamp(15 * w, MAX_SYR);
+        const mildMax     = clamp(20 * w, MAX_SYR);
+        const mildVmin    = mildMin * 5 / 228;
+        const mildVmax    = mildMax * 5 / 228;
+        const mildAmoxMin = Math.round(mildMin * 200 / 228);
+        const mildAmoxMax = Math.round(mildMax * 200 / 228);
+        const sevMin      = clamp(20 * w, MAX_SYR);
+        const sevMax      = clamp(30 * w, MAX_SYR);
+        const sevVmin     = sevMin * 5 / 228;
+        const sevVmax     = sevMax * 5 / 228;
+        const sevAmoxMin  = Math.round(sevMin * 200 / 228);
+        const sevAmoxMax  = Math.round(sevMax * 200 / 228);
+
+        setOutput({
+            drugName: 'Amoxycillin/Clavulanate — Syrup (Augmentin)',
+            formulations: [{ text: '228mg/5ml Syrup  (Amox 200mg + Clav 28.5mg per 5ml)', type: 'syr' }],
+            route: 'Oral',
+            indication: 'Treatment of susceptible infections',
+            doseRange: [
+                { label: 'Mild – Moderate', labelClass: 'label-teal', items: [
+                    { text: '15–20 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true }
+                ]},
+                { label: 'Moderate – Severe *', labelClass: 'label-sev', items: [
+                    { text: '20–30 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true },
+                    { text: '* Based on HSgB Paeds ID department consensus (expert opinion)' }
+                ]}
+            ],
+            calcRows: [
+                {
+                    label: 'Mild – Moderate',
+                    labelClass: 'label-teal',
+                    parts: [
+                        { text: fmg(mildMin) + ' – ' + fmg(mildMax) + ' Augmentin/dose' },
+                        { text: '= ' + fml(mildVmin) + ' – ' + fml(mildVmax) + ' of 228mg/5ml Syr', badge: true },
+                        { text: '≈ Amox ' + mildAmoxMin + '–' + mildAmoxMax + ' mg', badge: true, badgeClass: 'vbadge-tab' }
+                    ],
+                    freq: 'Every 12 hours (BD)'
+                },
+                {
+                    label: 'Moderate – Severe *',
+                    labelClass: 'label-sev',
+                    parts: [
+                        { text: fmg(sevMin) + ' – ' + fmg(sevMax) + ' Augmentin/dose' },
+                        { text: '= ' + fml(sevVmin) + ' – ' + fml(sevVmax) + ' of 228mg/5ml Syr', badge: true },
+                        { text: '≈ Amox ' + sevAmoxMin + '–' + sevAmoxMax + ' mg', badge: true, badgeClass: 'vbadge-tab' }
+                    ],
+                    freq: 'Every 12 hours (BD)'
+                }
+            ],
+            maxSingle: '570 mg Augmentin  (= 500 mg Amoxicillin = 12.5 ml)',
+            maxDaily:  '',
+            footnote:  '* The 30 mg/kg/dose for moderate–severe infections (including pneumonia) is based on HSgB Paeds Infectious Diseases (ID) department consensus, founded on expert opinion.',
+            remarks:   'Refer to DIAMS — HSgB Paediatric Antimicrobial Dose Quick Guide for more information (e.g. renal dose adjustment, etc).'
+        });
+
+    } else {
+        // ── TABLET ──
+        resetCalcClass();
+
+        if (w < 25) {
+            document.getElementById('out-drug-name').textContent    = 'Amoxycillin/Clavulanate — Tablet (Augmentin)';
+            document.getElementById('out-patient-info').textContent = patientLabel();
+
+            const formEl = document.getElementById('out-formulation');
+            formEl.innerHTML = '';
+            const b = document.createElement('span');
+            b.className = 'fbadge fbadge-tab';
+            b.innerHTML = '<span class="fbadge-icon">💊</span>625mg Tablet';
+            formEl.appendChild(b);
+
+            document.getElementById('out-route').textContent      = 'Oral';
+            document.getElementById('out-indication').textContent = 'Treatment of susceptible infections';
+            renderDoseRange([{ label: 'By weight band', items: [
+                { text: '<25 kg: Use Syrup formulation', match: true },
+                { text: '25–<40 kg: 625 mg q12H (BD)' },
+                { text: '≥40 kg: 625 mg q8H (TDS)' }
+            ]}]);
+
+            const calcEl = document.getElementById('out-calc-dose');
+            calcEl.className = 'out-value normal';
+            calcEl.style.cssText = 'background:#fce4ec; color:#b71c1c; font-weight:700; font-size:0.95em; gap:4px; flex-direction:column;';
+            calcEl.innerHTML = '<span>🚫 Weight &lt;25 kg — Tablet not suitable</span>'
+                + '<span style="font-size:0.86em; font-weight:500; color:#c62828;">Please switch to <strong>Syrup</strong> formulation in the dropdown above and recalculate.</span>';
+
+            document.getElementById('out-max-limits').textContent     = '—';
+            document.getElementById('out-footnote-row').style.display = 'none';
+
+            const rmRow = document.getElementById('out-remarks-row');
+            const rmEl25 = document.getElementById('out-remarks');
+            const rm25sentences = [
+                'Children <25 kg should receive the Syrup formulation (228mg/5ml).',
+                'Dose is derived from 20–40 mg/kg/day of Amoxycillin/Clavulanate (4:1 ratio) in divided doses.'
+            ];
+            rmEl25.innerHTML = '<ul style="margin:0;padding-left:18px;">' +
+                rm25sentences.map(s => `<li style="margin-bottom:4px;">${s}</li>`).join('') + '</ul>';
+            rmRow.style.display = 'flex';
+
+            document.getElementById('output-section').style.display = 'block';
+            setTimeout(scrollToOutput, 120);
+
+        } else {
+            const weightBand = w < 40 ? '25–<40 kg' : '≥40 kg';
+            const freq       = w < 40 ? 'Every 12 hours (BD)' : 'Every 8 hours (TDS)';
+            const dosesDay   = w < 40 ? 2 : 3;
+
+            setOutput({
+                drugName: 'Amoxycillin/Clavulanate — Tablet (Augmentin)',
+                formulations: [{ text: '625mg Tablet  (Amox 500mg + Clav 125mg)', type: 'tab' }],
+                route: 'Oral',
+                indication: 'Treatment of susceptible infections',
+                doseRange: [{ label: 'By weight band', items: [
+                    { text: '<25 kg: Use Syrup formulation' },
+                    { text: '25–<40 kg: 625 mg q12H (BD)',  match: w >= 25 && w < 40 },
+                    { text: '≥40 kg: 625 mg q8H (TDS)',     match: w >= 40 }
+                ]}],
+                calcRows: [{
+                    label: weightBand,
+                    parts: [
+                        { text: '625 mg Augmentin per dose  (1 tablet)' },
+                        { text: '= 1 × 625mg Tablet', badge: true, badgeClass: 'vbadge-tab' },
+                        { text: 'Amox 500 mg + Clav 125 mg', badge: true }
+                    ],
+                    freq
+                }],
+                maxSingle: '625 mg Augmentin  (= 500 mg Amoxicillin = 1 tablet)',
+                maxDaily:  '',
+                footnote:  '',
+                remarks:   'Dose is derived from 20–40 mg/kg/day of Amoxycillin/Clavulanate (4:1 ratio) in divided doses.\nRefer to DIAMS — HSgB Paediatric Antimicrobial Dose Quick Guide for more information (e.g. renal dose adjustment, etc).'
+            });
+        }
+    }
+}
+
+// ══════════════════════════════════════════════════════
+//  9. PREDNISOLONE
+//  Acute Asthma / Wheeze / Allergic Reaction
+//  1 mg/kg/dose OD × 3–5d  |  Max 40 mg
+//  Round to nearest 2.5 mg (half a 5mg tablet)
+// ══════════════════════════════════════════════════════
+function calcPred(w, ageM) {
+    const doseExact  = clamp(1 * w, 40);
+    const dose       = Math.round(doseExact / 2.5) * 2.5;
+    const tabs       = dose / 5;
+
+    // Format tab count — use ½ for .5 values
+    function fmtTabs(n) {
+        const whole = Math.floor(n);
+        const half  = Math.abs(n - whole - 0.5) < 0.01;
+        if (half && whole === 0) return '½';
+        if (half) return whole + '½';
+        return '' + whole;
+    }
+    const tabCount  = fmtTabs(tabs);
+    const tabPlural = tabs === 1 ? 'tablet' : 'tablets';
+    const tabStr    = '= ' + tabCount + ' ' + tabPlural + ' of 5mg';
+
+    const wasRounded = Math.abs(dose - doseExact) > 0.01;
+    const doseLabel  = wasRounded
+        ? fmg(dose) + ' per dose  (rounded from ' + fmg(doseExact) + ' to nearest 2.5 mg)'
+        : fmg(dose) + ' per dose';
+
+    setOutput({
+        drugName: 'Prednisolone',
+        formulations: [{ text: '5mg Tablet', type: 'tab' }],
+        route: 'Oral',
+        indication: 'Acute Asthma / Wheeze / Allergic Reaction',
+        doseRange: [{ label: 'By body weight', items: [
+            { text: '1 mg/kg/dose,  Once daily × 3–5 days  (rounded to nearest 2.5 mg)', match: true }
+        ]}],
+        calcRows: [{
+            parts: [
+                { text: doseLabel },
+                { text: tabStr, badge: true, badgeClass: 'vbadge-tab' }
+            ],
+            freq: 'Once daily × 3–5 days'
+        }],
+        maxSingle: '40 mg',
+        maxDaily:  '',
+        remarks: 'For indications such as nephrotic syndrome, the dosing range is different and is not covered by this calculator. Please refer to the relevant clinical protocol.'
+    });
+}
+</script>
+</body>
+</html>
