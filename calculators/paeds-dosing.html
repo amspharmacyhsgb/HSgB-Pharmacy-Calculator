@@ -134,6 +134,7 @@
         }
         .vbadge-green { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
         .vbadge-tab   { background: #e8eaf6; color: #3949ab; border-color: #9fa8da; }
+        .vbadge-warn  { background: #fff3e0; color: #e65100; border-color: #ffcc80; white-space: normal; word-break: break-word; }
 
         /* Calc sub-row inside highlight cell */
         .calc-sub {
@@ -202,7 +203,10 @@
         /* Augmentin severity toggle */
 
         @media (max-width: 520px) {
-            .out-label { min-width: 110px; max-width: 110px; font-size: 0.77em; }
+            .out-label { min-width: 100px; max-width: 100px; font-size: 0.77em; padding: 10px 10px; }
+            .out-value { min-width: 0; overflow-wrap: break-word; word-break: break-word; padding: 10px 10px; font-size: 0.82em; }
+            .output-card { overflow: hidden; }
+            .vbadge, .fbadge { white-space: normal; word-break: break-word; }
             .drug-tab  { font-size: 0.81em; padding: 7px 10px; }
         }
     </style>
@@ -1049,19 +1053,25 @@ function calcAmox(w, ageM) {
     const dose_urti  = clamp(15 * w, 500);
     const v_urti     = volMl(dose_urti, 250);
 
-    // Pneumonia standard: 25–30 mg/kg/dose, usually capped at 500 mg
-    const pneu_s_min = clamp(25 * w, 500);
-    const pneu_s_max = clamp(30 * w, 500);
-    const pneu_s_same = pneu_s_min === pneu_s_max;
-    const v_ps_min   = volMl(pneu_s_min, 250);
-    const v_ps_max   = volMl(pneu_s_max, 250);
+    // Pneumonia / LRTI: 25–30 mg/kg/dose, capped at 1000mg — advisory badges shown if >500mg
+    const pneu_min_raw = Math.round(25 * w);
+    const pneu_max_raw = Math.round(30 * w);
+    const pneu_min   = Math.min(pneu_min_raw, 1000);
+    const pneu_max   = Math.min(pneu_max_raw, 1000);
+    const pneu_same  = pneu_min === pneu_max;
+    const v_p_min    = volMl(pneu_min, 250);
+    const v_p_max    = volMl(pneu_max, 250);
+    const pneuOver500 = pneu_min_raw > 500;
 
-    // Pneumonia severe: 25–30 mg/kg/dose, max 1 g
-    const pneu_v_min = clamp(25 * w, 1000);
-    const pneu_v_max = clamp(30 * w, 1000);
-    const pneu_v_same = pneu_v_min === pneu_v_max;
-    const v_pv_min   = volMl(pneu_v_min, 250);
-    const v_pv_max   = volMl(pneu_v_max, 250);
+    // Build pneumonia parts — add warning badges only if calculated dose >500mg
+    const pneuParts = [
+        { text: (pneu_same ? fmg(pneu_min) : fmg(pneu_min) + ' – ' + fmg(pneu_max)) + ' per dose' },
+        { text: '= ' + (pneu_same ? fml(v_p_min) : fml(v_p_min) + ' – ' + fml(v_p_max)) + ' of 250mg/5ml Syr', badge: true }
+    ];
+    if (pneuOver500) {
+        pneuParts.push({ text: '⚠ Usually capped at common adult dose: 500 mg/DOSE', badge: true, badgeClass: 'vbadge-warn' });
+        pneuParts.push({ text: '⚠ Max up to 1 g/DOSE q8h in severe cases with Group A Strep or S. pneumoniae', badge: true, badgeClass: 'vbadge-warn' });
+    }
 
     setOutput({
         drugName: 'Amoxicillin',
@@ -1096,21 +1106,9 @@ function calcAmox(w, ageM) {
                 freq: 'Every 8 hours (TDS) × 7 days'
             },
             {
-                label: 'Pneumonia / LRTI — standard',
+                label: 'Pneumonia / LRTI',
                 labelClass: 'label-teal',
-                parts: [
-                    { text: (pneu_s_same ? fmg(pneu_s_min) : fmg(pneu_s_min) + ' – ' + fmg(pneu_s_max)) + ' per dose  (usually capped at 500 mg)' },
-                    { text: '= ' + (pneu_s_same ? fml(v_ps_min) : fml(v_ps_min) + ' – ' + fml(v_ps_max)) + ' of 250mg/5ml Syr', badge: true }
-                ],
-                freq: 'Every 8 hours (TDS) × 5–7 days'
-            },
-            {
-                label: 'Pneumonia / LRTI — severe *',
-                labelClass: 'label-sev',
-                parts: [
-                    { text: (pneu_v_same ? fmg(pneu_v_min) : fmg(pneu_v_min) + ' – ' + fmg(pneu_v_max)) + ' per dose  (max 1 g — severe / confirmed Strep)' },
-                    { text: '= ' + (pneu_v_same ? fml(v_pv_min) : fml(v_pv_min) + ' – ' + fml(v_pv_max)) + ' of 250mg/5ml Syr', badge: true }
-                ],
+                parts: pneuParts,
                 freq: 'Every 8 hours (TDS) × 5–7 days'
             },
             {
@@ -1125,7 +1123,7 @@ function calcAmox(w, ageM) {
         ],
         maxSingle: '500 mg (standard)  ·  1000 mg (severe / confirmed Strep)',
         maxDaily:  '',
-        footnote:  '* Severe cases or confirmed Group A Streptococcus / Streptococcus pneumoniae: dose may be increased up to 1 g/dose q8H for 10 days (URTI) or as clinically indicated (Pneumonia).',
+        footnote:  '',
         remarks:   'For moderate-severe Leptospirosis, use IV Benzylpenicillin / Penicillin G instead.'
     });
 }
