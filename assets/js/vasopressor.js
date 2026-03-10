@@ -32,9 +32,10 @@ function selectRateType(type) {
         mlBtn.style.color = '#666';
         mlBtn.style.borderColor = '#ccc';
         
-        // Update label and default value
+        // Update label and suggested placeholder
         rateLabel.textContent = 'Infusion Rate (units/min)';
-        rateInput.value = '0.03';
+        rateInput.value = '';
+        rateInput.placeholder = '0.03';
     } else {
         // Style mL button as active
         mlBtn.style.background = '#1565C0';
@@ -46,9 +47,10 @@ function selectRateType(type) {
         unitsBtn.style.color = '#666';
         unitsBtn.style.borderColor = '#ccc';
         
-        // Update label and default value
+        // Update label and suggested placeholder
         rateLabel.textContent = 'Infusion Rate (mL/hr)';
-        rateInput.value = '1.8';
+        rateInput.value = '';
+        rateInput.placeholder = '1.8';
     }
     
     calculateVasoSupply();
@@ -198,10 +200,7 @@ function calculateVasoSupply() {
     const prepOutput = `${drugData.label} ${prepStrengthMg} mg in ${diluent} mL per preparation`;
 
     // Calculate quantity needed
-    // Step 1: Number of preparations per day (rounded up)
-    const preparations = Math.ceil((rate * duration) / diluent);
-    // Step 2: Total vials = preparations × vials per preparation (based on strength)
-    const quantity = preparations * strengthMultiplier;
+    const quantity = Math.ceil((rate * duration * strengthMultiplier) / diluent);
 
     // Display outputs in compact single-line format like NAC
     const summaryHTML = `
@@ -210,9 +209,7 @@ function calculateVasoSupply() {
         </div>
     `;
     setHTMLContent('vaso-summary', summaryHTML);
-    const vialsPerPrep = strengthMultiplier === 1 ? '1 vial/prep (SS)' : '2 vials/prep (DS)';
-    const prepBreakdown = `[${preparations} prep(s) × ${vialsPerPrep}] = ${quantity} vial(s) required per ${duration} hour(s)`;
-    setHTMLContent('vaso-preparation', `${prepOutput}<br><span style="color:#555; font-size:0.93em;">${prepBreakdown}</span>`);
+    setTextContent('vaso-preparation', prepOutput);
     setTextContent('vaso-quantity', `${quantity} ampoule(s) or vial(s)`);
     
     // Scroll to results after a short delay (800ms)
