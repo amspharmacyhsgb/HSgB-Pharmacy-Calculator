@@ -148,12 +148,21 @@ function updateEnoxaparinUI() {
                             </div>
                         </div>
                         
-                        <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                        <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
                             <div style="background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.95em;">
                                 ⚠️ Renal Adjusted (CrCl 15–30 ml/min)
                             </div>
                             <div style="color: #333; font-size: 0.95em; padding: 3px 8px;">
                                 ${boldDoseAndFrequency(matchedRange.renal)}
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <div style="background: linear-gradient(135deg, #B71C1C 0%, #7F0000 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.95em;">
+                                🚫 Severe Renal Impairment (CrCl &lt;15 ml/min)
+                            </div>
+                            <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #B71C1C; font-weight: 600; border-left: 4px solid #B71C1C;">
+                                Avoid routine use due to accumulation and bleeding risk. If Clexane is required, seek specialist advice.
                             </div>
                         </div>
                     </div>
@@ -189,12 +198,20 @@ function updateEnoxaparinUI() {
                                 </div>
                             </div>
                             
-                            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
                                 <div style="background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
                                     ⚠️ Renal Adjusted (CrCl 15–30)
                                 </div>
                                 <div style="color: #333; font-size: 0.95em; padding: 3px 8px;">
                                     ${boldDoseAndFrequency(matchedRange.renal)}
+                                </div>
+                            </div>
+                            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                                <div style="background: linear-gradient(135deg, #B71C1C 0%, #7F0000 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
+                                    🚫 Severe Renal Impairment (CrCl &lt;15 ml/min)
+                                </div>
+                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #B71C1C; font-weight: 600; border-left: 4px solid #B71C1C;">
+                                    Avoid routine use due to accumulation and bleeding risk. If Clexane is required, seek specialist advice.
                                 </div>
                             </div>
                         </div>
@@ -215,11 +232,11 @@ function updateEnoxaparinUI() {
                             </div>
                             
                             <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                                <div style="background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
-                                    ⚠️ Renal Adjusted (CrCl 15–30)
+                                <div style="background: linear-gradient(135deg, #B71C1C 0%, #7F0000 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
+                                    🚫 Renal Impairment (CrCl &lt;30 ml/min)
                                 </div>
-                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #C62828; font-weight: 600; border-left: 4px solid #D32F2F;">
-                                    ⚠️ Not recommended in CrCl < 30 ml/min
+                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #B71C1C; font-weight: 600; border-left: 4px solid #B71C1C;">
+                                    Not recommended in CrCl &lt;30 ml/min
                                 </div>
                             </div>
                         </div>
@@ -262,12 +279,20 @@ function updateEnoxaparinUI() {
                                 </div>
                             </div>
                             
-                            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
                                 <div style="background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
                                     ⚠️ Renal Adjusted (CrCl 15–30)
                                 </div>
                                 <div style="color: #333; font-size: 0.95em; padding: 3px 8px;">
                                     ${boldDoseAndFrequency(matchedRange.renal)}
+                                </div>
+                            </div>
+                            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                                <div style="background: linear-gradient(135deg, #B71C1C 0%, #7F0000 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
+                                    🚫 Severe Renal Impairment (CrCl &lt;15 ml/min)
+                                </div>
+                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #B71C1C; font-weight: 600; border-left: 4px solid #B71C1C;">
+                                    Avoid routine use due to accumulation and bleeding risk. If Clexane is required, seek specialist advice.
                                 </div>
                             </div>
                         </div>
@@ -288,11 +313,11 @@ function updateEnoxaparinUI() {
                             </div>
                             
                             <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                                <div style="background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
-                                    ⚠️ Renal Adjusted (CrCl 15–30)
+                                <div style="background: linear-gradient(135deg, #B71C1C 0%, #7F0000 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
+                                    🚫 Renal Impairment (CrCl &lt;30 ml/min)
                                 </div>
-                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #C62828; font-weight: 600; border-left: 4px solid #D32F2F;">
-                                    ⚠️ Not recommended in CrCl < 30 ml/min
+                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #B71C1C; font-weight: 600; border-left: 4px solid #B71C1C;">
+                                    Not recommended in CrCl &lt;30 ml/min
                                 </div>
                             </div>
                         </div>
@@ -334,12 +359,20 @@ function updateEnoxaparinUI() {
                                 </div>
                             </div>
                             
-                            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                            <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
                                 <div style="background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
                                     ⚠️ Renal Adjusted (CrCl 15–30)
                                 </div>
                                 <div style="color: #333; font-size: 0.95em; padding: 3px 8px;">
                                     ${boldDoseAndFrequency(matchedRange.renal)}
+                                </div>
+                            </div>
+                            <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                                <div style="background: linear-gradient(135deg, #B71C1C 0%, #7F0000 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
+                                    🚫 Severe Renal Impairment (CrCl &lt;15 ml/min)
+                                </div>
+                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #B71C1C; font-weight: 600; border-left: 4px solid #B71C1C;">
+                                    Avoid routine use due to accumulation and bleeding risk. If Clexane is required, seek specialist advice.
                                 </div>
                             </div>
                         </div>
@@ -359,11 +392,11 @@ function updateEnoxaparinUI() {
                             </div>
                             
                             <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-                                <div style="background: linear-gradient(135deg, #F57C00 0%, #E65100 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
-                                    ⚠️ Renal Adjusted (CrCl 15–30)
+                                <div style="background: linear-gradient(135deg, #B71C1C 0%, #7F0000 100%); color: white; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-weight: 700; font-size: 0.9em;">
+                                    🚫 Renal Impairment (CrCl &lt;30 ml/min)
                                 </div>
-                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #C62828; font-weight: 600; border-left: 4px solid #D32F2F;">
-                                    ⚠️ Not recommended in CrCl < 30 ml/min
+                                <div style="background: #FFEBEE; border-radius: 6px; padding: 10px; font-size: 0.9em; color: #B71C1C; font-weight: 600; border-left: 4px solid #B71C1C;">
+                                    Not recommended in CrCl &lt;30 ml/min
                                 </div>
                             </div>
                         </div>
