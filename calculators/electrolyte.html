@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrolyte Correction - HSgB ROCK</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+        /* ── Under Construction View ── */
+        #public-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .wip-icon { font-size: 5em; margin-bottom: 20px; }
+
+        .wip-title {
+            color: #1a237e;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .wip-desc {
+            color: #666;
+            font-size: 1.05em;
+            max-width: 580px;
+            line-height: 1.65;
+            margin-bottom: 28px;
+        }
+
+        /* ── Password Gate ── */
+        .dev-gate {
+            margin-top: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dev-gate-label {
+            font-size: 0.78em;
+            color: #aaa;
+            letter-spacing: 0.5px;
+        }
+
+        .dev-gate-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dev-gate input[type="password"] {
+            padding: 8px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9em;
+            width: 160px;
+            outline: none;
+            transition: border-color 0.2s;
+            color: #333;
+        }
+
+        .dev-gate input[type="password"]:focus {
+            border-color: #1565C0;
+        }
+
+        .dev-gate input[type="password"].error {
+            border-color: #c62828;
+            background: #fff5f5;
+        }
+
+        .dev-gate-btn {
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #424242, #212121);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88em;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .dev-gate-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .dev-gate-btn:active { transform: translateY(0); }
+
+        .dev-error {
+            font-size: 0.78em;
+            color: #c62828;
+            display: none;
+        }
+
+        /* ── Developer / WIP Content View ── */
+        #dev-view { display: none; }
+
+        .dev-banner {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        /* Section cards */
+        .elyte-section {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,61,130,0.09);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .elyte-section-head {
+            background: linear-gradient(135deg, #003d82 0%, #1565C0 100%);
+            padding: 12px 20px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .elyte-section-body {
+            padding: 20px;
+        }
+
+        .wip-pill {
+            display: inline-block;
+            background: #fff3e0;
+            border: 1.5px solid #FFB300;
+            color: #e65100;
+            font-size: 0.72em;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.4px;
+            margin-left: 8px;
+        }
+
+        /* Calc grid */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 540px) {
+            .calc-grid { grid-template-columns: 1fr; }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-size: 0.82em;
+            font-weight: 600;
+            color: #37474F;
+        }
+
+        .input-group input, .input-group select {
+            padding: 9px 12px;
+            border: 1.5px solid #dce3ed;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9em;
+            color: #333;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #1565C0;
+        }
+
+        .calc-btn {
+            margin-top: 16px;
+            padding: 11px 28px;
+            background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95em;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .calc-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,61,130,0.22); }
+        .calc-btn:active { transform: translateY(0); }
+
+        .result-box {
+            display: none;
+            margin-top: 16px;
+            background: #E8F5E9;
+            border-left: 4px solid #2e7d32;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 0.9em;
+            color: #1b5e20;
+            line-height: 1.6;
+        }
+
+        .result-box.show { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Rx On-call Calculation Kit for Pharmacists</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="window.location.href='../index.html'">HOME</button>
+    </div>
+
+    <h2>Electrolyte Correction</h2>
+
+    <!-- ══ PUBLIC VIEW — Under Construction ══ -->
+    <div id="public-view">
+        <div class="wip-icon">🚧</div>
+        <h3 class="wip-title">Under Construction</h3>
+        <p class="wip-desc">
+            The Electrolyte Correction calculator is currently being developed. It will guide dosing
+            for sodium, potassium, magnesium, and phosphate correction in adult patients.
+        </p>
+        <p style="color:#888; font-size:0.9em;">Please check back soon or contact the Pharmacy Department for assistance.</p>
+
+        <button onclick="window.location.href='../index.html'"
+            style="margin-top:28px; padding:11px 28px; background:linear-gradient(135deg,#1565C0 0%,#0D47A1 100%); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.95em; box-shadow:0 3px 10px rgba(0,0,0,0.2); transition:transform 0.2s;">
+            Return to Home
+        </button>
+
+        <!-- Developer gate -->
+        <div class="dev-gate">
+            <span class="dev-gate-label">🔒 Developer access</span>
+            <div class="dev-gate-row">
+                <input type="password" id="dev-password" placeholder="Password" onkeydown="if(event.key==='Enter') unlockDev()">
+                <button class="dev-gate-btn" onclick="unlockDev()">Unlock</button>
+            </div>
+            <span class="dev-error" id="dev-error">Incorrect password.</span>
+        </div>
+    </div>
+
+    <!-- ══ DEVELOPER / WIP VIEW ══ -->
+    <div id="dev-view">
+
+        <div class="dev-banner">
+            🛠️ Developer Preview — Work in Progress
+        </div>
+
+        <!-- ── Hyponatraemia ── -->
+        <div class="elyte-section">
+            <div class="elyte-section-head">
+                🧂 Hyponatraemia Correction
+                <span class="wip-pill">WIP</span>
+            </div>
+            <div class="elyte-section-body">
+                <div class="calc-grid">
+                    <div class="input-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="na-weight" placeholder="e.g. 60" min="1" max="200">
+                    </div>
+                    <div class="input-group">
+                        <label>Current Na⁺ (mmol/L)</label>
+                        <input type="number" id="na-current" placeholder="e.g. 118" min="100" max="145">
+                    </div>
+                    <div class="input-group">
+                        <label>Target Na⁺ (mmol/L)</label>
+                        <input type="number" id="na-target" placeholder="e.g. 125" min="100" max="145">
+                    </div>
+                    <div class="input-group">
+                        <label>Sex</label>
+                        <select id="na-sex">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcHyponatraemia()">Calculate</button>
+                <div class="result-box" id="na-result"></div>
+            </div>
+        </div>
+
+        <!-- ── Hypokalaemia ── -->
+        <div class="elyte-section">
+            <div class="elyte-section-head">
+                🟡 Hypokalaemia Correction
+                <span class="wip-pill">WIP</span>
+            </div>
+            <div class="elyte-section-body">
+                <div class="calc-grid">
+                    <div class="input-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="k-weight" placeholder="e.g. 60" min="1" max="200">
+                    </div>
+                    <div class="input-group">
+                        <label>Current K⁺ (mmol/L)</label>
+                        <input type="number" id="k-current" placeholder="e.g. 2.8" min="1" max="6" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Target K⁺ (mmol/L)</label>
+                        <input type="number" id="k-target" placeholder="e.g. 3.5" min="1" max="6" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Route</label>
+                        <select id="k-route">
+                            <option value="iv">IV</option>
+                            <option value="oral">Oral</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcHypokalaemia()">Calculate</button>
+                <div class="result-box" id="k-result"></div>
+            </div>
+        </div>
+
+        <!-- ── Hypomagnesaemia ── -->
+        <div class="elyte-section">
+            <div class="elyte-section-head">
+                🔵 Hypomagnesaemia Correction
+                <span class="wip-pill">WIP</span>
+            </div>
+            <div class="elyte-section-body">
+                <div class="calc-grid">
+                    <div class="input-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="mg-weight" placeholder="e.g. 60" min="1" max="200">
+                    </div>
+                    <div class="input-group">
+                        <label>Current Mg²⁺ (mmol/L)</label>
+                        <input type="number" id="mg-current" placeholder="e.g. 0.5" min="0.1" max="2" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Renal Function</label>
+                        <select id="mg-renal">
+                            <option value="normal">Normal (CrCl ≥ 30)</option>
+                            <option value="impaired">Impaired (CrCl &lt; 30)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcHypomagnesaemia()">Calculate</button>
+                <div class="result-box" id="mg-result"></div>
+            </div>
+        </div>
+
+        <!-- ── Hypophosphataemia ── -->
+        <div class="elyte-section">
+            <div class="elyte-section-head">
+                🟠 Hypophosphataemia Correction
+                <span class="wip-pill">WIP</span>
+            </div>
+            <div class="elyte-section-body">
+                <div class="calc-grid">
+                    <div class="input-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="phos-weight" placeholder="e.g. 60" min="1" max="200">
+                    </div>
+                    <div class="input-group">
+                        <label>Current PO₄³⁻ (mmol/L)</label>
+                        <input type="number" id="phos-current" placeholder="e.g. 0.4" min="0.1" max="1.5" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Route</label>
+                        <select id="phos-route">
+                            <option value="iv">IV</option>
+                            <option value="oral">Oral</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcHypophosphataemia()">Calculate</button>
+                <div class="result-box" id="phos-result"></div>
+            </div>
+        </div>
+
+    </div><!-- /dev-view -->
+
+</div><!-- /container -->
+
+<script src="../assets/js/common.js"></script>
+<script>
+    /* ── Developer gate ── */
+    function unlockDev() {
+        const input = document.getElementById('dev-password');
+        const errEl = document.getElementById('dev-error');
+        if (input.value === 'izy') {
+            document.getElementById('public-view').style.display = 'none';
+            document.getElementById('dev-view').style.display = 'block';
+        } else {
+            input.classList.add('error');
+            errEl.style.display = 'block';
+            setTimeout(() => {
+                input.classList.remove('error');
+                errEl.style.display = 'none';
+            }, 2000);
+        }
+        input.value = '';
+    }
+
+    /* ── Hyponatraemia ── */
+    function calcHyponatraemia() {
+        const wt     = parseFloat(document.getElementById('na-weight').value);
+        const cur    = parseFloat(document.getElementById('na-current').value);
+        const tgt    = parseFloat(document.getElementById('na-target').value);
+        const sex    = document.getElementById('na-sex').value;
+        const resEl  = document.getElementById('na-result');
+
+        if (!wt || !cur || !tgt) { resEl.className = 'result-box show'; resEl.style.background='#FFF8E1'; resEl.style.borderColor='#FFB300'; resEl.style.color='#5D4037'; resEl.innerHTML = '⚠️ Please fill in all fields.'; return; }
+        resEl.style.background = '#E8F5E9'; resEl.style.borderColor = '#2e7d32'; resEl.style.color = '#1b5e20';
+
+        // TBW = 0.6 (male) or 0.5 (female) × wt
+        const tbwFactor = sex === 'male' ? 0.6 : 0.5;
+        const tbw = tbwFactor * wt;
+        // Na deficit = TBW × (target − current)
+        const naDef = tbw * (tgt - cur);
+        // Volume of NaCl 3% needed (513 mmol/L)
+        const vol3pct = (naDef / 513 * 1000).toFixed(0);
+        // Volume of NaCl 0.9% (154 mmol/L)
+        const volNS = (naDef / 154 * 1000).toFixed(0);
+        // Correction rate: max 8–10 mmol/L/day; estimate hours
+        const deficit = tgt - cur;
+        const hrs = Math.max((deficit / 8) * 24, 1).toFixed(1);
+
+        resEl.className = 'result-box show';
+        resEl.innerHTML = `
+            <strong>Na⁺ Deficit:</strong> ${naDef.toFixed(1)} mmol<br>
+            <strong>TBW (${sex}):</strong> ${tbw.toFixed(1)} L<br>
+            <hr style="border:none; border-top:1px solid #a5d6a7; margin:10px 0;">
+            <strong>Volume to correct:</strong><br>
+            &nbsp;• NaCl 3%: <strong>${vol3pct} mL</strong><br>
+            &nbsp;• NaCl 0.9%: <strong>${volNS} mL</strong><br>
+            <hr style="border:none; border-top:1px solid #a5d6a7; margin:10px 0;">
+            <strong>⏱ Estimated correction time:</strong> ~${hrs} hrs (at max 8 mmol/L/day)<br>
+            <small style="color:#388e3c;">⚠️ Placeholder logic — verify against local protocol before use.</small>
+        `;
+    }
+
+    /* ── Hypokalaemia ── */
+    function calcHypokalaemia() {
+        const wt    = parseFloat(document.getElementById('k-weight').value);
+        const cur   = parseFloat(document.getElementById('k-current').value);
+        const tgt   = parseFloat(document.getElementById('k-target').value);
+        const route = document.getElementById('k-route').value;
+        const resEl = document.getElementById('k-result');
+
+        if (!wt || !cur || !tgt) { resEl.className = 'result-box show'; resEl.style.background='#FFF8E1'; resEl.style.borderColor='#FFB300'; resEl.style.color='#5D4037'; resEl.innerHTML = '⚠️ Please fill in all fields.'; return; }
+        resEl.style.background = '#E8F5E9'; resEl.style.borderColor = '#2e7d32'; resEl.style.color = '#1b5e20';
+
+        // K deficit ≈ 0.4 × wt × (target − current)
+        const kDef = (0.4 * wt * (tgt - cur)).toFixed(1);
+
+        let routeNote = '';
+        if (route === 'iv') {
+            routeNote = `IV KCl max 10 mmol/hr (peripheral), 20 mmol/hr (central).<br>Standard: 40 mmol in 500 mL NS over 4 hrs.`;
+        } else {
+            routeNote = `Oral KCl: typical replacement 40–80 mmol/day in divided doses.`;
+        }
+
+        resEl.className = 'result-box show';
+        resEl.innerHTML = `
+            <strong>K⁺ Deficit (estimated):</strong> ${kDef} mmol<br>
+            <hr style="border:none; border-top:1px solid #a5d6a7; margin:10px 0;">
+            <strong>Route (${route.toUpperCase()}):</strong><br>${routeNote}<br>
+            <small style="color:#388e3c; margin-top:6px; display:block;">⚠️ Placeholder logic — verify against local protocol before use.</small>
+        `;
+    }
+
+    /* ── Hypomagnesaemia ── */
+    function calcHypomagnesaemia() {
+        const wt    = parseFloat(document.getElementById('mg-weight').value);
+        const cur   = parseFloat(document.getElementById('mg-current').value);
+        const renal = document.getElementById('mg-renal').value;
+        const resEl = document.getElementById('mg-result');
+
+        if (!wt || !cur) { resEl.className = 'result-box show'; resEl.style.background='#FFF8E1'; resEl.style.borderColor='#FFB300'; resEl.style.color='#5D4037'; resEl.innerHTML = '⚠️ Please fill in all fields.'; return; }
+        resEl.style.background = '#E8F5E9'; resEl.style.borderColor = '#2e7d32'; resEl.style.color = '#1b5e20';
+
+        // Classify severity
+        let severity = cur < 0.4 ? 'Severe (<0.4)' : cur < 0.6 ? 'Moderate (0.4–0.6)' : 'Mild (0.6–0.74)';
+        let dose = cur < 0.4 ? '40 mmol MgSO₄ IV over 24 hrs' : cur < 0.6 ? '20 mmol MgSO₄ IV over 12 hrs' : '10 mmol MgSO₄ IV over 6 hrs (or oral Mg)';
+        let renalNote = renal === 'impaired' ? '<br>⚠️ Renal impairment: reduce dose by 50% and monitor closely.' : '';
+
+        resEl.className = 'result-box show';
+        resEl.innerHTML = `
+            <strong>Severity:</strong> ${severity}<br>
+            <strong>Suggested dose:</strong> ${dose}${renalNote}<br>
+            <small style="color:#388e3c; margin-top:6px; display:block;">⚠️ Placeholder logic — verify against local protocol before use.</small>
+        `;
+    }
+
+    /* ── Hypophosphataemia ── */
+    function calcHypophosphataemia() {
+        const wt    = parseFloat(document.getElementById('phos-weight').value);
+        const cur   = parseFloat(document.getElementById('phos-current').value);
+        const route = document.getElementById('phos-route').value;
+        const resEl = document.getElementById('phos-result');
+
+        if (!wt || !cur) { resEl.className = 'result-box show'; resEl.style.background='#FFF8E1'; resEl.style.borderColor='#FFB300'; resEl.style.color='#5D4037'; resEl.innerHTML = '⚠️ Please fill in all fields.'; return; }
+        resEl.style.background = '#E8F5E9'; resEl.style.borderColor = '#2e7d32'; resEl.style.color = '#1b5e20';
+
+        let severity = cur < 0.32 ? 'Severe (<0.32)' : cur < 0.65 ? 'Moderate (0.32–0.65)' : 'Mild (0.65–0.8)';
+        // IV: 0.08–0.16 mmol/kg; Oral: 0.5–1 mmol/kg/day
+        const ivDose = (0.08 * wt).toFixed(1) + '–' + (0.16 * wt).toFixed(1);
+        const oralDose = (0.5 * wt).toFixed(0) + '–' + (1.0 * wt).toFixed(0);
+        const doseStr = route === 'iv'
+            ? `IV: ${ivDose} mmol over 6 hrs (0.08–0.16 mmol/kg)`
+            : `Oral: ${oralDose} mmol/day in divided doses (0.5–1 mmol/kg/day)`;
+
+        resEl.className = 'result-box show';
+        resEl.innerHTML = `
+            <strong>Severity:</strong> ${severity}<br>
+            <strong>Suggested dose (${route.toUpperCase()}):</strong> ${doseStr}<br>
+            <small style="color:#388e3c; margin-top:6px; display:block;">⚠️ Placeholder logic — verify against local protocol before use.</small>
+        `;
+    }
+</script>
+
+</body>
+</html>
