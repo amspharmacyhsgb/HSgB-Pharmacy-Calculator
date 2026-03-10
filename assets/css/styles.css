@@ -195,6 +195,27 @@ body {
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
+.calculator-card.wip {
+    background: linear-gradient(to bottom, #e0e0e0, #ececec);
+    border-left: 8px solid #9e9e9e;
+    border-color: #bdbdbd;
+    opacity: 0.72;
+    cursor: pointer;
+}
+
+.calculator-card.wip:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.calculator-card.wip .card-title {
+    color: #616161;
+}
+
+.calculator-card.wip .card-footnote {
+    color: #888;
+}
+
 .card-title {
     font-weight: 600;
     color: #1a237e;
