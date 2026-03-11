@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Days of Antibiotic Therapy - HSgB ROCK</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+        /* ── Tab switcher ─────────────────────────── */
+        .mode-tabs {
+            display: flex;
+            margin-bottom: 28px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--primary-blue);
+        }
+        .mode-tab {
+            flex: 1;
+            padding: 12px 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88em;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            background: #fff;
+            color: var(--primary-blue);
+            transition: background 0.2s, color 0.2s;
+            line-height: 1.3;
+        }
+        .mode-tab:first-child { border-right: 1px solid var(--primary-blue); }
+        .mode-tab.active      { background: var(--primary-blue); color: #fff; }
+        .mode-tab:hover:not(.active) { background: #e8f0fe; }
+
+        /* ── Custom date field (Option B) ─────────── */
+        .date-field-wrap {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+        }
+        .date-text-input {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1.5px solid #ccc;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95em;
+            color: var(--text-dark);
+            background: #fff;
+            transition: border-color 0.2s;
+            height: 44px;
+            box-sizing: border-box;
+        }
+        .date-text-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+        .date-text-input.invalid {
+            border-color: #E57373;
+            background: #fff8f8;
+        }
+        .cal-icon-btn {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: #f0f4ff;
+            border: 1.5px solid #ccc;
+            border-left: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, border-color 0.2s;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .cal-icon-btn:hover { background: #dce8ff; border-color: var(--primary-blue); }
+        /* Middle segment (Today button follows) */
+        .date-field-wrap.has-today .cal-icon-btn { border-radius: 0; }
+        /* Last segment (no Today button) */
+        .date-field-wrap.no-today .cal-icon-btn  { border-radius: 0 8px 8px 0; }
+
+        .today-btn {
+            flex-shrink: 0;
+            height: 44px;
+            padding: 0 14px;
+            background: var(--primary-blue);
+            color: #fff;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+            box-sizing: border-box;
+        }
+        .today-btn:hover { background: var(--primary-blue-dark); }
+
+        /* Hidden native date picker — zero footprint */
+        .date-hidden {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            width: 1px;
+            height: 1px;
+            border: none;
+            padding: 0;
+            left: 0;
+            bottom: 0;
+        }
+        .date-hint {
+            font-size: 0.78em;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* ── Duration row ─────────────────────────── */
+        .duration-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+        }
+        .duration-row input[type="number"] { flex: 1; min-width: 0; }
+        .unit-toggle {
+            display: flex;
+            border: 2px solid var(--primary-blue);
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .unit-btn {
+            padding: 9px 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.82em;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            background: #fff;
+            color: var(--primary-blue);
+            transition: background 0.2s, color 0.2s;
+            border-right: 1px solid var(--primary-blue);
+        }
+        .unit-btn:last-child { border-right: none; }
+        .unit-btn.active { background: var(--primary-blue); color: #fff; }
+        .unit-btn:hover:not(.active) { background: #e8f0fe; }
+
+        /* ── Result card ──────────────────────────── */
+        .result-day {
+            font-size: 1.9em;
+            font-weight: 700;
+            color: #fff;
+            margin: 4px 0 10px;
+            line-height: 1.25;
+        }
+        .result-detail {
+            font-size: 0.88em;
+            color: rgba(255,255,255,0.92);
+            margin: 5px 0;
+        }
+        .result-detail strong { color: #fff; }
+        .result-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            margin: 10px 0;
+        }
+
+        /* ── Warning ──────────────────────────────── */
+        .warning-abx {
+            background-color: #FFEBEE;
+            border: 2px solid #E57373;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 10px;
+            color: #C62828;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        /* ── Mode panels ──────────────────────────── */
+        .mode-panel        { display: none; }
+        .mode-panel.active { display: block; }
+        #opt1-output, #opt2-output { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Rx On-call Calculation Kit (ROCK) for Pharmacists</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearAbxForm()">CLEAR</button>
+    </div>
+
+    <h2>Days of Antibiotic Therapy</h2>
+
+    <!-- Mode Tabs -->
+    <div class="mode-tabs" role="tablist">
+        <button class="mode-tab active" id="tab-opt1" role="tab" onclick="switchMode('opt1')">
+            🗓️ What day of therapy is this?
+        </button>
+        <button class="mode-tab" id="tab-opt2" role="tab" onclick="switchMode('opt2')">
+            📅 When does therapy end?
+        </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         Option 1: What day of therapy is this?
+    ══════════════════════════════════════════ -->
+    <div class="mode-panel active" id="panel-opt1">
+
+        <div class="form-group">
+            <label for="opt1-start-text">Day of Antibiotic Initiation</label>
+            <div class="date-field-wrap no-today">
+                <input type="text" class="date-text-input" id="opt1-start-text"
+                       placeholder="DD/MM/YYYY" maxlength="10"
+                       oninput="onDateTyped('opt1-start', 'calculateDayOf')"
+                       onblur="onDateBlur('opt1-start')">
+                <button class="cal-icon-btn" type="button" title="Open calendar"
+                        onclick="openPicker('opt1-start-hidden')">📅</button>
+                <input type="date" class="date-hidden" id="opt1-start-hidden"
+                       onchange="onPickerChanged('opt1-start', 'calculateDayOf')">
+            </div>
+            <p class="date-hint">Type a date or click 📅 to use the calendar</p>
+        </div>
+
+        <div class="form-group">
+            <label for="opt1-check-text">Date to Check</label>
+            <div class="date-field-wrap has-today">
+                <input type="text" class="date-text-input" id="opt1-check-text"
+                       placeholder="DD/MM/YYYY" maxlength="10"
+                       oninput="onDateTyped('opt1-check', 'calculateDayOf')"
+                       onblur="onDateBlur('opt1-check')">
+                <button class="cal-icon-btn" type="button" title="Open calendar"
+                        onclick="openPicker('opt1-check-hidden')">📅</button>
+                <button class="today-btn" type="button"
+                        onclick="setToday('opt1-check', 'calculateDayOf')">Today</button>
+                <input type="date" class="date-hidden" id="opt1-check-hidden"
+                       onchange="onPickerChanged('opt1-check', 'calculateDayOf')">
+            </div>
+            <p class="date-hint">Type a date, click 📅, or press Today</p>
+        </div>
+
+        <div id="opt1-output" class="output-box-cream" role="region" aria-live="polite">
+            <div class="result-day" id="opt1-day-text"></div>
+            <hr class="result-divider">
+            <p class="result-detail">📌 Antibiotic initiated: <strong id="opt1-disp-start"></strong></p>
+            <p class="result-detail">📅 Date checked: <strong id="opt1-disp-check"></strong></p>
+            <p class="result-detail" style="margin-top:10px; opacity:0.75; font-size:0.8em;">* Initiation date is counted as Day 1</p>
+        </div>
+
+        <div id="opt1-error" style="display:none;" class="warning-abx">
+            ⚠️ <span id="opt1-error-msg"></span>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         Option 2: When does therapy end?
+    ══════════════════════════════════════════ -->
+    <div class="mode-panel" id="panel-opt2">
+
+        <div class="form-group">
+            <label for="opt2-start-text">Day of Antibiotic Initiation</label>
+            <div class="date-field-wrap has-today">
+                <input type="text" class="date-text-input" id="opt2-start-text"
+                       placeholder="DD/MM/YYYY" maxlength="10"
+                       oninput="onDateTyped('opt2-start', 'calculateEndDate')"
+                       onblur="onDateBlur('opt2-start')">
+                <button class="cal-icon-btn" type="button" title="Open calendar"
+                        onclick="openPicker('opt2-start-hidden')">📅</button>
+                <button class="today-btn" type="button"
+                        onclick="setToday('opt2-start', 'calculateEndDate')">Today</button>
+                <input type="date" class="date-hidden" id="opt2-start-hidden"
+                       onchange="onPickerChanged('opt2-start', 'calculateEndDate')">
+            </div>
+            <p class="date-hint">Type a date, click 📅, or press Today</p>
+        </div>
+
+        <div class="form-group">
+            <label for="opt2-duration">Planned Duration of Treatment</label>
+            <div class="duration-row">
+                <input type="number" id="opt2-duration" min="1" placeholder="e.g. 14"
+                       oninput="calculateEndDate(true)">
+                <div class="unit-toggle" role="group" aria-label="Duration unit">
+                    <button class="unit-btn active" id="unit-days"   onclick="setUnit('days')">Days</button>
+                    <button class="unit-btn"         id="unit-weeks"  onclick="setUnit('weeks')">Weeks</button>
+                    <button class="unit-btn"         id="unit-months" onclick="setUnit('months')">Months</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="opt2-output" class="output-box-cream" role="region" aria-live="polite">
+            <div class="result-day" id="opt2-end-text"></div>
+            <hr class="result-divider">
+            <p class="result-detail">📌 Antibiotic initiated: <strong id="opt2-disp-start"></strong></p>
+            <p class="result-detail">⏱️ Duration: <strong id="opt2-disp-duration"></strong></p>
+            <p class="result-detail">🏁 Last day of therapy: <strong id="opt2-disp-day"></strong></p>
+            <p class="result-detail" style="margin-top:10px; opacity:0.75; font-size:0.8em;">* Initiation date is counted as Day 1</p>
+        </div>
+
+        <div id="opt2-error" style="display:none;" class="warning-abx">
+            ⚠️ <span id="opt2-error-msg"></span>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/abx-days.js"></script>
+
+</body>
+</html>
