@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaTrace HSgB — MTAC RVD</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/pharmatrace.css">
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="logo-container">
+        <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo">
+        <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo">
+    </div>
+    <div class="header-text">
+        <h1>PharmaTrace HSgB</h1>
+        <p>Pharmacy Adherence Tracing Tool &nbsp;|&nbsp; MTAC RVD, HSgB</p>
+    </div>
+</div>
+
+<!-- ── TAB BAR ── -->
+<div class="tab-bar">
+    <button class="tab-btn active-mpr" id="btn-mpr" onclick="switchTab('mpr')">
+        <span class="tab-icon">💊</span>
+        <span class="tab-label-wrap">
+            <span class="tab-label-main">MPRx</span>
+            <span class="tab-label-sub">Medication Possession Ratio</span>
+        </span>
+    </button>
+    <button class="tab-btn" id="btn-pf" onclick="switchTab('pf')">
+        <span class="tab-icon">🚩</span>
+        <span class="tab-label-wrap">
+            <span class="tab-label-main">PickupFlag</span>
+            <span class="tab-label-sub">Refill Timeliness Monitor</span>
+        </span>
+    </button>
+    <div class="tab-bar-spacer"></div>
+    <a class="tab-btn-back" href="../index.html" title="Back to ROCK main page">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10.5L10 4l7 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 8.5V16a1 1 0 001 1h3v-4h2v4h3a1 1 0 001-1V8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to ROCK
+    </a>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 1 — MPRx
+══════════════════════════════════════════════ -->
+<div id="tab-mpr" class="tab-content active">
+<div class="outer-wrap">
+<div class="container">
+
+    <p class="page-title">💊 MPRx — Medication Possession Ratio</p>
+    <p class="page-subtitle">Estimates patient adherence based on pharmacy dispensing records over a defined observation period.</p>
+
+    <div class="info-box">
+        <strong>Formula:</strong> MPR (%) = (Total Days' Supply Dispensed ÷ Total Days in Observation Period) × 100<br>
+        <strong>Interpretation (WHO):</strong>&nbsp;
+        <span style="display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin:2px 4px 2px 0;background:#E8F5E9;color:#1B5E20;font-weight:700;font-size:0.88em;padding:3px 12px;border-radius:20px;">✔ Optimal ≥ 90%</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin:2px 4px 2px 0;background:#FFF8E1;color:#E65100;font-weight:700;font-size:0.88em;padding:3px 12px;border-radius:20px;">⚠ Fair 80–89%</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin:2px 0;background:#FCE4EC;color:#C62828;font-weight:700;font-size:0.88em;padding:3px 12px;border-radius:20px;">✕ Poor &lt; 80%</span>
+    </div>
+
+    <!-- Observation Period -->
+    <div class="card">
+        <div class="card-head">
+            <h2>📅 Observation Period</h2>
+            <p>Define the start and end of the period being assessed</p>
+        </div>
+        <div class="card-body" style="padding-top:16px;padding-bottom:18px;">
+            <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+
+                <!-- Start Date -->
+                <div class="field" style="flex:1;min-width:160px;max-width:240px;">
+                    <label>Start Date <span style="color:#c62828;font-weight:700;">*</span></label>
+                    <div class="input-with-btn">
+                        <input type="date" id="m-start">
+                        <button class="today-btn" onclick="setToday('m-start')">Today</button>
+                    </div>
+                </div>
+
+                <!-- Divider arrow -->
+                <div style="font-size:1.1em;color:#bbb;padding-bottom:10px;flex-shrink:0;">→</div>
+
+                <!-- End section -->
+                <div class="field" style="flex:1;min-width:200px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                        <label style="margin:0;">Period End <span style="color:#c62828;font-weight:700;">*</span></label>
+                        <div class="toggle-tabs" style="margin:0;">
+                            <button class="toggle-tab active" id="m-tab-end"   onclick="mSwitchObs('end')">End Date</button>
+                            <button class="toggle-tab"        id="m-tab-fixed" onclick="mSwitchObs('fixed')">Fixed Duration</button>
+                        </div>
+                    </div>
+                    <div class="obs-panel visible" id="m-panel-end">
+                        <div class="input-with-btn">
+                            <input type="date" id="m-end">
+                            <button class="today-btn" onclick="setToday('m-end')">Today</button>
+                        </div>
+                    </div>
+                    <div class="obs-panel" id="m-panel-fixed">
+                        <div class="input-with-btn">
+                            <input type="number" id="m-fixed-days" min="1" placeholder="e.g. 90" style="max-width:130px;">
+                            <span style="font-size:0.85em;color:#999;white-space:nowrap;">days</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispensing Records -->
+    <div class="card">
+        <div class="card-head">
+            <h2>🧾 Dispensing Records</h2>
+            <p>Enter each dispensing event — dispensing date is optional</p>
+        </div>
+        <div class="card-body">
+            <table class="dispense-table">
+                <thead>
+                    <tr>
+                        <th style="width:36px;">#</th>
+                        <th>Days' Supply <span style="color:#c62828;">*</span></th>
+                        <th>Dispensing Date <span style="font-weight:400;color:#bbb;text-transform:none;font-style:italic;font-size:0.9em;">(optional)</span></th>
+                        <th style="width:36px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="m-rows"></tbody>
+            </table>
+            <button class="add-row-btn" onclick="mAddRow()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Add Dispensing Event
+            </button>
+        </div>
+    </div>
+
+    <div class="error-box" id="m-error"></div>
+    <button class="calc-btn" onclick="mCalculate()">Calculate MPR →</button>
+
+    <!-- Results -->
+    <div id="m-results" style="display:none;margin-top:20px;">
+        <div class="card">
+            <div class="card-head result-head"><h2>📊 Results</h2></div>
+            <div class="card-body">
+                <div class="mpr-display">
+                    <p class="mpr-label">Medication Possession Ratio</p>
+                    <div class="mpr-value" id="m-mpr-val">—<span>%</span></div>
+                    <div class="progress-bar-wrap" style="max-width:320px;margin:12px auto 6px;">
+                        <div class="progress-bar-fill" id="m-mpr-bar" style="width:0%"></div>
+                    </div>
+                    <span class="mpr-badge" id="m-mpr-badge">—</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-num" id="m-obs">—</div>
+                        <div class="stat-unit">days</div>
+                        <div class="stat-lbl">Observation Period</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-num" id="m-supplied">—</div>
+                        <div class="stat-unit">days</div>
+                        <div class="stat-lbl">Total Days Supplied</div>
+                    </div>
+                    <div class="stat-box gap-box">
+                        <div class="stat-num" id="m-gap">—</div>
+                        <div class="stat-unit">days</div>
+                        <div class="stat-lbl">Gap Days (without medication)</div>
+                    </div>
+                </div>
+                <div id="m-summ-wrap" style="display:none;margin-top:22px;">
+                    <p class="section-label" style="margin-bottom:8px;">Dispensing Summary</p>
+                    <table class="summary-table">
+                        <thead><tr><th>#</th><th>Dispensing Date</th><th>Days' Supply</th></tr></thead>
+                        <tbody id="m-summ-body"></tbody>
+                    </table>
+                </div>
+                <button class="reset-btn" style="margin-top:18px;width:100%;border:1.5px solid;" onclick="mReset()">↺ Reset / New Calculation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clinical Note -->
+    <div id="m-note" style="display:none;margin-top:18px;">
+        <div class="card">
+            <div class="card-head note-slate" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <div>
+                    <h2 style="font-size:0.98em;font-weight:700;color:#fff;">📋 Clinical Note Template</h2>
+                    <p style="font-size:0.75em;color:rgba(255,255,255,0.78);margin-top:2px;font-style:italic;">Template auto-populated — paste into eHIS and adjust as necessary based on your professional judgement</p>
+                </div>
+                <button class="copy-btn" id="m-copy-btn" onclick="mCopyNote()">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 4V2.5A1.5 1.5 0 015.5 1H11.5A1.5 1.5 0 0113 2.5V8.5A1.5 1.5 0 0111.5 10H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Copy to Clipboard
+                </button>
+            </div>
+            <div class="card-body">
+                <textarea class="note-textarea" id="m-note-ta" spellcheck="false"></textarea>
+                <p class="note-hint">💡 The note is editable before copying.</p>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /container -->
+</div><!-- /outer-wrap -->
+</div><!-- /tab-mpr -->
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 2 — PickupFlag
+══════════════════════════════════════════════ -->
+<div id="tab-pf" class="tab-content">
+<div class="outer-wrap">
+<div class="container">
+
+    <p class="page-title">🚩 PickupFlag — Refill Timeliness Monitor</p>
+    <p class="page-subtitle">Identify patients who are late, due, or early for their medication refill based on their last dispensing record.</p>
+
+    <div class="info-box">
+        <strong>How it works:</strong> Enter each patient's last pickup date and days' supply dispensed. Expected return date is calculated automatically and compared to today.<br>
+        <strong>Status tiers:</strong><br>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+            <span style="display:inline-flex;flex-direction:column;background:#E3F2FD;color:#1565C0;font-weight:700;font-size:0.86em;padding:5px 14px;border-radius:8px;line-height:1.35;">~Early<span style="font-weight:400;font-size:0.85em;">&gt; 7 days remaining</span></span>
+            <span style="display:inline-flex;flex-direction:column;background:#E8F5E9;color:#2E7D32;font-weight:700;font-size:0.86em;padding:5px 14px;border-radius:8px;line-height:1.35;">✔ On time<span style="font-weight:400;font-size:0.85em;">0–7 days left</span></span>
+            <span style="display:inline-flex;flex-direction:column;background:#FFF8E1;color:#E65100;font-weight:700;font-size:0.86em;padding:5px 14px;border-radius:8px;line-height:1.35;">⚠ Overdue<span style="font-weight:400;font-size:0.85em;">1–6 days overdue</span></span>
+            <span style="display:inline-flex;flex-direction:column;background:#FCE4EC;color:#C62828;font-weight:700;font-size:0.86em;padding:5px 14px;border-radius:8px;line-height:1.35;">🚩 Late Pickup<span style="font-weight:400;font-size:0.85em;">7+ days overdue</span></span>
+        </div>
+    </div>
+
+    <!-- Patient Table -->
+    <div class="card">
+        <div class="card-head">
+            <h2>Patient Refill List</h2>
+            <p>Status updates live as you type — no need to press Calculate</p>
+        </div>
+        <div class="card-body">
+            <div style="overflow-x:auto;">
+                <table class="pickup-table">
+                    <thead>
+                        <tr>
+                            <th style="width:32px;">#</th>
+                            <th style="min-width:150px;">Patient / MRN <span style="font-weight:400;text-transform:none;color:#bbb;font-style:italic;">(optional)</span></th>
+                            <th style="min-width:140px;">Last Pickup Date <span style="color:#c62828;">✱</span></th>
+                            <th style="min-width:95px;">Days' Supply <span style="color:#c62828;">✱</span></th>
+                            <th style="min-width:115px;">Expected Return</th>
+                            <th style="min-width:150px;">Status</th>
+                            <th style="width:32px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="pf-rows"></tbody>
+                </table>
+            </div>
+            <button class="add-row-btn" onclick="pfAddRow()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Add Patient
+            </button>
+
+            <!-- Live summary -->
+            <div class="pf-stats" id="pf-stats" style="display:none;">
+                <span class="pf-stat-pill" style="background:#FCE4EC;color:#C62828;" id="ps-late">🚩 Late Pickup: 0</span>
+                <span class="pf-stat-pill" style="background:#FFF8E1;color:#E65100;" id="ps-overdue">⚠ Overdue: 0</span>
+                <span class="pf-stat-pill" style="background:#E8F5E9;color:#2E7D32;" id="ps-ontime">✔ On time: 0</span>
+                <span class="pf-stat-pill" style="background:#E3F2FD;color:#1565C0;" id="ps-early">~Early: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export bar -->
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <button class="word-btn" id="pf-word-btn" onclick="pfCopyWord()">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 4V2.5A1.5 1.5 0 015.5 1H11.5A1.5 1.5 0 0113 2.5V8.5A1.5 1.5 0 0111.5 10H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Copy as Word Table
+        </button>
+        <button class="reset-btn" style="margin-top:0;padding:9px 22px;border:1.5px solid;" onclick="pfReset()">↺ Reset List</button>
+    </div>
+    <p style="font-size:0.78em;color:#999;font-style:italic;margin-bottom:28px;">💡 After copying, paste directly into Microsoft Word (Ctrl+V / Cmd+V) — the table will appear with colour-coded status cells.</p>
+
+</div><!-- /container -->
+</div><!-- /outer-wrap -->
+</div><!-- /tab-pf -->
+
+
+<div class="disclaimer-section">
+    <p><span class="less-bold">Developed by:</span> Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.<br>
+    <span class="less-bold">In collaboration with:</span> Preethi a/p Raghavan (MTAC RVD Pharmacist), Hospital Sungai Buloh.</p>
+    <p><span class="less-bold">Launched:</span> Mar 2026.</p>
+    <p class="stronger-bold">For Hosp Sungai Buloh Staff Use Only.</p>
+    <p class="footnote">This guide/calculator provides general advice based on published evidence and expert opinion for standardisation of practice in HSgB. This guide may not cover all aspects of clinical practice, thus healthcare practitioners are encouraged to review patient details and professionally assess the relevance of this guide to each clinical situation. This guide is subject to periodic updates. We assume no responsibility for any party that referred to an outdated version.</p>
+    <p style="margin-top:10px;">📝 <span class="less-bold">Feedback:</span> We welcome your feedback to improve this tool.
+    <a href="https://forms.gle/XW6NgKrCZLiQV4xp6" target="_blank" rel="noopener noreferrer">Click here to submit feedback</a></p>
+</div>
+
+<script src="../assets/js/pharmatrace.js"></script>
+</body>
+</html>
