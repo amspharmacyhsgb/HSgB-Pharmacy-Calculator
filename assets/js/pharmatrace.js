@@ -143,6 +143,8 @@ function mCalculate() {
     // 6. Render results
     document.getElementById('m-mpr-val').innerHTML   = mpr.toFixed(1) + '<span>%</span>';
     document.getElementById('m-mpr-bar').style.width = Math.min(mpr, 100).toFixed(1) + '%';
+    const mprVal = document.getElementById('m-mpr-val');
+    mprVal.className = 'mpr-value ' + bClass;
     const badge = document.getElementById('m-mpr-badge');
     badge.textContent = bText;
     badge.className   = 'mpr-badge ' + bClass;
