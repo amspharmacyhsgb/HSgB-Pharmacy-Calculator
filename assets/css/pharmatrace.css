@@ -273,8 +273,11 @@ input[type="date"], input[type="number"], input[type="text"] {
 #tab-mpr .dispense-table thead th { color: var(--rock-blue-mid); border-bottom: 2px solid #E3F2FD; }
 #tab-mpr .dispense-table tbody tr:hover { background: #F0F6FF; }
 #tab-mpr .result-head { background: linear-gradient(135deg, #003d82 0%, #1565C0 60%, #1976D2 100%); }
-#tab-mpr .mpr-value   { color: var(--rock-blue-deep); }
-#tab-mpr .mpr-value span { color: var(--rock-blue-mid); }
+#tab-mpr .mpr-value              { color: var(--rock-blue-deep); }
+#tab-mpr .mpr-value.optimal      { color: #1B5E20; }
+#tab-mpr .mpr-value.fair         { color: #E65100; }
+#tab-mpr .mpr-value.poor         { color: #C62828; }
+#tab-mpr .mpr-value span         { color: inherit; opacity: 0.75; }
 #tab-mpr .progress-bar-wrap { background: #BBDEFB; }
 #tab-mpr .progress-bar-fill { background: linear-gradient(90deg, #003d82, #42A5F5); }
 #tab-mpr .stat-box .stat-num  { color: var(--rock-blue-deep); }
