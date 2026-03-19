@@ -185,19 +185,17 @@
     <!-- Clinical Note -->
     <div id="m-note" style="display:none;margin-top:18px;">
         <div class="card">
-            <div class="card-head note-slate" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-                <div>
-                    <h2 style="font-size:0.98em;font-weight:700;color:#fff;">📋 Clinical Note Template</h2>
-                    <p style="font-size:0.75em;color:rgba(255,255,255,0.78);margin-top:2px;font-style:italic;">Template auto-populated — paste into eHIS and adjust as necessary based on your professional judgement</p>
-                </div>
-                <button class="copy-btn" id="m-copy-btn" onclick="mCopyNote()">
-                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 4V2.5A1.5 1.5 0 015.5 1H11.5A1.5 1.5 0 0113 2.5V8.5A1.5 1.5 0 0111.5 10H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                    Copy to Clipboard
-                </button>
+            <div class="card-head note-slate">
+                <h2 style="font-size:0.98em;font-weight:700;color:#fff;">📋 Clinical Note Template</h2>
+                <p style="font-size:0.75em;color:rgba(255,255,255,0.78);margin-top:2px;font-style:italic;">Template auto-populated — paste into eHIS and adjust as necessary based on your professional judgement</p>
             </div>
             <div class="card-body">
                 <textarea class="note-textarea" id="m-note-ta" spellcheck="false"></textarea>
                 <p class="note-hint">💡 The note is editable before copying.</p>
+                <button class="copy-btn" id="m-copy-btn" onclick="mCopyNote()" style="margin-top:12px;width:100%;justify-content:center;background:linear-gradient(135deg,#263238 0%,#546E7A 100%);border:none;border-radius:9px;padding:11px;">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 4V2.5A1.5 1.5 0 015.5 1H11.5A1.5 1.5 0 0113 2.5V8.5A1.5 1.5 0 0111.5 10H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Copy to Clipboard
+                </button>
             </div>
         </div>
     </div>
