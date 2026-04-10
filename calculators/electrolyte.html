@@ -222,6 +222,48 @@
         }
 
         .result-box.show { display: block; }
+
+        /* ── Formula Reference Box ── */
+        .formula-box {
+            margin-top: 18px;
+            background: #f3f6fb;
+            border: 1.5px dashed #90a4c8;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 0.83em;
+            color: #37474F;
+            line-height: 1.7;
+        }
+
+        .formula-box-title {
+            font-size: 0.78em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #5c7aad;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .formula-line {
+            background: #fff;
+            border: 1px solid #dce3f0;
+            border-radius: 6px;
+            padding: 7px 12px;
+            margin-bottom: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.97em;
+            color: #1a237e;
+        }
+
+        .formula-note {
+            font-size: 0.88em;
+            color: #607d8b;
+            font-style: italic;
+            margin-top: 6px;
+        }
     </style>
 </head>
 <body>
@@ -309,6 +351,19 @@
                 </div>
                 <button class="calc-btn" onclick="calcHyponatraemia()">Calculate</button>
                 <div class="result-box" id="na-result"></div>
+
+                <div class="formula-box">
+                    <div class="formula-box-title">📐 Formulas Used</div>
+                    <div class="formula-line">TBW = TBW factor × Weight (kg)</div>
+                    <div class="formula-line">Na⁺ Deficit (mmol) = TBW × (Target Na⁺ − Current Na⁺)</div>
+                    <div class="formula-line">Vol NaCl 3% (mL) = (Na⁺ Deficit ÷ 513) × 1000</div>
+                    <div class="formula-line">Vol NaCl 0.9% (mL) = (Na⁺ Deficit ÷ 154) × 1000</div>
+                    <div class="formula-line">Est. correction time (hrs) = (Target − Current) ÷ 8 × 24</div>
+                    <div class="formula-note">
+                        TBW factor: 0.6 (male), 0.5 (female) · NaCl 3% = 513 mmol/L · NaCl 0.9% = 154 mmol/L<br>
+                        Max correction rate assumed: 8 mmol/L/day (chronic hyponatraemia — risk of osmotic demyelination)
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -342,6 +397,16 @@
                 </div>
                 <button class="calc-btn" onclick="calcHypokalaemia()">Calculate</button>
                 <div class="result-box" id="k-result"></div>
+
+                <div class="formula-box">
+                    <div class="formula-box-title">📐 Formulas Used</div>
+                    <div class="formula-line">K⁺ Deficit (mmol) = 0.4 × Weight (kg) × (Target K⁺ − Current K⁺)</div>
+                    <div class="formula-note">
+                        Distribution factor: 0.4 (approximate K⁺ volume of distribution)<br>
+                        IV max rate: 10 mmol/hr (peripheral), 20 mmol/hr (central)<br>
+                        Oral: typical 40–80 mmol/day in divided doses — not calculated from deficit formula
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -371,6 +436,19 @@
                 </div>
                 <button class="calc-btn" onclick="calcHypomagnesaemia()">Calculate</button>
                 <div class="result-box" id="mg-result"></div>
+
+                <div class="formula-box">
+                    <div class="formula-box-title">📐 Formulas Used</div>
+                    <div class="formula-line">Severity classification based on serum Mg²⁺ level (mmol/L)</div>
+                    <div class="formula-line">Severe: Mg²⁺ &lt; 0.4 → 40 mmol MgSO₄ IV over 24 hrs</div>
+                    <div class="formula-line">Moderate: 0.4–0.6 → 20 mmol MgSO₄ IV over 12 hrs</div>
+                    <div class="formula-line">Mild: 0.6–0.74 → 10 mmol MgSO₄ IV over 6 hrs (or oral)</div>
+                    <div class="formula-note">
+                        Dose not weight-based — severity-guided fixed dosing used here<br>
+                        Renal impairment (CrCl &lt; 30): reduce dose by 50%, monitor closely<br>
+                        MgSO₄ 50% = 2 mmol/mL; MgSO₄ 49.3% ≈ 2 mmol/mL
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -400,6 +478,19 @@
                 </div>
                 <button class="calc-btn" onclick="calcHypophosphataemia()">Calculate</button>
                 <div class="result-box" id="phos-result"></div>
+
+                <div class="formula-box">
+                    <div class="formula-box-title">📐 Formulas Used</div>
+                    <div class="formula-line">Severity classification based on serum PO₄³⁻ level (mmol/L)</div>
+                    <div class="formula-line">Severe: PO₄³⁻ &lt; 0.32 · Moderate: 0.32–0.65 · Mild: 0.65–0.8</div>
+                    <div class="formula-line">IV Dose (mmol) = 0.08–0.16 mmol/kg × Weight</div>
+                    <div class="formula-line">Oral Dose (mmol/day) = 0.5–1.0 mmol/kg × Weight</div>
+                    <div class="formula-note">
+                        IV: infuse over 6 hrs; max rate ~7 mmol/hr<br>
+                        Oral: phosphate supplement (e.g. Phosphate-Sandoz) — divide into 2–3 daily doses<br>
+                        Severity thresholds and dose ranges based on general guidelines — verify against local protocol
+                    </div>
+                </div>
             </div>
         </div>
 

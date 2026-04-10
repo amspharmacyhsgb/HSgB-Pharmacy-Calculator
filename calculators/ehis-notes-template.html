@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eHIS Note Templates - HSgB ROCK</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+        /* ── Layout & shared ── */
+        .note-section { background:var(--white); border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:12px; overflow:hidden; }
+        .note-section-body { display:none; padding:20px; border-top:1.5px solid var(--border-color); }
+        .note-section.open .note-section-body { display:block; }
+        .note-layout { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+        @media(max-width:680px){ .note-layout{ grid-template-columns:1fr; } }
+
+        /* ── Option C accordion header — coloured left border, white bg ── */
+        .note-section-header {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:13px 18px; cursor:pointer; user-select:none;
+            background:#fff; transition:background .15s;
+        }
+        .note-section-header:hover { background:#f7f9ff; }
+        .note-section-header.cat-dose  { border-left:4px solid #003d82; }
+        .note-section-header.cat-ctrl  { border-left:4px solid #7b3fa0; }
+        .note-section-header.cat-query { border-left:4px solid #1a7a4a; }
+        .note-section-title { font-size:.92em; font-weight:600; color:#1a1a2e; display:flex; align-items:center; gap:10px; flex:1; }
+        .cat-badge { font-size:.68em; font-weight:600; padding:2px 10px; border-radius:20px; letter-spacing:.2px; white-space:nowrap; }
+        .badge-dose  { background:#EBF2FF; color:#003d82; }
+        .badge-ctrl  { background:#f3eaff; color:#7b3fa0; }
+        .badge-query { background:#e6f7ef; color:#1a7a4a; }
+        .note-chevron { font-size:.9em; color:#aaa; transition:transform .3s; flex-shrink:0; margin-left:8px; }
+        .note-section.open .note-chevron { transform:rotate(180deg); }
+
+        /* ── Option C category strip ── */
+        .category-label {
+            font-size:.76em; font-weight:700; text-transform:uppercase;
+            letter-spacing:1px; margin:24px 0 8px 2px;
+            display:flex; align-items:center; gap:8px;
+        }
+        .category-label::after { content:''; flex:1; height:1.5px; }
+        .cat-lbl-dose  { color:#003d82; } .cat-lbl-dose::after  { background:#c5d8f5; }
+        .cat-lbl-ctrl  { color:#7b3fa0; } .cat-lbl-ctrl::after  { background:#dfc8f5; }
+        .cat-lbl-query { color:#1a7a4a; } .cat-lbl-query::after { background:#b5e8cf; }
+
+        /* ── Option A instruction card ── */
+        .page-intro {
+            background:#fff; border-radius:14px; padding:18px 22px;
+            margin-bottom:20px; box-shadow:0 2px 12px rgba(0,61,130,.08);
+            border-left:5px solid #003d82; display:flex; gap:16px; align-items:flex-start;
+        }
+        .page-intro-icon { font-size:2em; line-height:1; flex-shrink:0; margin-top:2px; }
+        .page-intro-steps { display:flex; flex-direction:column; gap:7px; }
+        .intro-step { display:flex; align-items:flex-start; gap:10px; font-size:.875em; color:#444; line-height:1.5; }
+        .intro-step-num {
+            background:#003d82; color:#fff; border-radius:50%;
+            width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+            font-size:.72em; font-weight:700; flex-shrink:0; margin-top:1px;
+        }
+        .intro-step b { color:#003d82; }
+        .intro-step code { background:#eef2ff; padding:1px 5px; border-radius:3px; font-size:.9em; }
+
+        /* ── Fields ── */
+        .field-row { display:flex; align-items:flex-start; gap:10px; margin-top:10px; }
+        .field-row:first-of-type { margin-top:0; }
+        .field-toggle { flex-shrink:0; width:18px; height:18px; margin-top:24px; accent-color:var(--primary-blue); cursor:pointer; }
+        .field-content { flex:1; min-width:0; }
+        .field-content label { display:block; font-size:.82em; font-weight:600; color:#444; margin-bottom:3px; }
+        .field-content input, .field-content select, .field-content textarea { width:100%; padding:8px 10px; border:1.5px solid #ccc; border-radius:7px; font-family:'Poppins',sans-serif; font-size:.88em; color:var(--text-dark); background:#fafafa; transition:border-color .2s,opacity .2s; box-sizing:border-box; }
+        .field-content input:focus, .field-content select:focus, .field-content textarea:focus { border-color:var(--primary-blue-light); outline:none; background:var(--white); }
+        .field-content textarea { resize:vertical; min-height:60px; }
+        .paired-inputs { display:flex; gap:6px; align-items:center; }
+        .paired-inputs select, .paired-inputs input[type="number"] { flex:1; }
+        .paired-inputs .unit-hint { font-size:.78em; color:#888; white-space:nowrap; }
+        .mrn-wrap { display:flex; align-items:stretch; }
+        .mrn-prefix { display:flex; align-items:center; padding:0 10px; background:#dce8f5; border:1.5px solid #ccc; border-right:none; border-radius:7px 0 0 7px; font-size:.88em; font-weight:700; color:var(--primary-blue); white-space:nowrap; }
+        .mrn-wrap input { border-radius:0 7px 7px 0 !important; }
+        .ref-other { margin-top:6px; display:none; }
+        .ref-other.visible { display:block; }
+        .field-row.excluded .field-content label { color:#bbb; }
+        .field-row.excluded .field-content label::after { content:' — excluded'; font-size:.85em; font-weight:400; color:#bbb; font-style:italic; }
+        .field-row.excluded .field-content input, .field-row.excluded .field-content select, .field-row.excluded .field-content textarea { opacity:.3; pointer-events:none; background:#f0f0f0; border-color:#ddd; }
+        .toggle-all-row { display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:.8em; color:var(--primary-blue); font-weight:600; cursor:pointer; user-select:none; }
+        .toggle-all-row input { accent-color:var(--primary-blue); width:16px; height:16px; cursor:pointer; }
+
+        /* ── Preview panel ── */
+        .note-preview-panel { display:flex; flex-direction:column; }
+        .note-preview-label { font-size:.78em; font-weight:700; color:var(--primary-blue); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+        .note-preview { flex:1; background:#f0f4fa; border:1.5px solid var(--border-color); border-radius:8px; padding:14px; font-family:'Courier New',monospace; font-size:.82em; line-height:1.7; color:#263238; white-space:pre-wrap; word-break:break-word; min-height:200px; }
+        .copy-btn { margin-top:10px; padding:10px 18px; background:linear-gradient(135deg,var(--primary-blue) 0%,var(--primary-blue-dark) 100%); color:var(--white); border:none; border-radius:8px; font-family:'Poppins',sans-serif; font-size:.88em; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; transition:opacity .2s; width:100%; justify-content:center; }
+        .copy-btn:hover { opacity:.88; }
+        .copy-btn.copied { background:linear-gradient(135deg,#2e7d32,#1b5e20); }
+        .clear-note-btn { margin-top:8px; padding:8px 18px; background:#fff; color:#888; border:1.5px solid #ccc; border-radius:8px; font-family:'Poppins',sans-serif; font-size:.82em; font-weight:500; cursor:pointer; width:100%; transition:border-color .2s,color .2s; }
+        .clear-note-btn:hover { border-color:var(--accent-red); color:var(--accent-red); }
+    </style>
+</head>
+<body>
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Rx On-call Calculation Kit (ROCK) for Pharmacists</p>
+        </div>
+    </div>
+</div>
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+    </div>
+    <h2>📝 eHIS Note Templates</h2>
+    <div class="page-intro">
+        <div class="page-intro-icon">📋</div>
+        <div class="page-intro-steps">
+            <div class="intro-step"><span class="intro-step-num">1</span><span><b>Tick</b> the fields you need — unticked fields are excluded from the note entirely.</span></div>
+            <div class="intro-step"><span class="intro-step-num">2</span><span><b>Fill in</b> the fields — the live preview updates as you type.</span></div>
+            <div class="intro-step"><span class="intro-step-num">3</span><span>Press <b>Copy Note</b> and paste directly into eHIS. Fields left blank appear as <code>[___]</code>.</span></div>
+        </div>
+    </div>
+
+    <!-- ══ CATEGORY 1 ══ -->
+    <div class="category-label cat-lbl-dose">💊 Dose Adjustment / Recommendations</div>
+
+    <!-- Renal -->
+    <div class="note-section" id="sec-renal">
+        <div class="note-section-header cat-dose" onclick="toggleSection('sec-renal')">
+            <span class="note-section-title">Renal Dose Adjustment Recommendation <span class="cat-badge badge-dose">Dose Adjustment</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-renal" checked onclick="event.stopPropagation();toggleAll('renal',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="r-datetime" placeholder="e.g. 10/03/2026, 14:30" oninput="updateNote('renal')"></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Patient Name</label><input type="text" id="r-name" placeholder="Full name" oninput="updateNote('renal')"></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>MRN / Admission No.</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="r-mrn" placeholder="12345678" min="0" oninput="updateNote('renal')"></div></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Ward</label><input type="text" id="r-ward" placeholder="e.g. Medical Ward 5B" oninput="updateNote('renal')"></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Renal Function</label><div class="paired-inputs"><select id="r-renal-type" onchange="updateRenalUnit();updateNote('renal')"><option value="">Select type</option><option value="CrCl">CrCl</option><option value="eGFR">eGFR</option></select><input type="number" id="r-renal-val" placeholder="Value" min="0" step="0.1" oninput="updateNote('renal')"><span class="unit-hint" id="r-renal-unit">mL/min</span></div></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Renal Category</label><input type="text" id="r-renal-cat" placeholder="e.g. Moderate CKD / AKI Stage 2" oninput="updateNote('renal')"></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Drug &amp; Current Dose</label><input type="text" id="r-drug" placeholder="e.g. Meropenem 1g IV Q8H" oninput="updateNote('renal')"></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Recommended Dose</label><input type="text" id="r-newdose" placeholder="e.g. Meropenem 500mg IV Q12H" oninput="updateNote('renal')"></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Rationale / Reference</label><textarea id="r-rationale" placeholder="e.g. Dose reduction indicated for CrCl < 25 mL/min per local guideline" oninput="updateNote('renal')"></textarea></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Reference</label><select id="r-ref-sel" onchange="toggleRefOther('renal');updateNote('renal')"><option value="">-- Select a reference --</option>
+                            <optgroup label="DIAMS HSgB Guides">
+                              <option value="DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide">DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide</option>
+                              <option value="DIAMS HSgB - IV to Oral &amp; OPAT Guide">DIAMS HSgB - IV to Oral &amp; OPAT Guide</option>
+                              <option value="DIAMS HSgB - Vancomycin Protocol">DIAMS HSgB - Vancomycin Protocol</option>
+                              <option value="DIAMS HSgB - Prolonged/Extended Infusion ABX Guide">DIAMS HSgB - Prolonged/Extended Infusion ABX Guide</option>
+                              <option value="DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]">DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]</option>
+                              <option value="DIAMS HSgB - Basic Microbiology Guide">DIAMS HSgB - Basic Microbiology Guide</option>
+                              <option value="DIAMS HSgB - ABX &amp; Pathogen Match Guide">DIAMS HSgB - ABX &amp; Pathogen Match Guide</option>
+                              <option value="DIAMS HSgB - Paediatric ABX Dose Guide">DIAMS HSgB - Paediatric ABX Dose Guide</option>
+                              <option value="DIAMS HSgB - NICU Drug Database">DIAMS HSgB - NICU Drug Database</option>
+                              <option value="DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]">DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]</option>
+                            </optgroup>
+                            <optgroup label="ABX Guidelines">
+                              <option value="HSgB ABX Guideline (HAG) [2024]">HSgB ABX Guideline (HAG) [2024]</option>
+                              <option value="HSgB ICU ABX Guideline [2023]">HSgB ICU ABX Guideline [2023]</option>
+                              <option value="National ABX Guideline (NAG) [2024]">National ABX Guideline (NAG) [2024]</option>
+                            </optgroup>
+                            <optgroup label="Algorithms &amp; Protocols">
+                              <option value="HSgB Resistant GNR Infection Algorithm [Nov 2024]">HSgB Resistant GNR Infection Algorithm [Nov 2024]</option>
+                              <option value="HSgB Staph aureus Bacteremia Algorithm [2022]">HSgB Staph aureus Bacteremia Algorithm [2022]</option>
+                              <option value="HSgB Pneumonia Algorithm [Oct 2023]">HSgB Pneumonia Algorithm [Oct 2023]</option>
+                              <option value="HSgB RVD &amp; OI Quick Guide [Nov 2025]">HSgB RVD &amp; OI Quick Guide [Nov 2025]</option>
+                              <option value="HSgB ABX Traffic Light List &amp; Red Category Workflow">HSgB ABX Traffic Light List &amp; Red Category Workflow</option>
+                            </optgroup>
+                            <optgroup label="Drug Interaction Checkers">
+                              <option value="Liverpool HIV Drug Interactions Checker (hiv-druginteractions.org)">Liverpool HIV Drug Interactions Checker</option>
+                              <option value="Liverpool COVID-19 Drug Interactions Checker (covid19-druginteractions.org)">Liverpool COVID-19 Drug Interactions Checker</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                              <option value="__other__">Other (free text)</option>
+                            </optgroup></select><textarea id="r-ref-txt" class="ref-other" placeholder="Enter reference..." oninput="updateNote('renal')"></textarea></div></div>
+                    <div class="field-row" data-note="renal"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('renal')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="r-pharm" placeholder="e.g. Ahmad Faris, Clinical Pharmacy" oninput="updateNote('renal')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-renal"></div>
+                    <button class="copy-btn" id="copy-renal" onclick="copyNote('renal')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('renal')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hepatic -->
+    <div class="note-section" id="sec-hepatic">
+        <div class="note-section-header cat-dose" onclick="toggleSection('sec-hepatic')">
+            <span class="note-section-title">Hepatic Dose Adjustment Recommendation <span class="cat-badge badge-dose">Dose Adjustment</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-hepatic" checked onclick="event.stopPropagation();toggleAll('hepatic',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="h-datetime" placeholder="e.g. 10/03/2026, 14:30" oninput="updateNote('hepatic')"></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Patient Name</label><input type="text" id="h-name" placeholder="Full name" oninput="updateNote('hepatic')"></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>MRN / Admission No.</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="h-mrn" placeholder="12345678" min="0" oninput="updateNote('hepatic')"></div></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Ward</label><input type="text" id="h-ward" placeholder="e.g. Surgical Ward 3A" oninput="updateNote('hepatic')"></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Child-Pugh Score &amp; Class</label><input type="text" id="h-cpugh" placeholder="e.g. Score 8, Class B" oninput="updateNote('hepatic')"></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>MELD Score</label><input type="text" id="h-meld" placeholder="e.g. MELD 18" oninput="updateNote('hepatic')"></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Drug &amp; Current Dose</label><input type="text" id="h-drug" placeholder="e.g. Metronidazole 500mg IV Q8H" oninput="updateNote('hepatic')"></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Recommended Dose</label><input type="text" id="h-newdose" placeholder="e.g. Metronidazole 500mg IV Q12H" oninput="updateNote('hepatic')"></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Rationale / Reference</label><textarea id="h-rationale" placeholder="e.g. Dose interval extension recommended for Child-Pugh Class B/C" oninput="updateNote('hepatic')"></textarea></div></div>
+                    <div class="field-row" data-note="hepatic"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('hepatic')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="h-pharm" placeholder="e.g. Siti Norzahirah, Clinical Pharmacy" oninput="updateNote('hepatic')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-hepatic"></div>
+                    <button class="copy-btn" id="copy-hepatic" onclick="copyNote('hepatic')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('hepatic')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IV→PO -->
+    <div class="note-section" id="sec-ivpo">
+        <div class="note-section-header cat-dose" onclick="toggleSection('sec-ivpo')">
+            <span class="note-section-title">IV to Oral Switch Recommendation <span class="cat-badge badge-dose">Dose Adjustment</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-ivpo" checked onclick="event.stopPropagation();toggleAll('ivpo',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="iv-datetime" placeholder="e.g. 10/03/2026, 09:00" oninput="updateNote('ivpo')"></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Patient Name</label><input type="text" id="iv-name" placeholder="Full name" oninput="updateNote('ivpo')"></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>MRN / Admission No.</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="iv-mrn" placeholder="12345678" min="0" oninput="updateNote('ivpo')"></div></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Ward</label><input type="text" id="iv-ward" placeholder="e.g. Medical Ward 6C" oninput="updateNote('ivpo')"></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Current IV Drug &amp; Dose</label><input type="text" id="iv-ivdrug" placeholder="e.g. Amoxicillin-Clavulanate 1.2g IV Q8H" oninput="updateNote('ivpo')"></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Proposed Oral Drug &amp; Dose</label><input type="text" id="iv-podrug" placeholder="e.g. Amoxicillin-Clavulanate 625mg PO Q8H" oninput="updateNote('ivpo')"></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>IV Duration Prior to Switch</label><input type="text" id="iv-duration" placeholder="e.g. 3 days IV completed" oninput="updateNote('ivpo')"></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Criteria Met</label><textarea id="iv-criteria" placeholder="e.g. Afebrile >24h, tolerating oral intake, WBC normalising" oninput="updateNote('ivpo')"></textarea></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Bioavailability Note</label><input type="text" id="iv-bioav" placeholder="e.g. Oral bioavailability ~90%" oninput="updateNote('ivpo')"></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Reference</label><select id="iv-ref-sel" onchange="toggleRefOther('ivpo');updateNote('ivpo')"><option value="">-- Select a reference --</option>
+                            <optgroup label="DIAMS HSgB Guides">
+                              <option value="DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide">DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide</option>
+                              <option value="DIAMS HSgB - IV to Oral &amp; OPAT Guide">DIAMS HSgB - IV to Oral &amp; OPAT Guide</option>
+                              <option value="DIAMS HSgB - Vancomycin Protocol">DIAMS HSgB - Vancomycin Protocol</option>
+                              <option value="DIAMS HSgB - Prolonged/Extended Infusion ABX Guide">DIAMS HSgB - Prolonged/Extended Infusion ABX Guide</option>
+                              <option value="DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]">DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]</option>
+                              <option value="DIAMS HSgB - Basic Microbiology Guide">DIAMS HSgB - Basic Microbiology Guide</option>
+                              <option value="DIAMS HSgB - ABX &amp; Pathogen Match Guide">DIAMS HSgB - ABX &amp; Pathogen Match Guide</option>
+                              <option value="DIAMS HSgB - Paediatric ABX Dose Guide">DIAMS HSgB - Paediatric ABX Dose Guide</option>
+                              <option value="DIAMS HSgB - NICU Drug Database">DIAMS HSgB - NICU Drug Database</option>
+                              <option value="DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]">DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]</option>
+                            </optgroup>
+                            <optgroup label="ABX Guidelines">
+                              <option value="HSgB ABX Guideline (HAG) [2024]">HSgB ABX Guideline (HAG) [2024]</option>
+                              <option value="HSgB ICU ABX Guideline [2023]">HSgB ICU ABX Guideline [2023]</option>
+                              <option value="National ABX Guideline (NAG) [2024]">National ABX Guideline (NAG) [2024]</option>
+                            </optgroup>
+                            <optgroup label="Algorithms &amp; Protocols">
+                              <option value="HSgB Resistant GNR Infection Algorithm [Nov 2024]">HSgB Resistant GNR Infection Algorithm [Nov 2024]</option>
+                              <option value="HSgB Staph aureus Bacteremia Algorithm [2022]">HSgB Staph aureus Bacteremia Algorithm [2022]</option>
+                              <option value="HSgB Pneumonia Algorithm [Oct 2023]">HSgB Pneumonia Algorithm [Oct 2023]</option>
+                              <option value="HSgB RVD &amp; OI Quick Guide [Nov 2025]">HSgB RVD &amp; OI Quick Guide [Nov 2025]</option>
+                              <option value="HSgB ABX Traffic Light List &amp; Red Category Workflow">HSgB ABX Traffic Light List &amp; Red Category Workflow</option>
+                            </optgroup>
+                            <optgroup label="Drug Interaction Checkers">
+                              <option value="Liverpool HIV Drug Interactions Checker (hiv-druginteractions.org)">Liverpool HIV Drug Interactions Checker</option>
+                              <option value="Liverpool COVID-19 Drug Interactions Checker (covid19-druginteractions.org)">Liverpool COVID-19 Drug Interactions Checker</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                              <option value="__other__">Other (free text)</option>
+                            </optgroup></select><textarea id="iv-ref-txt" class="ref-other" placeholder="Enter reference..." oninput="updateNote('ivpo')"></textarea></div></div>
+                    <div class="field-row" data-note="ivpo"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpo')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="iv-pharm" placeholder="e.g. Lee Wei Ling, AMS Pharmacy" oninput="updateNote('ivpo')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-ivpo"></div>
+                    <button class="copy-btn" id="copy-ivpo" onclick="copyNote('ivpo')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('ivpo')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CATEGORY 2 ══ -->
+    <div class="category-label cat-lbl-ctrl">🔒 Controlled Substance / Special Monitoring</div>
+
+    <!-- Methadone DOT -->
+    <div class="note-section" id="sec-methadone">
+        <div class="note-section-header cat-ctrl" onclick="toggleSection('sec-methadone')">
+            <span class="note-section-title">Methadone DOT Documentation <span class="cat-badge badge-ctrl">Controlled Drug</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-methadone" checked onclick="event.stopPropagation();toggleAll('methadone',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Date</label><input type="text" id="m-date" placeholder="e.g. 10/03/2026" oninput="updateNote('methadone')"></div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Time of Administration</label><input type="text" id="m-time" placeholder="e.g. 08:15" oninput="updateNote('methadone')"></div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Patient Name</label><input type="text" id="m-name" placeholder="Full name" oninput="updateNote('methadone')"></div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>MRN / Admission No.</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="m-mrn" placeholder="12345678" min="0" oninput="updateNote('methadone')"></div></div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Ward</label><input type="text" id="m-ward" placeholder="e.g. Ward 4B" oninput="updateNote('methadone')"></div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Dose Administered</label><input type="text" id="m-dose" placeholder="e.g. 60mg in 100mL oral solution" oninput="updateNote('methadone')"></div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Patient Response</label>
+                        <select id="m-response" onchange="updateNote('methadone')">
+                            <option value="">Select response</option>
+                            <option value="Swallowed completely and observed for 10 minutes post-dose. No vomiting.">Swallowed — no vomiting</option>
+                            <option value="Vomited within 10 minutes post-dose. Dose not repeated.">Vomited within 10 min — dose not repeated</option>
+                            <option value="Vomited within 10 minutes post-dose. Dose repeated as per SOP.">Vomited within 10 min — dose repeated per SOP</option>
+                            <option value="Refused dose.">Refused dose</option>
+                            <option value="Dose withheld — patient absent.">Withheld — patient absent</option>
+                        </select>
+                    </div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Additional Notes</label><textarea id="m-notes" placeholder="e.g. No signs of intoxication observed." oninput="updateNote('methadone')"></textarea></div></div>
+                    <div class="field-row" data-note="methadone"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('methadone')"><div class="field-content"><label>Observed by (Pharmacist Name)</label><input type="text" id="m-pharm" placeholder="e.g. Nurul Ain, MMT Pharmacy" oninput="updateNote('methadone')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-methadone"></div>
+                    <button class="copy-btn" id="copy-methadone" onclick="copyNote('methadone')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('methadone')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CATEGORY 3 ══ -->
+    <div class="category-label cat-lbl-query">📞 Documentation when Responding to a Query</div>
+
+    <!-- Drug Administration -->
+    <div class="note-section" id="sec-admin">
+        <div class="note-section-header cat-query" onclick="toggleSection('sec-admin')">
+            <span class="note-section-title">Drug Administration Query <span class="cat-badge badge-query">Query Response</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-admin" checked onclick="event.stopPropagation();toggleAll('admin',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="a-datetime" placeholder="e.g. 10/03/2026, 22:10" oninput="updateNote('admin')"></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Query Raised By</label><input type="text" id="a-queriedby" placeholder="e.g. SN Rohaida, Ward 7A" oninput="updateNote('admin')"></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Patient Name</label><input type="text" id="a-patient" placeholder="Full name or N/A" oninput="updateNote('admin')"></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>MRN</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="a-mrn" placeholder="12345678" min="0" oninput="updateNote('admin')"></div></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Drug(s) Involved</label><input type="text" id="a-drug" placeholder="e.g. Vancomycin 1g IV" oninput="updateNote('admin')"></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Query Details</label><textarea id="a-query" placeholder="e.g. Nurse queried appropriate infusion rate for vancomycin." oninput="updateNote('admin')"></textarea></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Pharmacist Response</label><textarea id="a-response" placeholder="e.g. Advised to infuse over minimum 60 minutes. Rate should not exceed 10mg/min to reduce risk of Red Man Syndrome." oninput="updateNote('admin')"></textarea></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Reference</label><select id="a-ref-sel" onchange="toggleRefOther('admin');updateNote('admin')">
+                            <option value="">-- Select a reference --</option>
+                            <optgroup label="DIAMS HSgB Guides">
+                              <option value="DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide">DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide</option>
+                              <option value="DIAMS HSgB - IV to Oral &amp; OPAT Guide">DIAMS HSgB - IV to Oral &amp; OPAT Guide</option>
+                              <option value="DIAMS HSgB - Vancomycin Protocol">DIAMS HSgB - Vancomycin Protocol</option>
+                              <option value="DIAMS HSgB - Prolonged/Extended Infusion ABX Guide">DIAMS HSgB - Prolonged/Extended Infusion ABX Guide</option>
+                              <option value="DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]">DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]</option>
+                              <option value="DIAMS HSgB - Basic Microbiology Guide">DIAMS HSgB - Basic Microbiology Guide</option>
+                              <option value="DIAMS HSgB - ABX &amp; Pathogen Match Guide">DIAMS HSgB - ABX &amp; Pathogen Match Guide</option>
+                              <option value="DIAMS HSgB - Paediatric ABX Dose Guide">DIAMS HSgB - Paediatric ABX Dose Guide</option>
+                              <option value="DIAMS HSgB - NICU Drug Database">DIAMS HSgB - NICU Drug Database</option>
+                              <option value="DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]">DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]</option>
+                            </optgroup>
+                            <optgroup label="ABX Guidelines">
+                              <option value="HSgB ABX Guideline (HAG) [2024]">HSgB ABX Guideline (HAG) [2024]</option>
+                              <option value="HSgB ICU ABX Guideline [2023]">HSgB ICU ABX Guideline [2023]</option>
+                              <option value="National ABX Guideline (NAG) [2024]">National ABX Guideline (NAG) [2024]</option>
+                            </optgroup>
+                            <optgroup label="Algorithms &amp; Protocols">
+                              <option value="HSgB Resistant GNR Infection Algorithm [Nov 2024]">HSgB Resistant GNR Infection Algorithm [Nov 2024]</option>
+                              <option value="HSgB Staph aureus Bacteremia Algorithm [2022]">HSgB Staph aureus Bacteremia Algorithm [2022]</option>
+                              <option value="HSgB Pneumonia Algorithm [Oct 2023]">HSgB Pneumonia Algorithm [Oct 2023]</option>
+                              <option value="HSgB RVD &amp; OI Quick Guide [Nov 2025]">HSgB RVD &amp; OI Quick Guide [Nov 2025]</option>
+                              <option value="HSgB ABX Traffic Light List &amp; Red Category Workflow">HSgB ABX Traffic Light List &amp; Red Category Workflow</option>
+                            </optgroup>
+                            <optgroup label="Drug Interaction Checkers">
+                              <option value="Liverpool HIV Drug Interactions Checker (hiv-druginteractions.org)">Liverpool HIV Drug Interactions Checker</option>
+                              <option value="Liverpool COVID-19 Drug Interactions Checker (covid19-druginteractions.org)">Liverpool COVID-19 Drug Interactions Checker</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                              <option value="__other__">Other (free text)</option>
+                            </optgroup></select><textarea id="a-ref-txt" class="ref-other" placeholder="Enter reference..." oninput="updateNote('admin')"></textarea></div></div>
+                    <div class="field-row" data-note="admin"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('admin')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="a-pharm" placeholder="e.g. Hafizah Razali, Clinical Pharmacy" oninput="updateNote('admin')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-admin"></div>
+                    <button class="copy-btn" id="copy-admin" onclick="copyNote('admin')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('admin')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drug Dosing -->
+    <div class="note-section" id="sec-dosing">
+        <div class="note-section-header cat-query" onclick="toggleSection('sec-dosing')">
+            <span class="note-section-title">Drug Dosing Query <span class="cat-badge badge-query">Query Response</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-dosing" checked onclick="event.stopPropagation();toggleAll('dosing',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="d-datetime" placeholder="e.g. 10/03/2026, 23:45" oninput="updateNote('dosing')"></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Query Raised By</label><input type="text" id="d-queriedby" placeholder="e.g. Dr Rashid, HO, Medical Ward 3" oninput="updateNote('dosing')"></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Patient Name</label><input type="text" id="d-patient" placeholder="Full name or N/A" oninput="updateNote('dosing')"></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>MRN</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="d-mrn" placeholder="12345678" min="0" oninput="updateNote('dosing')"></div></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Drug &amp; Indication</label><input type="text" id="d-drug" placeholder="e.g. Gentamicin for Gram-negative sepsis" oninput="updateNote('dosing')"></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Patient-Specific Parameters</label><textarea id="d-params" placeholder="e.g. Weight 65kg, Age 54y, CrCl 55 mL/min" oninput="updateNote('dosing')"></textarea></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Query Details</label><textarea id="d-query" placeholder="e.g. MO queried appropriate once-daily gentamicin dose." oninput="updateNote('dosing')"></textarea></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Pharmacist Response / Recommended Dose</label><textarea id="d-response" placeholder="e.g. Recommended Gentamicin 5mg/kg/dose = 325mg IV OD. Monitor trough prior to 2nd dose." oninput="updateNote('dosing')"></textarea></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Reference</label><select id="d-ref-sel" onchange="toggleRefOther('dosing');updateNote('dosing')">
+                            <option value="">-- Select a reference --</option>
+                            <optgroup label="DIAMS HSgB Guides">
+                              <option value="DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide">DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide</option>
+                              <option value="DIAMS HSgB - IV to Oral &amp; OPAT Guide">DIAMS HSgB - IV to Oral &amp; OPAT Guide</option>
+                              <option value="DIAMS HSgB - Vancomycin Protocol">DIAMS HSgB - Vancomycin Protocol</option>
+                              <option value="DIAMS HSgB - Prolonged/Extended Infusion ABX Guide">DIAMS HSgB - Prolonged/Extended Infusion ABX Guide</option>
+                              <option value="DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]">DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]</option>
+                              <option value="DIAMS HSgB - Basic Microbiology Guide">DIAMS HSgB - Basic Microbiology Guide</option>
+                              <option value="DIAMS HSgB - ABX &amp; Pathogen Match Guide">DIAMS HSgB - ABX &amp; Pathogen Match Guide</option>
+                              <option value="DIAMS HSgB - Paediatric ABX Dose Guide">DIAMS HSgB - Paediatric ABX Dose Guide</option>
+                              <option value="DIAMS HSgB - NICU Drug Database">DIAMS HSgB - NICU Drug Database</option>
+                              <option value="DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]">DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]</option>
+                            </optgroup>
+                            <optgroup label="ABX Guidelines">
+                              <option value="HSgB ABX Guideline (HAG) [2024]">HSgB ABX Guideline (HAG) [2024]</option>
+                              <option value="HSgB ICU ABX Guideline [2023]">HSgB ICU ABX Guideline [2023]</option>
+                              <option value="National ABX Guideline (NAG) [2024]">National ABX Guideline (NAG) [2024]</option>
+                            </optgroup>
+                            <optgroup label="Algorithms &amp; Protocols">
+                              <option value="HSgB Resistant GNR Infection Algorithm [Nov 2024]">HSgB Resistant GNR Infection Algorithm [Nov 2024]</option>
+                              <option value="HSgB Staph aureus Bacteremia Algorithm [2022]">HSgB Staph aureus Bacteremia Algorithm [2022]</option>
+                              <option value="HSgB Pneumonia Algorithm [Oct 2023]">HSgB Pneumonia Algorithm [Oct 2023]</option>
+                              <option value="HSgB RVD &amp; OI Quick Guide [Nov 2025]">HSgB RVD &amp; OI Quick Guide [Nov 2025]</option>
+                              <option value="HSgB ABX Traffic Light List &amp; Red Category Workflow">HSgB ABX Traffic Light List &amp; Red Category Workflow</option>
+                            </optgroup>
+                            <optgroup label="Drug Interaction Checkers">
+                              <option value="Liverpool HIV Drug Interactions Checker (hiv-druginteractions.org)">Liverpool HIV Drug Interactions Checker</option>
+                              <option value="Liverpool COVID-19 Drug Interactions Checker (covid19-druginteractions.org)">Liverpool COVID-19 Drug Interactions Checker</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                              <option value="__other__">Other (free text)</option>
+                            </optgroup></select><textarea id="d-ref-txt" class="ref-other" placeholder="Enter reference..." oninput="updateNote('dosing')"></textarea></div></div>
+                    <div class="field-row" data-note="dosing"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('dosing')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="d-pharm" placeholder="e.g. Mohd Faizal, AMS Pharmacy" oninput="updateNote('dosing')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-dosing"></div>
+                    <button class="copy-btn" id="copy-dosing" onclick="copyNote('dosing')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('dosing')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drug Interaction -->
+    <div class="note-section" id="sec-interaction">
+        <div class="note-section-header cat-query" onclick="toggleSection('sec-interaction')">
+            <span class="note-section-title">Drug Interaction / Compatibility Query <span class="cat-badge badge-query">Query Response</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-interaction" checked onclick="event.stopPropagation();toggleAll('interaction',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="i-datetime" placeholder="e.g. 10/03/2026, 01:20" oninput="updateNote('interaction')"></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Query Raised By</label><input type="text" id="i-queriedby" placeholder="e.g. SN Khadijah, ICU" oninput="updateNote('interaction')"></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Patient Name</label><input type="text" id="i-patient" placeholder="Full name or N/A" oninput="updateNote('interaction')"></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>MRN</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="i-mrn" placeholder="12345678" min="0" oninput="updateNote('interaction')"></div></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Drug A</label><input type="text" id="i-drug-a" placeholder="e.g. Propofol 10mg/mL" oninput="updateNote('interaction')"></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Drug B</label><input type="text" id="i-drug-b" placeholder="e.g. Midazolam 1mg/mL" oninput="updateNote('interaction')"></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Query Type</label>
+                        <select id="i-type" onchange="updateNote('interaction')">
+                            <option value="">Select type</option>
+                            <option value="Y-site compatibility">Y-site compatibility</option>
+                            <option value="IV admixture compatibility">IV admixture compatibility</option>
+                            <option value="Drug-drug interaction">Drug-drug interaction</option>
+                            <option value="Drug-food interaction">Drug-food interaction</option>
+                        </select>
+                    </div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Assessment</label><textarea id="i-assessment" placeholder="e.g. Compatible at Y-site for up to 4 hours (Trissel's)." oninput="updateNote('interaction')"></textarea></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Recommendation</label><textarea id="i-recommendation" placeholder="e.g. Safe to co-administer via Y-site. Observe for any physical incompatibility." oninput="updateNote('interaction')"></textarea></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Reference</label><select id="i-ref-sel" onchange="toggleRefOther('interaction');updateNote('interaction')">
+                            <option value="">-- Select a reference --</option>
+                            <optgroup label="DIAMS HSgB Guides">
+                              <option value="DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide">DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide</option>
+                              <option value="DIAMS HSgB - IV to Oral &amp; OPAT Guide">DIAMS HSgB - IV to Oral &amp; OPAT Guide</option>
+                              <option value="DIAMS HSgB - Vancomycin Protocol">DIAMS HSgB - Vancomycin Protocol</option>
+                              <option value="DIAMS HSgB - Prolonged/Extended Infusion ABX Guide">DIAMS HSgB - Prolonged/Extended Infusion ABX Guide</option>
+                              <option value="DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]">DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]</option>
+                              <option value="DIAMS HSgB - Basic Microbiology Guide">DIAMS HSgB - Basic Microbiology Guide</option>
+                              <option value="DIAMS HSgB - ABX &amp; Pathogen Match Guide">DIAMS HSgB - ABX &amp; Pathogen Match Guide</option>
+                              <option value="DIAMS HSgB - Paediatric ABX Dose Guide">DIAMS HSgB - Paediatric ABX Dose Guide</option>
+                              <option value="DIAMS HSgB - NICU Drug Database">DIAMS HSgB - NICU Drug Database</option>
+                              <option value="DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]">DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]</option>
+                            </optgroup>
+                            <optgroup label="ABX Guidelines">
+                              <option value="HSgB ABX Guideline (HAG) [2024]">HSgB ABX Guideline (HAG) [2024]</option>
+                              <option value="HSgB ICU ABX Guideline [2023]">HSgB ICU ABX Guideline [2023]</option>
+                              <option value="National ABX Guideline (NAG) [2024]">National ABX Guideline (NAG) [2024]</option>
+                            </optgroup>
+                            <optgroup label="Algorithms &amp; Protocols">
+                              <option value="HSgB Resistant GNR Infection Algorithm [Nov 2024]">HSgB Resistant GNR Infection Algorithm [Nov 2024]</option>
+                              <option value="HSgB Staph aureus Bacteremia Algorithm [2022]">HSgB Staph aureus Bacteremia Algorithm [2022]</option>
+                              <option value="HSgB Pneumonia Algorithm [Oct 2023]">HSgB Pneumonia Algorithm [Oct 2023]</option>
+                              <option value="HSgB RVD &amp; OI Quick Guide [Nov 2025]">HSgB RVD &amp; OI Quick Guide [Nov 2025]</option>
+                              <option value="HSgB ABX Traffic Light List &amp; Red Category Workflow">HSgB ABX Traffic Light List &amp; Red Category Workflow</option>
+                            </optgroup>
+                            <optgroup label="Drug Interaction Checkers">
+                              <option value="Liverpool HIV Drug Interactions Checker (hiv-druginteractions.org)">Liverpool HIV Drug Interactions Checker</option>
+                              <option value="Liverpool COVID-19 Drug Interactions Checker (covid19-druginteractions.org)">Liverpool COVID-19 Drug Interactions Checker</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                              <option value="__other__">Other (free text)</option>
+                            </optgroup></select><textarea id="i-ref-txt" class="ref-other" placeholder="Enter reference..." oninput="updateNote('interaction')"></textarea></div></div>
+                    <div class="field-row" data-note="interaction"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('interaction')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="i-pharm" placeholder="e.g. Rashidah Hamid, Clinical Pharmacy" oninput="updateNote('interaction')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-interaction"></div>
+                    <button class="copy-btn" id="copy-interaction" onclick="copyNote('interaction')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('interaction')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Allergy -->
+    <div class="note-section" id="sec-allergy">
+        <div class="note-section-header cat-query" onclick="toggleSection('sec-allergy')">
+            <span class="note-section-title">Allergy / Cross-Reactivity Query <span class="cat-badge badge-query">Query Response</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-allergy" checked onclick="event.stopPropagation();toggleAll('allergy',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="al-datetime" placeholder="e.g. 10/03/2026, 10:05" oninput="updateNote('allergy')"></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Query Raised By</label><input type="text" id="al-queriedby" placeholder="e.g. Dr Amirul, MO, Surgical Ward" oninput="updateNote('allergy')"></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Patient Name</label><input type="text" id="al-patient" placeholder="Full name" oninput="updateNote('allergy')"></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>MRN / Admission No.</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="al-mrn" placeholder="12345678" min="0" oninput="updateNote('allergy')"></div></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Reported Allergy</label><input type="text" id="al-allergy" placeholder="e.g. Penicillin — rash (maculopapular, non-urticarial)" oninput="updateNote('allergy')"></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Proposed Drug</label><input type="text" id="al-proposed" placeholder="e.g. Cefuroxime 1.5g IV" oninput="updateNote('allergy')"></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Cross-Reactivity Assessment</label><textarea id="al-assessment" placeholder="e.g. Cross-reactivity ~1-2%. Patient's reaction was non-severe (non-urticarial rash)." oninput="updateNote('allergy')"></textarea></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Recommendation</label><textarea id="al-recommendation" placeholder="e.g. Cefuroxime may be used with caution. Monitor closely for 30 minutes post-dose." oninput="updateNote('allergy')"></textarea></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Reference</label><select id="al-ref-sel" onchange="toggleRefOther('allergy');updateNote('allergy')">
+                            <option value="">-- Select a reference --</option>
+                            <optgroup label="DIAMS HSgB Guides">
+                              <option value="DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide">DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide</option>
+                              <option value="DIAMS HSgB - IV to Oral &amp; OPAT Guide">DIAMS HSgB - IV to Oral &amp; OPAT Guide</option>
+                              <option value="DIAMS HSgB - Vancomycin Protocol">DIAMS HSgB - Vancomycin Protocol</option>
+                              <option value="DIAMS HSgB - Prolonged/Extended Infusion ABX Guide">DIAMS HSgB - Prolonged/Extended Infusion ABX Guide</option>
+                              <option value="DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]">DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]</option>
+                              <option value="DIAMS HSgB - Basic Microbiology Guide">DIAMS HSgB - Basic Microbiology Guide</option>
+                              <option value="DIAMS HSgB - ABX &amp; Pathogen Match Guide">DIAMS HSgB - ABX &amp; Pathogen Match Guide</option>
+                              <option value="DIAMS HSgB - Paediatric ABX Dose Guide">DIAMS HSgB - Paediatric ABX Dose Guide</option>
+                              <option value="DIAMS HSgB - NICU Drug Database">DIAMS HSgB - NICU Drug Database</option>
+                              <option value="DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]">DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]</option>
+                            </optgroup>
+                            <optgroup label="ABX Guidelines">
+                              <option value="HSgB ABX Guideline (HAG) [2024]">HSgB ABX Guideline (HAG) [2024]</option>
+                              <option value="HSgB ICU ABX Guideline [2023]">HSgB ICU ABX Guideline [2023]</option>
+                              <option value="National ABX Guideline (NAG) [2024]">National ABX Guideline (NAG) [2024]</option>
+                            </optgroup>
+                            <optgroup label="Algorithms &amp; Protocols">
+                              <option value="HSgB Resistant GNR Infection Algorithm [Nov 2024]">HSgB Resistant GNR Infection Algorithm [Nov 2024]</option>
+                              <option value="HSgB Staph aureus Bacteremia Algorithm [2022]">HSgB Staph aureus Bacteremia Algorithm [2022]</option>
+                              <option value="HSgB Pneumonia Algorithm [Oct 2023]">HSgB Pneumonia Algorithm [Oct 2023]</option>
+                              <option value="HSgB RVD &amp; OI Quick Guide [Nov 2025]">HSgB RVD &amp; OI Quick Guide [Nov 2025]</option>
+                              <option value="HSgB ABX Traffic Light List &amp; Red Category Workflow">HSgB ABX Traffic Light List &amp; Red Category Workflow</option>
+                            </optgroup>
+                            <optgroup label="Drug Interaction Checkers">
+                              <option value="Liverpool HIV Drug Interactions Checker (hiv-druginteractions.org)">Liverpool HIV Drug Interactions Checker</option>
+                              <option value="Liverpool COVID-19 Drug Interactions Checker (covid19-druginteractions.org)">Liverpool COVID-19 Drug Interactions Checker</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                              <option value="__other__">Other (free text)</option>
+                            </optgroup></select><textarea id="al-ref-txt" class="ref-other" placeholder="Enter reference..." oninput="updateNote('allergy')"></textarea></div></div>
+                    <div class="field-row" data-note="allergy"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('allergy')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="al-pharm" placeholder="e.g. Zulaikha Aziz, Clinical Pharmacy" oninput="updateNote('allergy')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-allergy"></div>
+                    <button class="copy-btn" id="copy-allergy" onclick="copyNote('allergy')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('allergy')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IV to PO Query -->
+    <div class="note-section" id="sec-ivpoquery">
+        <div class="note-section-header cat-query" onclick="toggleSection('sec-ivpoquery')">
+            <span class="note-section-title">IV to Oral Switch Query <span class="cat-badge badge-query">Query Response</span></span>
+            <span class="note-chevron">▼</span>
+        </div>
+        <div class="note-section-body">
+            <div class="note-layout">
+                <div class="note-fields">
+                    <div class="toggle-all-row"><input type="checkbox" id="toggleall-ivpoquery" checked onclick="event.stopPropagation();toggleAll('ivpoquery',this.checked)"> Select / Deselect All</div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Date &amp; Time</label><input type="text" id="ipq-datetime" placeholder="e.g. 10/03/2026, 08:30" oninput="updateNote('ivpoquery')"></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Query Raised By</label><input type="text" id="ipq-queriedby" placeholder="e.g. Dr Hariz, MO, Ward 5B" oninput="updateNote('ivpoquery')"></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Patient Name</label><input type="text" id="ipq-patient" placeholder="Full name or N/A" oninput="updateNote('ivpoquery')"></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>MRN</label><div class="mrn-wrap"><span class="mrn-prefix">SB</span><input type="number" id="ipq-mrn" placeholder="12345678" min="0" oninput="updateNote('ivpoquery')"></div></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Current IV Drug &amp; Dose</label><input type="text" id="ipq-ivdrug" placeholder="e.g. Amoxicillin-Clavulanate 1.2g IV Q8H" oninput="updateNote('ivpoquery')"></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Query Details</label><textarea id="ipq-query" placeholder="e.g. MO queried whether patient is eligible for IV to oral switch." oninput="updateNote('ivpoquery')"></textarea></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Pharmacist Response / Recommendation</label><textarea id="ipq-response" placeholder="e.g. Patient meets IV-PO switch criteria. Recommend switching to Amoxicillin-Clavulanate 625mg PO Q8H." oninput="updateNote('ivpoquery')"></textarea></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Reference</label><select id="ipq-ref-sel" onchange="toggleRefOther('ivpoquery');updateNote('ivpoquery')"><option value="">-- Select a reference --</option>
+                            <optgroup label="DIAMS HSgB Guides">
+                              <option value="DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide">DIAMS HSgB - ABX Dose &amp; Renal Adjustment Guide</option>
+                              <option value="DIAMS HSgB - IV to Oral &amp; OPAT Guide">DIAMS HSgB - IV to Oral &amp; OPAT Guide</option>
+                              <option value="DIAMS HSgB - Vancomycin Protocol">DIAMS HSgB - Vancomycin Protocol</option>
+                              <option value="DIAMS HSgB - Prolonged/Extended Infusion ABX Guide">DIAMS HSgB - Prolonged/Extended Infusion ABX Guide</option>
+                              <option value="DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]">DIAMS HSgB - TDM Guide (ABX &amp; AED) [May 2025]</option>
+                              <option value="DIAMS HSgB - Basic Microbiology Guide">DIAMS HSgB - Basic Microbiology Guide</option>
+                              <option value="DIAMS HSgB - ABX &amp; Pathogen Match Guide">DIAMS HSgB - ABX &amp; Pathogen Match Guide</option>
+                              <option value="DIAMS HSgB - Paediatric ABX Dose Guide">DIAMS HSgB - Paediatric ABX Dose Guide</option>
+                              <option value="DIAMS HSgB - NICU Drug Database">DIAMS HSgB - NICU Drug Database</option>
+                              <option value="DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]">DIAMS HSgB - Drug Protocols (Desensitisation, Ampho B, Ganciclovir) [Mar 2025]</option>
+                            </optgroup>
+                            <optgroup label="ABX Guidelines">
+                              <option value="HSgB ABX Guideline (HAG) [2024]">HSgB ABX Guideline (HAG) [2024]</option>
+                              <option value="HSgB ICU ABX Guideline [2023]">HSgB ICU ABX Guideline [2023]</option>
+                              <option value="National ABX Guideline (NAG) [2024]">National ABX Guideline (NAG) [2024]</option>
+                            </optgroup>
+                            <optgroup label="Algorithms &amp; Protocols">
+                              <option value="HSgB Resistant GNR Infection Algorithm [Nov 2024]">HSgB Resistant GNR Infection Algorithm [Nov 2024]</option>
+                              <option value="HSgB Staph aureus Bacteremia Algorithm [2022]">HSgB Staph aureus Bacteremia Algorithm [2022]</option>
+                              <option value="HSgB Pneumonia Algorithm [Oct 2023]">HSgB Pneumonia Algorithm [Oct 2023]</option>
+                              <option value="HSgB RVD &amp; OI Quick Guide [Nov 2025]">HSgB RVD &amp; OI Quick Guide [Nov 2025]</option>
+                              <option value="HSgB ABX Traffic Light List &amp; Red Category Workflow">HSgB ABX Traffic Light List &amp; Red Category Workflow</option>
+                            </optgroup>
+                            <optgroup label="Drug Interaction Checkers">
+                              <option value="Liverpool HIV Drug Interactions Checker (hiv-druginteractions.org)">Liverpool HIV Drug Interactions Checker</option>
+                              <option value="Liverpool COVID-19 Drug Interactions Checker (covid19-druginteractions.org)">Liverpool COVID-19 Drug Interactions Checker</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                              <option value="__other__">Other (free text)</option>
+                            </optgroup></select><textarea id="ipq-ref-txt" class="ref-other" placeholder="Enter reference..." oninput="updateNote('ivpoquery')"></textarea></div></div>
+                    <div class="field-row" data-note="ivpoquery"><input type="checkbox" class="field-toggle" checked onchange="toggleField(this);updateNote('ivpoquery')"><div class="field-content"><label>Pharmacist Name &amp; Dept</label><input type="text" id="ipq-pharm" placeholder="e.g. Lee Wei Ling, AMS Pharmacy" oninput="updateNote('ivpoquery')"></div></div>
+                </div>
+                <div class="note-preview-panel">
+                    <div class="note-preview-label">📋 Live Preview</div>
+                    <div class="note-preview" id="prev-ivpoquery"></div>
+                    <button class="copy-btn" id="copy-ivpoquery" onclick="copyNote('ivpoquery')">📋 Copy Note</button>
+                    <button class="clear-note-btn" onclick="clearNote('ivpoquery')">✕ Clear Fields</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="../assets/js/common.js"></script>
+<script>
+function toggleSection(id){const s=document.getElementById(id);s.classList.toggle('open');if(s.classList.contains('open'))updateNote(id.replace('sec-',''));}
+function toggleField(cb){const row=cb.closest('.field-row');cb.checked?row.classList.remove('excluded'):row.classList.add('excluded');syncMaster(row.dataset.note);}
+function syncMaster(k){const rows=document.querySelectorAll(`.field-row[data-note="${k}"]`);const checks=Array.from(rows).map(r=>r.querySelector('.field-toggle').checked);const m=document.getElementById('toggleall-'+k);if(!m)return;if(checks.every(Boolean)){m.checked=true;m.indeterminate=false;}else if(checks.some(Boolean)){m.checked=false;m.indeterminate=true;}else{m.checked=false;m.indeterminate=false;}}
+function toggleAll(k,state){const m=document.getElementById('toggleall-'+k);const s=state!==undefined?state:m.checked;document.querySelectorAll(`.field-row[data-note="${k}"]`).forEach(r=>{const cb=r.querySelector('.field-toggle');cb.checked=s;s?r.classList.remove('excluded'):r.classList.add('excluded');});m.indeterminate=false;m.checked=s;updateNote(k);}
+
+function toggleRefOther(noteKey){
+  const prefixMap={renal:'r',ivpo:'iv',admin:'a',dosing:'d',interaction:'i',allergy:'al',ivpoquery:'ipq'};
+  const p=prefixMap[noteKey];if(!p)return;
+  const sel=document.getElementById(p+'-ref-sel');
+  const txt=document.getElementById(p+'-ref-txt');
+  if(!sel||!txt)return;
+  if(sel.value==='__other__'){txt.classList.add('visible');}
+  else{txt.classList.remove('visible');txt.value='';}
+}
+
+function fv(id){const el=document.getElementById(id);if(!el)return null;const row=el.closest('.field-row');if(row&&row.classList.contains('excluded'))return null;return(el.value||'').trim()||'[___]';}
+function line(label,id){const v=fv(id);if(v===null)return'';return`- ${label}: ${v}\n`;}
+function sec(title){return`\n---\n${title}\n`;}
+
+function getMRN(id){const el=document.getElementById(id);if(!el)return null;const row=el.closest('.field-row');if(row&&row.classList.contains('excluded'))return null;const val=(el.value||'').trim();return val?`SB${val}`:'[___]';}
+function mrnLine(id){const v=getMRN(id);if(v===null)return'';return`- MRN: ${v}\n`;}
+
+function getRef(noteKey){
+  const prefixMap={renal:'r',ivpo:'iv',admin:'a',dosing:'d',interaction:'i',allergy:'al',ivpoquery:'ipq'};
+  const p=prefixMap[noteKey];if(!p)return null;
+  const sel=document.getElementById(p+'-ref-sel');if(!sel)return null;
+  const row=sel.closest('.field-row');if(row&&row.classList.contains('excluded'))return null;
+  if(sel.value==='__other__'){const txt=document.getElementById(p+'-ref-txt');return(txt?.value||'').trim()||'[___]';}
+  return sel.value||'[___]';
+}
+
+function getRenalFn(){
+  const typeEl=document.getElementById('r-renal-type'),valEl=document.getElementById('r-renal-val');
+  if(!typeEl||!valEl)return null;
+  const row=typeEl.closest('.field-row');if(row&&row.classList.contains('excluded'))return null;
+  const type=typeEl.value,val=(valEl.value||'').trim();
+  if(!type&&!val)return'[___]';
+  const unit=type==='eGFR'?'mL/min/1.73m2':'mL/min';
+  return`${type||'[___]'} ${val||'[___]'} ${unit}`;
+}
+function updateRenalUnit(){
+  const type=document.getElementById('r-renal-type')?.value;
+  const hint=document.getElementById('r-renal-unit');
+  if(hint)hint.textContent=type==='eGFR'?'mL/min/1.73m2':'mL/min';
+}
+
+const NB={
+  renal:()=>{
+    let t=`PHARMACIST NOTE - RENAL DOSE ADJUSTMENT RECOMMENDATION\n=======================================================\n`;
+    t+=line('Date/Time','r-datetime');t+=line('Patient','r-name');t+=mrnLine('r-mrn');t+=line('Ward','r-ward');
+    const rfVal=getRenalFn(),rcVal=fv('r-renal-cat');
+    if(rfVal!==null||rcVal!==null){t+=sec('RENAL FUNCTION ASSESSMENT');if(rfVal!==null)t+=`- Renal Function: ${rfVal}\n`;t+=line('Renal Category','r-renal-cat');}
+    const rd=fv('r-drug'),rn=fv('r-newdose');
+    if(rd!==null||rn!==null){t+=sec('MEDICATION REVIEW');t+=line('Current Regimen','r-drug');t+=line('Recommended Dose','r-newdose');}
+    const rat=fv('r-rationale');if(rat!==null)t+=sec('RATIONALE')+`- ${rat}\n`;
+    const rf=getRef('renal');if(rf!==null)t+=sec('REFERENCE')+`- ${rf}\n`;
+    const ph=fv('r-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  hepatic:()=>{
+    let t=`PHARMACIST NOTE - HEPATIC DOSE ADJUSTMENT RECOMMENDATION\n=========================================================\n`;
+    t+=line('Date/Time','h-datetime');t+=line('Patient','h-name');t+=mrnLine('h-mrn');t+=line('Ward','h-ward');
+    const cp=fv('h-cpugh'),ml=fv('h-meld');
+    if(cp!==null||ml!==null){t+=sec('HEPATIC FUNCTION ASSESSMENT');t+=line('Child-Pugh Score','h-cpugh');t+=line('MELD Score','h-meld');}
+    const hd=fv('h-drug'),hn=fv('h-newdose');
+    if(hd!==null||hn!==null){t+=sec('MEDICATION REVIEW');t+=line('Current Regimen','h-drug');t+=line('Recommended Dose','h-newdose');}
+    const rat=fv('h-rationale');if(rat!==null)t+=sec('RATIONALE')+`- ${rat}\n`;
+    const ph=fv('h-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  ivpo:()=>{
+    let t=`PHARMACIST NOTE - IV TO ORAL SWITCH RECOMMENDATION\n===================================================\n`;
+    t+=line('Date/Time','iv-datetime');t+=line('Patient','iv-name');t+=mrnLine('iv-mrn');t+=line('Ward','iv-ward');
+    const iv=fv('iv-ivdrug'),po=fv('iv-podrug'),du=fv('iv-duration'),bi=fv('iv-bioav');
+    if(iv!==null||po!==null||du!==null||bi!==null){t+=sec('SWITCH DETAILS');t+=line('Current IV','iv-ivdrug');t+=line('Proposed PO','iv-podrug');t+=line('IV Duration','iv-duration');t+=line('Oral Bioavailability','iv-bioav');}
+    const cr=fv('iv-criteria');if(cr!==null)t+=sec('CRITERIA MET')+`- ${cr}\n`;
+    const rf=getRef('ivpo');if(rf!==null)t+=sec('REFERENCE')+`- ${rf}\n`;
+    const ph=fv('iv-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  methadone:()=>{
+    let t=`PHARMACIST NOTE - METHADONE DIRECTLY OBSERVED THERAPY (DOT)\n============================================================\n`;
+    t+=line('Date','m-date');t+=line('Time','m-time');t+=line('Patient','m-name');t+=mrnLine('m-mrn');t+=line('Ward','m-ward');
+    const md=fv('m-dose'),mr=fv('m-response');
+    if(md!==null||mr!==null){t+=sec('ADMINISTRATION RECORD');if(md!==null)t+=`- Dose: Methadone ${md}\n- Route: Oral (observed)\n`;t+=line('Patient Response','m-response');}
+    const mn=fv('m-notes');if(mn!==null)t+=sec('NOTES')+`- ${mn}\n`;
+    const ph=fv('m-pharm');if(ph!==null)t+=sec('OBSERVED BY')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  admin:()=>{
+    let t=`PHARMACIST NOTE - DRUG ADMINISTRATION QUERY RESPONSE\n=====================================================\n`;
+    t+=line('Date/Time','a-datetime');t+=line('Queried By','a-queriedby');t+=line('Patient','a-patient');t+=mrnLine('a-mrn');
+    const ad=fv('a-drug'),aq=fv('a-query');
+    if(ad!==null||aq!==null){t+=sec('QUERY');t+=line('Drug(s)','a-drug');if(aq!==null)t+=`- Query Details: ${aq}\n`;}
+    const ar=fv('a-response');if(ar!==null)t+=sec('PHARMACIST RESPONSE')+`- ${ar}\n`;
+    const rf=getRef('admin');if(rf!==null)t+=sec('REFERENCE')+`- ${rf}\n`;
+    const ph=fv('a-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  dosing:()=>{
+    let t=`PHARMACIST NOTE - DRUG DOSING QUERY RESPONSE\n=============================================\n`;
+    t+=line('Date/Time','d-datetime');t+=line('Queried By','d-queriedby');t+=line('Patient','d-patient');t+=mrnLine('d-mrn');
+    const dd=fv('d-drug'),dp=fv('d-params'),dq=fv('d-query');
+    if(dd!==null||dp!==null||dq!==null){t+=sec('QUERY');t+=line('Drug & Indication','d-drug');if(dp!==null)t+=`- Patient Parameters: ${dp}\n`;if(dq!==null)t+=`- Query Details: ${dq}\n`;}
+    const dr=fv('d-response');if(dr!==null)t+=sec('PHARMACIST RECOMMENDATION')+`- ${dr}\n`;
+    const rf=getRef('dosing');if(rf!==null)t+=sec('REFERENCE')+`- ${rf}\n`;
+    const ph=fv('d-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  interaction:()=>{
+    let t=`PHARMACIST NOTE - DRUG INTERACTION / COMPATIBILITY QUERY RESPONSE\n==================================================================\n`;
+    t+=line('Date/Time','i-datetime');t+=line('Queried By','i-queriedby');t+=line('Patient','i-patient');t+=mrnLine('i-mrn');
+    const ia=fv('i-drug-a'),ib=fv('i-drug-b'),it=fv('i-type');
+    if(ia!==null||ib!==null||it!==null){t+=sec('QUERY DETAILS');t+=line('Drug A','i-drug-a');t+=line('Drug B','i-drug-b');t+=line('Query Type','i-type');}
+    const ias=fv('i-assessment');if(ias!==null)t+=sec('ASSESSMENT')+`- ${ias}\n`;
+    const ir=fv('i-recommendation');if(ir!==null)t+=sec('RECOMMENDATION')+`- ${ir}\n`;
+    const rf=getRef('interaction');if(rf!==null)t+=sec('REFERENCE')+`- ${rf}\n`;
+    const ph=fv('i-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  allergy:()=>{
+    let t=`PHARMACIST NOTE - ALLERGY / CROSS-REACTIVITY QUERY RESPONSE\n============================================================\n`;
+    t+=line('Date/Time','al-datetime');t+=line('Queried By','al-queriedby');t+=line('Patient','al-patient');t+=mrnLine('al-mrn');
+    const al=fv('al-allergy'),ap=fv('al-proposed');
+    if(al!==null||ap!==null){t+=sec('ALLERGY DETAILS');t+=line('Reported Allergy','al-allergy');t+=line('Proposed Drug','al-proposed');}
+    const as=fv('al-assessment');if(as!==null)t+=sec('CROSS-REACTIVITY ASSESSMENT')+`- ${as}\n`;
+    const ar=fv('al-recommendation');if(ar!==null)t+=sec('RECOMMENDATION')+`- ${ar}\n`;
+    const rf=getRef('allergy');if(rf!==null)t+=sec('REFERENCE')+`- ${rf}\n`;
+    const ph=fv('al-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  },
+  ivpoquery:()=>{
+    let t=`PHARMACIST NOTE - IV TO ORAL SWITCH QUERY RESPONSE\n===================================================\n`;
+    t+=line('Date/Time','ipq-datetime');t+=line('Queried By','ipq-queriedby');t+=line('Patient','ipq-patient');t+=mrnLine('ipq-mrn');
+    const iv=fv('ipq-ivdrug'),iq=fv('ipq-query');
+    if(iv!==null||iq!==null){t+=sec('QUERY');t+=line('Current IV Drug','ipq-ivdrug');if(iq!==null)t+=`- Query Details: ${iq}\n`;}
+    const ir=fv('ipq-response');if(ir!==null)t+=sec('PHARMACIST RECOMMENDATION')+`- ${ir}\n`;
+    const rf=getRef('ivpoquery');if(rf!==null)t+=sec('REFERENCE')+`- ${rf}\n`;
+    const ph=fv('ipq-pharm');if(ph!==null)t+=sec('PHARMACIST ON-CALL')+`- ${ph}`;
+    return t.trimEnd();
+  }
+};
+
+function updateNote(k){const el=document.getElementById('prev-'+k);if(el&&NB[k])el.textContent=NB[k]();}
+function copyNote(k){const el=document.getElementById('prev-'+k);if(!el)return;const txt=el.textContent;navigator.clipboard.writeText(txt).then(()=>flash(k)).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);flash(k);});}
+function flash(k){const b=document.getElementById('copy-'+k);b.textContent='✅ Copied!';b.classList.add('copied');setTimeout(()=>{b.innerHTML='📋 Copy Note';b.classList.remove('copied');},2000);}
+function clearNote(k){
+  const s=document.getElementById('sec-'+k);if(!s)return;
+  s.querySelectorAll('input[type="text"],input[type="number"],textarea').forEach(e=>e.value='');
+  s.querySelectorAll('select').forEach(e=>e.selectedIndex=0);
+  s.querySelectorAll('.ref-other').forEach(e=>e.classList.remove('visible'));
+  updateRenalUnit();
+  updateNote(k);
+}
+document.addEventListener('DOMContentLoaded',()=>{updateRenalUnit();Object.keys(NB).forEach(k=>updateNote(k));});
+</script>
+</body>
+</html>

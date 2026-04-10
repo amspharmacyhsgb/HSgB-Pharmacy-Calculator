@@ -74,37 +74,20 @@
             <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
 
                 <!-- Start Date -->
-                <div class="field" style="flex:1;min-width:160px;max-width:240px;">
+                <div class="field" style="flex:1;min-width:150px;">
                     <label>Start Date <span style="color:#c62828;font-weight:700;">*</span></label>
-                    <div class="input-with-btn">
-                        <input type="date" id="m-start">
-                        <button class="today-btn" onclick="setToday('m-start')">Today</button>
-                    </div>
+                    <input type="date" id="m-start">
                 </div>
 
                 <!-- Divider arrow -->
                 <div style="font-size:1.1em;color:#bbb;padding-bottom:10px;flex-shrink:0;">→</div>
 
-                <!-- End section -->
-                <div class="field" style="flex:1;min-width:200px;">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-                        <label style="margin:0;">Period End <span style="color:#c62828;font-weight:700;">*</span></label>
-                        <div class="toggle-tabs" style="margin:0;">
-                            <button class="toggle-tab active" id="m-tab-end"   onclick="mSwitchObs('end')">End Date</button>
-                            <button class="toggle-tab"        id="m-tab-fixed" onclick="mSwitchObs('fixed')">Fixed Duration</button>
-                        </div>
-                    </div>
-                    <div class="obs-panel visible" id="m-panel-end">
-                        <div class="input-with-btn">
-                            <input type="date" id="m-end">
-                            <button class="today-btn" onclick="setToday('m-end')">Today</button>
-                        </div>
-                    </div>
-                    <div class="obs-panel" id="m-panel-fixed">
-                        <div class="input-with-btn">
-                            <input type="number" id="m-fixed-days" min="1" placeholder="e.g. 90" style="max-width:130px;">
-                            <span style="font-size:0.85em;color:#999;white-space:nowrap;">days</span>
-                        </div>
+                <!-- End Date -->
+                <div class="field" style="flex:1;min-width:150px;">
+                    <label>End Date <span style="color:#c62828;font-weight:700;">*</span></label>
+                    <div class="input-with-btn">
+                        <input type="date" id="m-end">
+                        <button class="today-btn" onclick="setToday('m-end')" title="Click to fill today's date automatically">📅 Fill today</button>
                     </div>
                 </div>
 
