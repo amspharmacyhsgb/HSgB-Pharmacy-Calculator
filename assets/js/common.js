@@ -185,11 +185,12 @@ function generateInputSummary(inputs) {
 
 // Initialize disclaimer on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Update header text if header exists
+    // Update header text if header exists — skip pages that define their own header identity
     const headerTitle = document.querySelector('.header-text h1');
     const headerSubtitle = document.querySelector('.header-text p');
+    const skipPages = ['VDOSE', 'PharmaTrace'];
     
-    if (headerTitle && headerSubtitle) {
+    if (headerTitle && headerSubtitle && !skipPages.includes(headerTitle.textContent.trim())) {
         headerTitle.textContent = 'HSgB Pharmacy Calculator';
         headerSubtitle.textContent = 'Rx On-call Calculation Kit (ROCK) for Pharmacists';
     }
@@ -199,8 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const disclaimer = document.createElement('div');
         disclaimer.className = 'disclaimer-section';
         disclaimer.innerHTML = `
-            <p><span class="less-bold">Developer:</span> Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.<br>
-            <span class="less-bold">In collaboration with:</span> AMS Pharmacy Team, PRIC, JK IT & Digital (Pharmacy Dept, HSgB)<br>
+            <p><span class="less-bold">Prepared by:</span> Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.<br>
+            <span class="less-bold">In collaboration with:</span> Hannah Md Mahir & Fong Siew Li (AMS Pharmacists) & PRIC.<br>
             <span class="less-bold">Approved by:</span> Dr Syamhanin Adnan (Head of Pharmacy Dept, Hospital Sungai Buloh)</p>
             <p style="margin-top: 8px;"><span class="less-bold">Launched:</span> Mar 2026.</p>
             <p class="stronger-bold">For Hosp Sungai Buloh Staff Use Only.</p>

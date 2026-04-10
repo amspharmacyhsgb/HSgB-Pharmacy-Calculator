@@ -30,18 +30,9 @@ function switchTab(tab) {
 }
 
 /* ══════════════════════════════════
-   MPRx — OBSERVATION MODE
+   MPRx — DISPENSING ROWS
 ══════════════════════════════════ */
-let mObsMode = 'end';
 let mRowCount = 0;
-
-function mSwitchObs(mode) {
-    mObsMode = mode;
-    ['end', 'fixed'].forEach(m => {
-        document.getElementById(`m-tab-${m}`).classList.toggle('active', mode === m);
-        document.getElementById(`m-panel-${m}`).classList.toggle('visible', mode === m);
-    });
-}
 
 /* ══════════════════════════════════
    MPRx — DISPENSING ROWS
@@ -103,18 +94,11 @@ function mCalculate() {
     const startDate = new Date(startVal + 'T00:00:00');
 
     // 2. Observation period
-    let obsDays;
-    if (mObsMode === 'end') {
-        const endVal = document.getElementById('m-end').value;
-        if (!endVal) { mErr('Please enter an End Date.'); return; }
-        const endDate = new Date(endVal + 'T00:00:00');
-        if (endDate <= startDate) { mErr('End Date must be after Start Date.'); return; }
-        obsDays = Math.round((endDate - startDate) / 86400000);
-    } else {
-        const fd = parseInt(document.getElementById('m-fixed-days').value);
-        if (!fd || fd < 1) { mErr('Please enter a valid duration in days.'); return; }
-        obsDays = fd;
-    }
+    const endVal = document.getElementById('m-end').value;
+    if (!endVal) { mErr('Please enter an End Date.'); return; }
+    const endDate = new Date(endVal + 'T00:00:00');
+    if (endDate <= startDate) { mErr('End Date must be after Start Date.'); return; }
+    const obsDays = Math.round((endDate - startDate) / 86400000);
 
     // 3. Dispensing rows
     let totalSupplied = 0;
@@ -187,9 +171,7 @@ function mCalculate() {
 function mBuildNote(startVal, obsDays, supplied, gap, mpr, bText, entries) {
     const today    = formatDate(toInputDate(new Date()));
     const startFmt = formatDate(startVal);
-    const period   = mObsMode === 'end'
-        ? `${startFmt} to ${formatDate(document.getElementById('m-end').value)} (${obsDays} days)`
-        : `${startFmt} + ${obsDays} days (fixed duration)`;
+    const period   = `${startFmt} to ${formatDate(document.getElementById('m-end').value)} (${obsDays} days)`;
 
     let dispLines = '';
     entries.forEach((e, i) => {
@@ -250,11 +232,9 @@ function mCopyNote() {
 function mReset() {
     document.getElementById('m-start').value     = '';
     document.getElementById('m-end').value       = '';
-    document.getElementById('m-fixed-days').value = '';
     document.getElementById('m-rows').innerHTML  = '';
     mRowCount = 0;
     mAddRow(); mAddRow(); mAddRow();
-    mSwitchObs('end');
     mClearErr();
     document.getElementById('m-results').style.display = 'none';
     document.getElementById('m-note').style.display    = 'none';
