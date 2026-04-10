@@ -282,6 +282,110 @@
         /* Main content hidden until proceed */
         #main-content { display: none; }
 
+        /* ── TAB BAR ── */
+        .rock-tab-bar {
+            background: #f5f5f5;
+            border-bottom: 1px solid #d0d0d0;
+            display: flex;
+            padding: 8px 16px 0;
+            gap: 5px;
+            position: sticky;
+            top: 86px;
+            z-index: 99;
+        }
+        .rock-tab {
+            flex: 1;
+            padding: 0 12px;
+            height: 58px;
+            font-family: 'Poppins', sans-serif;
+            background: #f0f0f0;
+            border: 1px solid #d0d0d0;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            color: #aaa;
+            white-space: nowrap;
+            transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .rock-tab:hover { color: #555; background: #e8e8e8; }
+        .rock-tab-icon  { font-size: 16px; flex-shrink: 0; }
+        .rock-tab-label { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+        .rock-tab-main  { font-size: 1.0em; font-weight: 700; line-height: 1.2; text-align: left; }
+        .rock-tab-sub   { font-size: 0.82em; font-weight: 500; opacity: 0.75; line-height: 1.2; white-space: normal; text-align: left; }
+
+        #tab-rock.active        { color: #003d82; background: #EEF3FA; border-color: #c0cfe8; border-bottom: 3px solid #003d82; box-shadow: 0 -3px 8px rgba(0,61,130,0.10); z-index: 1; }
+        #tab-vdose.active       { color: #7B0C2A; background: #F9EEF1; border-color: #e0bfc8; border-bottom: 3px solid #7B0C2A; box-shadow: 0 -3px 8px rgba(123,12,42,0.10); z-index: 1; }
+        #tab-pharmatrace.active { color: #00574B; background: #E8F5F3; border-color: #b0d4cf; border-bottom: 3px solid #00574B; box-shadow: 0 -3px 8px rgba(0,87,75,0.10); z-index: 1; }
+
+        .rock-tab-body {
+            background: #f5f5f5;
+            min-height: calc(100vh - 140px);
+            padding: 20px;
+        }
+
+        .rock-tab-inner {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .rock-tab-content { display: none; }
+        .rock-tab-content.active { display: block; }
+
+        /* ── CATEGORY SECTION ── */
+        .rock-cat-section { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+        .rock-cat-section:last-child { margin-bottom: 0; }
+        .rock-cat-label {
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin: 0 0 2px 2px;
+        }
+        .rock-cards-stack { display: flex; flex-direction: column; gap: 6px; }
+
+        /* ── CARDS ── */
+        .rock-card {
+            background: linear-gradient(to bottom, #F4F4F4, #ffffff);
+            border-radius: 9px;
+            border: 1px solid #c0c0c0;
+            border-left: 4px solid #1565C0;
+            padding: 13px 16px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: box-shadow 0.15s, transform 0.15s;
+        }
+        .rock-card:hover { box-shadow: 0 3px 14px rgba(0,61,130,0.11); transform: translateY(-1px); }
+        .rock-card-title { font-size: 0.95em; font-weight: 600; color: #1a2a4a; margin: 0; line-height: 1.3; }
+        .rock-card-sub   { font-size: 0.83em; color: #7a8fa6; margin: 4px 0 0; line-height: 1.45; }
+
+        /* ── WIP CARDS ── */
+        .rock-card.wip { background: #f5f5f5; border: 1px solid #e0e0e0; border-left: 4px solid #bdbdbd; }
+        .rock-card.wip:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+        .rock-card.wip .rock-card-title { color: #757575; }
+        .rock-card.wip .rock-card-sub   { color: #bdbdbd; }
+
+        /* ── EMPTY TAB ── */
+        .rock-tab-empty { text-align: center; color: #aaa; font-size: 0.88em; font-style: italic; padding: 48px 0; }
+
+        /* ── MOBILE ── */
+        @media (max-width: 600px) {
+            .rock-index-grid { grid-template-columns: 1fr; }
+            .rock-tab-bar { padding: 0 10px; }
+            .rock-tab { padding: 0 10px; font-size: 0.82em; } .rock-tab-sub { display: none; }
+            .rock-tab-body { padding: 14px 12px; }
+        }
+
         /* Mobile */
         @media (max-width: 600px) {
             .disc-cols { grid-template-columns: 1fr; }
@@ -386,92 +490,178 @@
                 <img src="assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
             </div>
             <div class="header-text">
-                <h1>HSgB Pharmacy Calculator</h1>
-                <p>On-Call Survival Kit for Pharmacists</p>
+                <h1>HSgB ROCK</h1>
+                <p>Rx On-call Calculation Kit for Pharmacists</p>
             </div>
         </div>
     </div>
 
-    <div class="container" role="main">
-        <h2>Available Calculators</h2>
-        <p class="subtitle">Select a calculator below. The header is clickable to return here.</p>
-
-        <div class="calculator-list">
-
-            <a href="calculators/body-weight.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Body Weight (BW)</p>
-                <p class="card-footnote">BMI, BSA, IBW (Devine) &amp; Adjusted BW</p>
-            </a>
-
-            <a href="calculators/renal-function.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Renal Function (CrCl)</p>
-                <p class="card-footnote">Cockcroft-Gault-based creatinine clearance</p>
-            </a>
-
-            <a href="calculators/cosmofer.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Iron Dextran (Cosmofer) Dose</p>
-                <p class="card-footnote">Calculate total iron dose and final dosing recommendation</p>
-            </a>
-
-            <a href="calculators/enoxaparin.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Anticoagulant (Clexane/Arixtra) Dose</p>
-                <p class="card-footnote">Dose guide per indication and weight bands with renal adjustment</p>
-            </a>
-
-            <a href="calculators/anti-tb.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Anti-TB Dose (Adult Patients)</p>
-                <p class="card-footnote">Calculate TB treatment &amp; LTBI dosing – Fixed dose combinations &amp; loose pills</p>
-            </a>
-
-            <a href="calculators/vasopressor.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Vasopressor &amp; Inotrope Supply</p>
-                <p class="card-footnote">Calculate number of ampoules to supply based on drug strength and infusion rate</p>
-            </a>
-
-            <a href="calculators/nac.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">NAC (N-Acetylcysteine) Dose</p>
-                <p class="card-footnote">Calculate NAC dosing for paracetamol poisoning &amp; acute liver failure</p>
-            </a>
-
-            <a href="calculators/precedex.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Precedex (Dexmedetomidine) Supply</p>
-                <p class="card-footnote">Calculate number of ampoules to supply based on infusion rate</p>
-            </a>
-
-            <a href="calculators/paeds-dosing.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Paediatric Drug Dosing</p>
-                <p class="card-footnote">Weight-based dosing for common paediatric medications</p>
-            </a>
-
-            <a href="calculators/preg-bf-guide.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Pregnancy &amp; Breastfeeding Drug Guide</p>
-                <p class="card-footnote">Drug safety reference for use in pregnancy and breastfeeding</p>
-            </a>
-
-            <a href="calculators/abx-days.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">Antibiotic Therapy Days</p>
-                <p class="card-footnote">Calculate total days of antibiotic therapy for AMS reporting and review</p>
-            </a>
-
-            <a href="calculators/pharmatrace-hsgb.html" class="calculator-card" role="button" tabindex="0">
-                <p class="card-title">PharmaTrace — MPRx &amp; PickupFlag</p>
-                <p class="card-footnote">Medication adherence tracking (MPRx) &amp; refill timeliness monitor (PickupFlag) — MTAC RVD</p>
-            </a>
-
-            <!-- Electrolyte Correction — Work in Progress -->
-            <a href="calculators/electrolyte.html" class="calculator-card wip" role="button" tabindex="0">
-                <p class="card-title">Electrolyte Correction 🚧</p>
-                <p class="card-footnote">Sodium, potassium, magnesium &amp; phosphate correction dosing — <em>Work in progress</em></p>
-            </a>
-
-            <!-- PCM at the bottom — Work in Progress -->
-            <a href="calculators/pcm-toxicity.html" class="calculator-card wip" role="button" tabindex="0">
-                <p class="card-title">PCM Poisoning / Toxicity Guide 🚧</p>
-                <p class="card-footnote">Assessment and management guide for paracetamol overdose — <em>Work in progress</em></p>
-            </a>
-
-        </div>
+    <!-- ── TAB BAR ── -->
+    <div class="rock-tab-bar">
+        <button class="rock-tab active" id="tab-rock" onclick="switchTab('rock')">
+            <span class="rock-tab-icon">🧮</span>
+            <span class="rock-tab-label">
+                <span class="rock-tab-main">ROCK</span>
+                <span class="rock-tab-sub">Rx On-call Calculation Kit</span>
+            </span>
+        </button>
+        <button class="rock-tab" id="tab-vdose" onclick="switchTab('vdose')">
+            <span class="rock-tab-icon">🩺</span>
+            <span class="rock-tab-label">
+                <span class="rock-tab-main">VDOSE</span>
+                <span class="rock-tab-sub">Vancomycin Dosing &amp; Optimisation Support Engine</span>
+            </span>
+        </button>
+        <button class="rock-tab" id="tab-pharmatrace" onclick="switchTab('pharmatrace')">
+            <span class="rock-tab-icon">🗓️</span>
+            <span class="rock-tab-label">
+                <span class="rock-tab-main">PharmaTrace</span>
+                <span class="rock-tab-sub">Pharmacy Adherence Tracing Tool | MTAC RVD</span>
+            </span>
+        </button>
     </div>
+
+    <!-- ── TAB CONTENT WRAPPER ── -->
+    <div class="rock-tab-body">
+      <div class="rock-tab-inner">
+
+        <!-- ── ROCK TAB ── -->
+        <div id="content-rock" class="rock-tab-content active">
+
+            <div class="rock-cat-section">
+                <p class="rock-cat-label" style="color:#1156A6;">Patient Parameters</p>
+                <div class="rock-cards-stack">
+                    <a href="calculators/body-weight.html" class="rock-card" style="border-left-color:#1565C0;">
+                        <p class="rock-card-title">Body Weight</p>
+                        <p class="rock-card-sub">BMI, BSA, IBW (Devine) &amp; Adjusted BW</p>
+                    </a>
+                    <a href="calculators/renal-function.html" class="rock-card" style="border-left-color:#1565C0;">
+                        <p class="rock-card-title">Renal Function</p>
+                        <p class="rock-card-sub">Cockcroft-Gault-based creatinine clearance</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rock-cat-section">
+                <p class="rock-cat-label" style="color:#5B1E8A;">IV Therapy</p>
+                <div class="rock-cards-stack">
+                    <a href="calculators/cosmofer.html" class="rock-card" style="border-left-color:#7B1FA2;">
+                        <p class="rock-card-title">Iron Dextran (Cosmofer) Dose</p>
+                        <p class="rock-card-sub">Calculate total iron dose and final dosing recommendation</p>
+                    </a>
+                    <a href="calculators/enoxaparin.html" class="rock-card" style="border-left-color:#7B1FA2;">
+                        <p class="rock-card-title">Anticoagulant Dose (Clexane / Arixtra)</p>
+                        <p class="rock-card-sub">Dose guide per indication and weight bands with renal adjustment</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rock-cat-section">
+                <p class="rock-cat-label" style="color:#8B1A1A;">Critical Care</p>
+                <div class="rock-cards-stack">
+                    <a href="calculators/vasopressor.html" class="rock-card" style="border-left-color:#C62828;">
+                        <p class="rock-card-title">Vasopressor &amp; Inotrope Supply</p>
+                        <p class="rock-card-sub">Calculate number of ampoules to supply based on drug strength and infusion rate</p>
+                    </a>
+                    <a href="calculators/precedex.html" class="rock-card" style="border-left-color:#C62828;">
+                        <p class="rock-card-title">Precedex (Dexmedetomidine) Supply</p>
+                        <p class="rock-card-sub">Calculate number of ampoules to supply based on infusion rate</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rock-cat-section">
+                <p class="rock-cat-label" style="color:#1A5C24;">Infectious Disease</p>
+                <div class="rock-cards-stack">
+                    <a href="calculators/anti-tb.html" class="rock-card" style="border-left-color:#2E7D32;">
+                        <p class="rock-card-title">Anti-TB Dose (Adult Patients)</p>
+                        <p class="rock-card-sub">Calculate TB treatment &amp; LTBI dosing — Fixed dose combinations &amp; loose pills</p>
+                    </a>
+                    <a href="calculators/abx-days.html" class="rock-card" style="border-left-color:#2E7D32;">
+                        <p class="rock-card-title">Antibiotic Therapy Days</p>
+                        <p class="rock-card-sub">Track current day &amp; end date of antibiotic course</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rock-cat-section">
+                <p class="rock-cat-label" style="color:#880E4F;">Special Population</p>
+                <div class="rock-cards-stack">
+                    <a href="calculators/paeds-dosing.html" class="rock-card" style="border-left-color:#AD1457;">
+                        <p class="rock-card-title">Paediatric Drug Dosing</p>
+                        <p class="rock-card-sub">Weight-based dosing for common paediatric medications</p>
+                    </a>
+                    <a href="calculators/preg-bf-guide.html" class="rock-card" style="border-left-color:#AD1457;">
+                        <p class="rock-card-title">Pregnancy &amp; Breastfeeding Drug Guide</p>
+                        <p class="rock-card-sub">Drug safety reference for use in pregnancy and breastfeeding</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rock-cat-section">
+                <p class="rock-cat-label" style="color:#BF360C;">PCM Poisoning</p>
+                <div class="rock-cards-stack">
+                    <a href="calculators/nac.html" class="rock-card" style="border-left-color:#E64A19;">
+                        <p class="rock-card-title">NAC (N-Acetylcysteine) Dose</p>
+                        <p class="rock-card-sub">Calculate NAC dosing for paracetamol poisoning &amp; acute liver failure</p>
+                    </a>
+                    <a href="calculators/pcm-toxicity.html" class="rock-card wip">
+                        <p class="rock-card-title">PCM Toxicity Guide 🚧</p>
+                        <p class="rock-card-sub">Assessment and management guide for paracetamol overdose</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="rock-cat-section">
+                <p class="rock-cat-label" style="color:#7A4F00;">🚧 Other Work in Progress</p>
+                <div class="rock-cards-stack">
+                    <a href="calculators/electrolyte.html" class="rock-card wip">
+                        <p class="rock-card-title">Electrolyte Correction 🚧</p>
+                        <p class="rock-card-sub">Sodium, potassium, magnesium &amp; phosphate correction dosing</p>
+                    </a>
+                </div>
+            </div>
+
+        </div><!-- /ROCK TAB -->
+
+        <!-- ── VDOSE TAB ── -->
+        <div id="content-vdose" class="rock-tab-content">
+            <a href="calculators/vdose.html" class="rock-card" style="border-left-color:#800000;">
+                <p class="rock-card-title">VDOSE</p>
+                <p class="rock-card-sub">Vancomycin Dosing &amp; Optimisation Support Engine — includes two modules:</p>
+                <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
+                        <p style="font-size:0.82em;font-weight:600;color:#800000;margin:0;">Vancomycin Dose Calculator</p>
+                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Initial dosing recommendation, administration guide, TDM guidance &amp; clinical note template</p>
+                    </div>
+                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
+                        <p style="font-size:0.82em;font-weight:600;color:#800000;margin:0;">Vancomycin TDM Sampling Guide</p>
+                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Calculates optimal TDM sampling times &amp; generates a clinical note template</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- ── PHARMATRACE TAB ── -->
+        <div id="content-pharmatrace" class="rock-tab-content">
+            <a href="calculators/pharmatrace-hsgb.html" class="rock-card" style="border-left-color:#00574B;">
+                <p class="rock-card-title">PharmaTrace</p>
+                <p class="rock-card-sub">Pharmacy adherence tracing tool for MTAC RVD — includes two modules:</p>
+                <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
+                        <p style="font-size:0.82em;font-weight:600;color:#00574B;margin:0;">MPRx — Medication Possession Ratio</p>
+                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Calculates medication adherence based on days supplied vs days elapsed</p>
+                    </div>
+                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
+                        <p style="font-size:0.82em;font-weight:600;color:#00574B;margin:0;">PickupFlag — Refill Timeliness Monitor</p>
+                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Flags late or missed medication pickups based on expected refill dates</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div><!-- /rock-tab-inner -->
+    </div><!-- /rock-tab-body -->
 
 </div>
 
@@ -490,6 +680,13 @@
         const btn = document.getElementById('proceed-btn');
         btn.disabled = !checkbox.checked;
         btn.classList.toggle('active', checkbox.checked);
+    }
+
+    function switchTab(tab) {
+        ['rock', 'vdose', 'pharmatrace'].forEach(function(t) {
+            document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+            document.getElementById('content-' + t).classList.toggle('active', t === tab);
+        });
     }
 
     function proceedToApp() {
