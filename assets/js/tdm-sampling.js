@@ -4,6 +4,12 @@
 
 let hasScrolledTDM = false;
 
+// Ward-specific admin times (set when frequency is selected or changed)
+let currentAdminTimes = null;
+
+// Whether the 2nd scheduled dose was omitted due to short gap from 1st MD
+let secondDoseOmitted = null; // null = not applicable/not yet selected, false = given, true = omitted
+
 // Stores alternative (after-hours / weekend) sampling times
 let adjustedTroughDateTime = null;
 let adjustedPostdoseDateTime = null;
@@ -53,6 +59,15 @@ const FREQUENCY_NAMES = {
   'QID': 'Four Times Daily'
 };
 
+// Labels for admin time inputs per frequency slot
+const ADMIN_TIME_LABELS = {
+  'EOD': ['Every-other-day'],
+  'OD':  ['Daily'],
+  'BD':  ['Morning', 'Evening'],
+  'TDS': ['Dose 1', 'Dose 2', 'Dose 3'],
+  'QID': ['Dose 1', 'Dose 2', 'Dose 3', 'Dose 4']
+};
+
 // =============================================================
 // Utility Functions
 // =============================================================
@@ -72,6 +87,16 @@ function clearTDMInputs() {
   document.getElementById('timeRoundingNote').style.display = 'none';
   document.getElementById('frequencyNote').style.display = 'none';
   document.getElementById('tdm_tdmOutput').style.display = 'none';
+  
+  // Reset admin times section
+  const adminSection = document.getElementById('adminTimesSection');
+  if (adminSection) adminSection.style.display = 'none';
+  currentAdminTimes = null;
+
+  // Reset dose omission prompt
+  const gapPrompt = document.getElementById('doseGapPrompt');
+  if (gapPrompt) gapPrompt.style.display = 'none';
+  secondDoseOmitted = null;
   
   // Reset adjusted time state
   adjustedTroughDateTime = null;
@@ -186,6 +211,11 @@ function calculateTDM() {
   const dose = document.getElementById('dose').value;
   const frequency = document.getElementById('frequency').value;
   
+  // Sync admin times from inputs (ensures currentAdminTimes is always current)
+  if (frequency) {
+    currentAdminTimes = getAdminTimesFromInputs(frequency);
+  }
+
   const outputDiv = document.getElementById('tdm_tdmOutput');
   
   // Validation
@@ -241,6 +271,9 @@ function calculateTDM() {
   // Calculate sampling times
   const firstMDDateTime = new Date(mdDate);
   firstMDDateTime.setHours(mdHour24, parseInt(mdMinute), 0, 0);
+
+  // Check gap to next scheduled dose and prompt if < 6h
+  checkAndShowDoseGapPrompt(firstMDDateTime, frequency);
   
   const samplingDoseNum = SAMPLING_DOSE_NUMBER[frequency];
   const infusionDuration = INFUSION_DURATION[dose];
@@ -301,33 +334,24 @@ function convertTo24Hour(hour12, ampm) {
 // =============================================================
 
 function calculateTroughTime(firstMDDateTime, frequency, samplingDoseNum) {
-  const troughDateTime = new Date(firstMDDateTime);
-  
-  // Calculate hours to add based on frequency and dose number
-  let hoursToAdd = 0;
-  
-  if (frequency === 'EOD') {
-    // 2nd dose = 1 interval = 48 hours
-    hoursToAdd = 48;
-  } else if (frequency === 'OD') {
-    // 3rd dose = 2 intervals = 48 hours
-    hoursToAdd = 48;
-  } else if (frequency === 'BD') {
-    // 4th dose = 3 intervals = 36 hours (12h each)
-    hoursToAdd = 36;
-  } else if (frequency === 'TDS') {
-    // 4th dose = 3 intervals = 24 hours (8h each)
-    hoursToAdd = 24;
-  } else if (frequency === 'QID') {
-    // 4th dose = 3 intervals = 18 hours (6h each)
-    hoursToAdd = 18;
+  const adminTimes = currentAdminTimes || STANDARD_TIMES[frequency];
+  const extraSlot  = secondDoseOmitted === true ? 1 : 0;
+  const slotsNeeded = samplingDoseNum - 1 + extraSlot;
+  const slots = generateAdminSlots(firstMDDateTime, adminTimes, frequency, slotsNeeded);
+  const slotIndex = samplingDoseNum - 2 + extraSlot;
+  const nthDoseDateTime = slots[slotIndex];
+
+  // Fallback to interval-based method if slot generation fails
+  if (!nthDoseDateTime) {
+    const fallback = new Date(firstMDDateTime);
+    const hoursMap = { EOD: 48, OD: 48, BD: 36, TDS: 24, QID: 18 };
+    fallback.setHours(fallback.getHours() + (hoursMap[frequency] || 0));
+    fallback.setMinutes(fallback.getMinutes() - 30);
+    return fallback;
   }
-  
-  troughDateTime.setHours(troughDateTime.getHours() + hoursToAdd);
-  
-  // Subtract 30 minutes for pre-dose timing
+
+  const troughDateTime = new Date(nthDoseDateTime);
   troughDateTime.setMinutes(troughDateTime.getMinutes() - 30);
-  
   return troughDateTime;
 }
 
@@ -363,7 +387,7 @@ function displayFrequencyNote(frequency) {
       timeStr = '6:00 AM, 12:00 PM, 6:00 PM & 12:00 MN';
     }
     
-    noteDiv.innerHTML = `<strong>Standard administration times for ${frequency} in HSgB:</strong> ${timeStr}<br>Consider adjusting dose times to align with HSgB standard administration times.`;
+    noteDiv.innerHTML = `<span style="font-size:0.78rem;"><strong>Standard administration times for ${frequency} in HSgB:</strong> ${timeStr}<br>Consider adjusting dose times to align with HSgB standard administration times.</span>`;
     noteDiv.style.display = 'block';
   } else {
     noteDiv.style.display = 'none';
@@ -371,37 +395,8 @@ function displayFrequencyNote(frequency) {
 }
 
 function displayTimeRoundingNote(inputHour12, inputMinute, inputAmPm, frequency) {
-  const noteDiv = document.getElementById('timeRoundingNote');
-  
-  if (!frequency || !inputAmPm) {
-    noteDiv.style.display = 'none';
-    return;
-  }
-  
-  // Convert to 24H for comparison
-  const inputHour24 = convertTo24Hour(inputHour12, inputAmPm);
-  const nearestTime = findNearestStandardTime(inputHour24, inputMinute, frequency);
-  
-  if (nearestTime) {
-    const inputTime24 = `${inputHour24.toString().padStart(2, '0')}:${inputMinute.toString().padStart(2, '0')}`;
-    
-    if (inputTime24 !== nearestTime) {
-      // Convert nearest time to 12H format for display
-      const [h24, m] = nearestTime.split(':').map(Number);
-      const displayHour = h24 === 0 ? 12 : (h24 > 12 ? h24 - 12 : h24);
-      const displayAmPm = h24 >= 12 ? 'PM' : 'AM';
-      const displayTime = `${displayHour}:${m.toString().padStart(2, '0')} ${displayAmPm}`;
-      
-      noteDiv.innerHTML = `💡 <strong>Suggestion:</strong> Consider rounding to the nearest standard time: <strong>${displayTime}</strong>`;
-      noteDiv.style.display = 'block';
-      noteDiv.style.color = '#FF6F00';
-      noteDiv.style.fontWeight = '500';
-    } else {
-      noteDiv.style.display = 'none';
-    }
-  } else {
-    noteDiv.style.display = 'none';
-  }
+  // Removed — rounding suggestion no longer shown
+  document.getElementById('timeRoundingNote').style.display = 'none';
 }
 
 function displaySummary(ldDate, ldHour, ldMinute, ldAmPm, mdDate, mdHour, mdMinute, mdAmPm, dose, frequency, samplingMethod) {
@@ -489,17 +484,24 @@ function setUrgency(urgent) {
   renderWarningCard();
 }
 
-// Returns next morning at 5:30am.
-// If trough is 12:01am–5am, use same calendar day (just ~hours later).
-// Otherwise (≥17:00), use next calendar day.
+// Returns next adjusted trough time (30 min before first admin time of day).
+// If trough is early morning (before adjusted trough time), use same calendar day.
+// Otherwise, use next calendar day.
 function getUrgentNextMorning(troughDateTime) {
+  const adminTime = (currentAdminTimes || STANDARD_TIMES['OD'])[0];
+  const [ah, am] = adminTime.split(':').map(Number);
+  const adjustedMins = ah * 60 + am - 30;
+  const adjH = Math.floor(adjustedMins / 60);
+  const adjM = adjustedMins % 60;
+
   const h = troughDateTime.getHours();
   const result = new Date(troughDateTime);
-  if (h < 5) {
-    result.setHours(5, 30, 0, 0);
+  if (h < adjH) {
+    // Very early morning — same calendar day
+    result.setHours(adjH, adjM, 0, 0);
   } else {
     result.setDate(result.getDate() + 1);
-    result.setHours(5, 30, 0, 0);
+    result.setHours(adjH, adjM, 0, 0);
   }
   return result;
 }
@@ -569,15 +571,22 @@ function buildTimeBox(label, labelColor, formattedDT, subtext, bold) {
 }
 
 function buildNonUrgentWarningContent(kind, troughDateTime, isAUC, infusionDuration) {
-  // Always next calendar day for AOH; next working day for weekend
+  // Compute adjusted trough = 30 min before first admin time of the day
+  const adminTime = (currentAdminTimes || STANDARD_TIMES['OD'])[0];
+  const [ah, am] = adminTime.split(':').map(Number);
+  const adjustedMins = ah * 60 + am - 30;
+  const adjH = Math.floor(adjustedMins / 60);
+  const adjM = adjustedMins % 60;
+  const adminDisplayTime = adminTimeToDisplay(adminTime);
+
   let adjusted;
   if (kind === 'weekend') {
     adjusted = getNextWorkingDay(troughDateTime);
-    adjusted.setHours(5, 30, 0, 0);
+    adjusted.setHours(adjH, adjM, 0, 0);
   } else {
     adjusted = new Date(troughDateTime);
     adjusted.setDate(adjusted.getDate() + 1);
-    adjusted.setHours(5, 30, 0, 0);
+    adjusted.setHours(adjH, adjM, 0, 0);
   }
 
   // Update global adjusted state
@@ -617,7 +626,7 @@ function buildNonUrgentWarningContent(kind, troughDateTime, isAUC, infusionDurat
   html += `
     <div onclick="confirmAdjustedTime()" style="padding:12px 14px; border-radius:8px; margin-bottom:8px; ${containerStyle} cursor:pointer; transition:background 0.15s, border-color 0.15s;">
       <p style="margin:0 0 9px 0;">${headerLabel}</p>`;
-  html += buildTimeBox('Pre-dose (Trough)', '#2E7D32', troughFmt, '(30 minutes before 6:00 AM dose)', true);
+  html += buildTimeBox('Pre-dose (Trough)', '#2E7D32', troughFmt, `(30 minutes before ${adminDisplayTime} dose)`, true);
   if (isAUC) {
     const postdose = new Date(adjusted);
     postdose.setMinutes(postdose.getMinutes() + 30);
@@ -735,10 +744,10 @@ function buildUrgentWarningContent(scenario, troughDateTime, isAUC, infusionDura
       <p style="margin:0 0 9px 0; font-size:0.78rem; font-weight:700; color:${selB ? '#2E7D32' : '#555'}; text-transform:uppercase; letter-spacing:0.6px;">
         ${selB ? '✔ ' : ''}Option B — Next Morning ${preferredBadge}
       </p>`;
-  html += buildTimeBox('Pre-dose (Trough)', '#2E7D32', troughAdjFmt, '(30 minutes before 6:00 AM dose)', true);
+  html += buildTimeBox('Pre-dose (Trough)', '#2E7D32', troughAdjFmt, `(30 minutes before ${adminTimeToDisplay((currentAdminTimes || STANDARD_TIMES['OD'])[0])} dose)`, true);
   if (isAUC && postdoseAdj) {
     html += buildTimeBox('Post-dose (Peak)', '#1565C0', formatDateTime(postdoseAdj),
-      `(1 hour after infusion completion; dose at 6:00 AM, infused over ${infusionDuration} hr)`, true);
+      `(1 hour after infusion completion; dose at ${adminTimeToDisplay((currentAdminTimes || STANDARD_TIMES['OD'])[0])}, infused over ${infusionDuration} hr)`, true);
   }
   html += `</div>`;
 
@@ -853,6 +862,11 @@ function generateClinicalNote(ldDate, ldHour, ldMinute, ldAmPm, mdDate, mdHour, 
   const methodText = samplingMethod === 'auc' ? 'AUC Sampling (Pre-dose + Post-dose)' : 'Trough Sampling (Pre-dose only)';
   summaryHTML += `<p style="margin: 0 0 3px 0;">- <strong>Sampling Method:</strong> ${methodText}</p>`;
   
+  if (secondDoseOmitted === true) {
+    const ordinal = samplingDoseNum === 2 ? '2nd' : (samplingDoseNum === 3 ? '3rd' : '4th');
+    summaryHTML += `<p style="margin: 0 0 3px 0;">- <strong>Note:</strong> 2nd scheduled dose omitted (&lt;6h gap from 1st MD); TDM based on ${ordinal} <em>administered</em> dose.</p>`;
+  }
+  
   document.getElementById('notePatientSummary').innerHTML = summaryHTML;
   
   // TDM Instructions — plain dash style, Adjusted badge appears dynamically
@@ -867,7 +881,7 @@ function generateClinicalNote(ldDate, ldHour, ldMinute, ldAmPm, mdDate, mdHour, 
   tdmHTML += `<p style="margin: 0 0 2px 0;">- <strong>Pre-dose (Trough):</strong>${adjustedBadge}</p>`;
   tdmHTML += `<p style="margin: 0 0 2px 0; padding-left: 14px;">${troughFormatted.full}</p>`;
   if (useAdjusted) {
-    tdmHTML += `<p style="margin: 0 0 10px 14px; font-size: 0.88rem; color: #555;">(30 minutes before 6:00 AM dose)</p>`;
+    tdmHTML += `<p style="margin: 0 0 10px 14px; font-size: 0.88rem; color: #555;">(30 minutes before ${adminTimeToDisplay((currentAdminTimes || STANDARD_TIMES['OD'])[0])} dose)</p>`;
   } else {
     tdmHTML += `<p style="margin: 0 0 10px 14px; font-size: 0.88rem; color: #555;">(30 minutes before the ${ordinal} maintenance dose)</p>`;
   }
@@ -877,7 +891,7 @@ function generateClinicalNote(ldDate, ldHour, ldMinute, ldAmPm, mdDate, mdHour, 
     tdmHTML += `<p style="margin: 0 0 2px 0;">- <strong>Post-dose (Peak):</strong>${adjustedBadge}</p>`;
     tdmHTML += `<p style="margin: 0 0 2px 0; padding-left: 14px;">${postdoseFormatted.full}</p>`;
     if (useAdjusted) {
-      tdmHTML += `<p style="margin: 0 0 0 14px; font-size: 0.88rem; color: #555;">(1 hour after infusion completion; assuming dose given at 6:00 AM, infused over ${infusionDuration} hour${infusionDuration !== 1 ? 's' : ''})</p>`;
+      tdmHTML += `<p style="margin: 0 0 0 14px; font-size: 0.88rem; color: #555;">(1 hour after infusion completion; assuming dose given at ${adminTimeToDisplay((currentAdminTimes || STANDARD_TIMES['OD'])[0])}, infused over ${infusionDuration} hour${infusionDuration !== 1 ? 's' : ''})</p>`;
     } else {
       const doseTime = new Date(troughDateTime);
       doseTime.setMinutes(doseTime.getMinutes() + 30);
@@ -895,8 +909,194 @@ function generateClinicalNote(ldDate, ldHour, ldMinute, ldAmPm, mdDate, mdHour, 
 }
 
 // =============================================================
-// Copy Clinical Note Function
+// Admin Times — Helper, UI, and Slot Generation
 // =============================================================
+
+// Convert "HH:MM" (24h) → "H:MM AM/PM" display
+function adminTimeToDisplay(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+  return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+}
+
+// Show / rebuild the admin times input section when frequency changes
+function showAdminTimesSection(frequency) {
+  const section   = document.getElementById('adminTimesSection');
+  const container = document.getElementById('adminTimesInputs');
+  if (!section || !container) return;
+
+  if (!frequency) {
+    section.style.display = 'none';
+    currentAdminTimes = null;
+    secondDoseOmitted = null;
+    const gapPrompt = document.getElementById('doseGapPrompt');
+    if (gapPrompt) gapPrompt.style.display = 'none';
+    return;
+  }
+
+  const defaultTimes = STANDARD_TIMES[frequency] || [];
+  const labels       = ADMIN_TIME_LABELS[frequency] || [];
+  const useGrid      = frequency === 'QID'; // 2×2 for four fields
+
+  container.style.display              = useGrid ? 'grid' : 'flex';
+  container.style.gridTemplateColumns  = useGrid ? '1fr 1fr' : '';
+  container.style.flexWrap             = useGrid ? ''        : 'wrap';
+  container.style.gap                  = '8px';
+
+  container.innerHTML = defaultTimes.map((time, i) => `
+    <div style="display:flex;flex-direction:column;gap:3px;min-width:90px;flex:1;">
+      <label style="font-size:0.72rem;color:#666;font-weight:600;">${labels[i] || ('Dose ' + (i + 1))}</label>
+      <input type="time" id="adminTime_${i}" value="${time}"
+        oninput="onAdminTimesChange()"
+        style="height:36px;padding:0 8px;border:1.5px solid #CCC;border-radius:6px;
+               font-size:0.9rem;font-family:inherit;box-sizing:border-box;width:100%;
+               color:#333;background:#fff;">
+    </div>`).join('');
+
+  currentAdminTimes = [...defaultTimes];
+  section.style.display = 'block';
+}
+
+// Read current values from admin time inputs
+function getAdminTimesFromInputs(frequency) {
+  const defaultTimes = STANDARD_TIMES[frequency] || [];
+  return defaultTimes.map((def, i) => {
+    const el = document.getElementById(`adminTime_${i}`);
+    return (el && el.value) ? el.value : def;
+  });
+}
+
+// Reset inputs to HSgB standard times
+function resetAdminTimes() {
+  const frequency = document.getElementById('frequency').value;
+  if (!frequency) return;
+  const defaultTimes = STANDARD_TIMES[frequency] || [];
+  defaultTimes.forEach((time, i) => {
+    const el = document.getElementById(`adminTime_${i}`);
+    if (el) el.value = time;
+  });
+  currentAdminTimes = [...defaultTimes];
+  calculateTDM();
+}
+
+// Triggered on every admin time input change — update global and recalculate
+function onAdminTimesChange() {
+  const frequency = document.getElementById('frequency').value;
+  if (!frequency) return;
+  currentAdminTimes = getAdminTimesFromInputs(frequency);
+  calculateTDM();
+}
+
+// =============================================================
+// Dose Gap Prompt (< 6h between 1st MD and 2nd scheduled dose)
+// =============================================================
+
+function checkAndShowDoseGapPrompt(firstMDDateTime, frequency) {
+  const promptDiv = document.getElementById('doseGapPrompt');
+  if (!promptDiv || !frequency || !currentAdminTimes) {
+    if (promptDiv) promptDiv.style.display = 'none';
+    return;
+  }
+
+  // Get only the very first slot after firstMD
+  const slots = generateAdminSlots(firstMDDateTime, currentAdminTimes, frequency, 1);
+  if (!slots.length) { promptDiv.style.display = 'none'; return; }
+
+  const nextSlot  = slots[0];
+  const gapHours  = (nextSlot - firstMDDateTime) / 3600000;
+
+  if (gapHours >= 6) {
+    promptDiv.style.display = 'none';
+    if (secondDoseOmitted !== null) secondDoseOmitted = null; // auto-reset if gap widens
+    return;
+  }
+
+  // Gap < 6h — render prompt
+  const gapText = gapHours < 1
+    ? `${Math.round(gapHours * 60)} min`
+    : `${gapHours.toFixed(1)} hrs`;
+  const nextSlotFmt   = formatDateTime(nextSlot);
+  const selGiven      = secondDoseOmitted === false;
+  const selOmitted    = secondDoseOmitted === true;
+  const noneSelected  = secondDoseOmitted === null;
+
+  const btnBase   = 'flex:1; padding:8px 10px; border-radius:7px; font-weight:700; cursor:pointer; font-size:0.8rem; font-family:inherit;';
+  const styleGiven   = selGiven
+    ? `${btnBase} border:2px solid #2E7D32; background:#F1F8E9; color:#1B5E20;`
+    : `${btnBase} border:2px solid #DDD; background:#F9F9F9; color:#555;`;
+  const styleOmitted = selOmitted
+    ? `${btnBase} border:2px solid #E65100; background:#FFF3E0; color:#BF360C;`
+    : `${btnBase} border:2px solid #DDD; background:#F9F9F9; color:#555;`;
+
+  promptDiv.innerHTML = `
+    <div style="background:#FFFDE7; border:1px solid #FDD835; border-radius:8px; padding:10px 13px;">
+      <p style="margin:0 0 3px 0; font-size:0.8rem; font-weight:700; color:#F57F17;">
+        ⚠️ 2nd scheduled dose is only ${gapText} after 1st MD
+      </p>
+      <p style="margin:0 0 9px 0; font-size:0.78rem; color:#666;">
+        Next dose: ${nextSlotFmt.full} — was it given or omitted?
+      </p>
+      <div style="display:flex; gap:8px;">
+        <button type="button" onclick="selectDoseOmission(false)" style="${styleGiven}">
+          ${selGiven ? '✔ ' : ''}Given
+        </button>
+        <button type="button" onclick="selectDoseOmission(true)" style="${styleOmitted}">
+          ${selOmitted ? '✔ ' : ''}Omitted
+        </button>
+      </div>
+      ${noneSelected ? '<p style="margin:6px 0 0; font-size:0.74rem; color:#999; font-style:italic;">Please confirm — this affects which dose is used for TDM sampling.</p>' : ''}
+    </div>`;
+  promptDiv.style.display = 'block';
+}
+
+function selectDoseOmission(omitted) {
+  secondDoseOmitted = omitted;
+
+  // Re-read inputs to re-render the prompt with updated button state
+  const mdDate    = document.getElementById('md_date').value;
+  const mdHour    = document.getElementById('md_hour').value;
+  const mdMinute  = document.getElementById('md_minute').value;
+  const mdAmPm    = document.getElementById('md_ampm').value;
+  const frequency = document.getElementById('frequency').value;
+
+  if (mdDate && mdHour !== '' && mdMinute !== '' && mdAmPm !== '' && frequency) {
+    const mdHour24 = convertTo24Hour(parseInt(mdHour), mdAmPm);
+    const firstMDDateTime = new Date(mdDate);
+    firstMDDateTime.setHours(mdHour24, parseInt(mdMinute), 0, 0);
+    checkAndShowDoseGapPrompt(firstMDDateTime, frequency);
+  }
+  calculateTDM();
+}
+
+// Generate N admin slots strictly after firstMDDateTime,
+// respecting frequency interval (EOD = every 2 days, others = daily)
+function generateAdminSlots(firstMDDateTime, adminTimes, frequency, count) {
+  const slots    = [];
+  const baseDate = new Date(firstMDDateTime);
+  baseDate.setHours(0, 0, 0, 0);
+
+  const step    = frequency === 'EOD' ? 2 : 1;
+  let dayOffset = 0;
+  const maxDays = 60; // safety limit
+
+  while (slots.length < count && dayOffset < maxDays) {
+    for (const timeStr of adminTimes) {
+      const [h, m] = timeStr.split(':').map(Number);
+      const slot   = new Date(baseDate);
+      slot.setDate(slot.getDate() + dayOffset);
+      slot.setHours(h, m, 0, 0);
+
+      if (slot > firstMDDateTime) {
+        slots.push(new Date(slot));
+        if (slots.length >= count) break;
+      }
+    }
+    dayOffset += step;
+  }
+
+  return slots;
+}
 
 function tdmcopyClinicalNote() {
   const htmlContentDiv = document.getElementById('tdm_clinicalNoteContent');
@@ -950,7 +1150,7 @@ function tdmcopyClinicalNote() {
   if (useAdjusted) {
     textToCopy += `- Pre-dose (Trough): (After-office hour / Weekend sampling adjustment)\n`;
     textToCopy += `  ${troughFmt.full}\n`;
-    textToCopy += `  (30 minutes before 6:00 AM dose)\n`;
+    textToCopy += `  (30 minutes before ${adminTimeToDisplay((currentAdminTimes || STANDARD_TIMES['OD'])[0])} dose)\n`;
   } else {
     textToCopy += `- Pre-dose (Trough):\n`;
     textToCopy += `  ${troughFmt.full}\n`;
@@ -962,7 +1162,7 @@ function tdmcopyClinicalNote() {
     if (useAdjusted) {
       textToCopy += `- Post-dose (Peak): (After-office hour / Weekend sampling adjustment)\n`;
       textToCopy += `  ${postFmt.full}\n`;
-      textToCopy += `  (1 hour after infusion completion; assuming dose given at 6:00 AM, infused over ${infusionDuration} hour${infusionDuration !== 1 ? 's' : ''})\n`;
+      textToCopy += `  (1 hour after infusion completion; assuming dose given at ${adminTimeToDisplay((currentAdminTimes || STANDARD_TIMES['OD'])[0])}, infused over ${infusionDuration} hour${infusionDuration !== 1 ? 's' : ''})\n`;
     } else {
       const doseTime = new Date(troughDateTime);
       doseTime.setMinutes(doseTime.getMinutes() + 30);
