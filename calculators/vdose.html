@@ -49,6 +49,7 @@
       position: sticky;
       top: 86px;
       z-index: 99;
+      overflow-x: auto;
     }
     .tab-btn {
       padding: 0 28px;
@@ -145,12 +146,26 @@
     .disclaimer-section .footnote    { font-size: 0.9em; color: #78909C; font-style: italic; }
 
     /* ── Mobile ── */
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      .header { padding: 12px 15px !important; }
+      .logo-container img { height: 40px; padding: 3px; }
+      .header-text h1 { font-size: 1.1em; }
+      .header-text p  { font-size: 0.65em; }
+      .tab-bar { top: 64px; padding: 0 8px; }
       .tab-btn { padding: 0 14px; }
+      .tab-btn-back { padding: 0 14px; }
+    }
+    @media (max-width: 640px) {
+      .logo-container img { height: 36px; }
+      .header-text h1 { font-size: 0.95em; }
+      .header-text p  { font-size: 0.6em; }
+      .tab-bar { top: 60px; }
+      .tab-btn { padding: 0 10px; font-size: 0.82em; }
       .tab-label-sub { display: none; }
+      .tab-btn-back { padding: 0 12px; }
+      .tab-btn-back .back-label { display: none; }
       .outer-wrap > .container { padding: 12px 16px 26px !important; }
       .outer-wrap { margin: 10px; border-radius: 8px; }
-      .tab-bar { padding: 0 8px; }
     }
 
     /* ════════════════════════════════════════
@@ -631,7 +646,7 @@
               </select>
             </div>
             <div style="flex: 1 1 0; min-width: 0;">
-              <select id="frequency" style="width: 100%;">
+              <select id="frequency" style="width: 100%;" onchange="showAdminTimesSection(this.value)">
                 <option value="">Frequency</option>
                 <option value="OD">OD (Once Daily)</option>
                 <option value="BD">BD (Twice Daily)</option>
@@ -641,6 +656,20 @@
             </div>
           </div>
           <div id="frequencyNote" style="display:none; margin-bottom: 8px;" class="input-footnote"></div>
+
+          <!-- Ward Admin Times — shown when frequency is selected -->
+          <div id="adminTimesSection" style="display:none; margin-bottom:10px; padding:10px 12px; background:#FBF7F7; border:1px solid #E8D8D8; border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px;">
+              <span style="font-size:0.8rem; font-weight:700; color:#800000;">🕐 Ward Administration Times</span>
+              <button type="button" onclick="resetAdminTimes()"
+                style="font-size:0.72rem; color:#800000; background:none; border:1px solid #C8A0A0;
+                       border-radius:4px; cursor:pointer; padding:2px 8px; white-space:nowrap;
+                       font-family:inherit;">↺ Reset to HSgB default</button>
+            </div>
+            <p style="margin:0 0 8px 0; font-size:0.74rem; color:#888; line-height:1.4;">Edit if your ward uses different administration times. Changes will update the calculated sampling times.</p>
+            <div id="adminTimesInputs"></div>
+          </div>
+          <label style="display:block; font-size:0.78rem; font-weight:600; color:#555; margin-bottom:4px;">📅 Date &amp; time of <u>FIRST</u> maintenance dose:</label>
           <div style="display: flex; gap: 6px; align-items: stretch; flex-wrap: nowrap;">
             <input type="date" id="md_date" style="flex: 1 1 0; min-width: 0; height: 40px; padding: 0 8px; box-sizing: border-box;">
             <select id="md_hour" style="flex: 0 0 52px; height: 40px; padding: 0 2px; box-sizing: border-box;">
@@ -661,6 +690,7 @@
             </select>
           </div>
           <div id="timeRoundingNote" style="display:none; margin-top: 6px;" class="input-footnote"></div>
+          <div id="doseGapPrompt" style="display:none; margin-top: 8px;"></div>
         </div>
       </div><!-- /form-group: regimen -->
 
