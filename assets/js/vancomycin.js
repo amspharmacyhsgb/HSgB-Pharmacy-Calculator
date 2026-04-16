@@ -133,12 +133,18 @@ function getAdminRegimenText(doseData, ivAccessText, frequencyText) {
 function clearVancomycinInputs() {
   document.getElementById('vancomycinForm').reset();
   document.getElementById('abwWarning').style.display = 'none';
-  if (document.getElementById('scr_input'))      document.getElementById('scr_input').value = '';
-  if (document.getElementById('crclGroup'))     document.getElementById('crclGroup').style.display = 'none';
-  if (document.getElementById('timingGroup'))   document.getElementById('timingGroup').style.display = 'none';
+  if (document.getElementById('crclGroup'))        document.getElementById('crclGroup').style.display = 'none';
+  if (document.getElementById('timingGroup'))      document.getElementById('timingGroup').style.display = 'none';
   if (document.getElementById('ivAccessFootnote')) document.getElementById('ivAccessFootnote').style.display = 'none';
   if (document.getElementById('vancomycinOutput')) document.getElementById('vancomycinOutput').style.display = 'none';
   if (document.getElementById('warningCollapse'))  document.getElementById('warningCollapse').style.display = 'none';
+  // Reset built-in CrCl helper
+  const helperPanel = document.getElementById('crclHelperPanel');
+  const helperToggle = document.getElementById('crclHelperToggle');
+  const helperResult = document.getElementById('crclHelperResult');
+  if (helperPanel)  { helperPanel.style.display = 'none'; }
+  if (helperToggle) { helperToggle.classList.remove('active'); }
+  if (helperResult) { helperResult.style.display = 'none'; helperResult.innerHTML = ''; }
   hasScrolledVancomycin = false;
 }
 
@@ -151,13 +157,54 @@ function toggleCrClInput() {
   const crclGroup  = document.getElementById('crclGroup');
   const timingGroup = document.getElementById('timingGroup');
 
-  if (crclGroup)  crclGroup.style.display  = status === 'notHD' ? 'block' : 'none';
-  if (timingGroup) timingGroup.style.display = status === 'HD'    ? 'block' : 'none';
+  if (crclGroup)   crclGroup.style.display   = status === 'notHD' ? 'block' : 'none';
+  if (timingGroup) timingGroup.style.display  = status === 'HD'    ? 'block' : 'none';
 
   // Clear conditional inputs when status changes
-  if (document.getElementById('scr_input'))      document.getElementById('scr_input').value = '';
   if (document.getElementById('crcl'))           document.getElementById('crcl').value = '';
   if (document.getElementById('dialysisTiming')) document.getElementById('dialysisTiming').value = '';
+
+  // Collapse and reset the CrCl helper panel
+  const helperPanel  = document.getElementById('crclHelperPanel');
+  const helperToggle = document.getElementById('crclHelperToggle');
+  const helperResult = document.getElementById('crclHelperResult');
+  if (helperPanel)  { helperPanel.style.display = 'none'; }
+  if (helperToggle) { helperToggle.classList.remove('active'); }
+  if (helperResult) { helperResult.style.display = 'none'; helperResult.innerHTML = ''; }
+
+  calculateVancomycin();
+}
+
+function toggleCrClHelper() {
+  const panel  = document.getElementById('crclHelperPanel');
+  const toggle = document.getElementById('crclHelperToggle');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  toggle.classList.toggle('active', !isOpen);
+}
+
+function calculateBuiltInCrCl() {
+  const age     = parseFloat(document.getElementById('crcl_age').value);
+  const genderEl = document.querySelector('input[name="crcl_gender"]:checked');
+  const scr     = parseFloat(document.getElementById('crcl_scr').value);
+  const abw     = parseFloat(document.getElementById('abw').value);
+  const resultEl = document.getElementById('crclHelperResult');
+  const noteEl   = document.getElementById('crclHelperNote');
+
+  if (!age || !genderEl || !scr || !abw || isNaN(age) || isNaN(scr) || isNaN(abw)) {
+    resultEl.style.display = 'none';
+    if (noteEl) noteEl.style.display = '';
+    return;
+  }
+
+  const F      = genderEl.value === 'male' ? 1.23 : 1.04;
+  const crcl   = ((140 - age) * abw * F) / scr;
+  const rounded = Math.round(crcl * 10) / 10;
+
+  document.getElementById('crcl').value = rounded;
+  if (noteEl) noteEl.style.display = 'none';
+  resultEl.innerHTML = `✔ Calculated CrCl: <strong>${rounded} ml/min</strong> &nbsp;(Cockcroft-Gault, BW ${abw} kg) — auto-filled above.`;
+  resultEl.style.display = 'block';
 
   calculateVancomycin();
 }
@@ -189,7 +236,7 @@ function displayIvAccessFootnote() {
 function calculateVancomycin() {
   const abw       = parseFloat(document.getElementById('abw').value);
   const status    = document.getElementById('dialysisStatus').value;
-  const scr_input = document.getElementById('scr_input').value;
+  const scr_input = document.getElementById('crcl_scr') ? document.getElementById('crcl_scr').value : '';
   const crcl      = parseFloat(document.getElementById('crcl').value);
   const timing    = document.getElementById('dialysisTiming').value;
   const indication = document.getElementById('indication').value;
@@ -274,7 +321,7 @@ function calculateVancomycin() {
   // --- Render LD output card ---
   let ldOutputHTML = '';
   if (ldData) {
-      ldOutputHTML = `<div style="background-color: #F8E8E8; border-left: 4px solid #800000; border-radius: 8px; padding: 20px; margin-bottom: 15px;">`;
+      ldOutputHTML = `<div style="background-color: #F8E8E8; border-left: 4px solid #800000; border-radius: 8px; padding: 10px 12px 8px;">`;
 
       if (ldTable) {
           const relevantItem = ldTable.find(item => abw <= item.maxWeight + 0.001);
@@ -286,19 +333,19 @@ function calculateVancomycin() {
               const endWeight   = relevantItem.maxWeight === Infinity ? '&ge; 100' : relevantItem.maxWeight.toFixed(0);
 
               ldOutputHTML += `
-                <div style="background-color: white; border-radius: 5px; padding: 15px; margin-bottom: 12px;">
-                  <div style="margin-bottom: 10px;">
-                    <span style="color: #800000; font-weight: 600;">📊 Your Weight Range:</span>
-                    <span style="margin-left: 8px; font-size: 1.1rem; font-weight: 700;">${startWeight.includes('<') || startWeight.includes('&ge;') ? startWeight : `${startWeight}&ndash;${endWeight}`} kg</span>
+                <div style="background-color: white; border-radius: 5px; padding: 8px 12px; margin-bottom: 6px;">
+                  <div style="margin-bottom: 5px;">
+                    <span style="color: #800000; font-weight: 600;">📊 Weight Range:</span>
+                    <span style="margin-left: 6px; font-weight: 700;">${startWeight.includes('<') || startWeight.includes('&ge;') ? startWeight : `${startWeight}&ndash;${endWeight}`} kg</span>
                   </div>
-                  <div style="margin-bottom: ${isHDBefore ? '8px' : '0'};">
+                  <div style="margin-bottom: ${isHDBefore ? '5px' : '0'};">
                     <span style="color: #800000; font-weight: 600;">💉 Loading Dose:</span>
-                    <span style="margin-left: 8px; font-size: 1.1rem; font-weight: 700;">${relevantItem.dose.toLocaleString()} mg STAT</span>
+                    <span style="margin-left: 6px; font-weight: 700;">${relevantItem.dose.toLocaleString()} mg STAT</span>
                   </div>
                   ${isHDBefore ? `<div>
                     <span style="color: #800000; font-weight: 600;">➕ Top-Up Dose:</span>
-                    <span style="margin-left: 8px; font-size: 1.1rem; font-weight: 700;">${relevantItem.topUp.toLocaleString()} mg</span>
-                    <span style="color: #666; font-size: 0.85rem; margin-left: 5px;">(post-HD)</span>
+                    <span style="margin-left: 6px; font-weight: 700;">${relevantItem.topUp.toLocaleString()} mg</span>
+                    <span style="color: #666; margin-left: 4px;">(post-HD)</span>
                   </div>` : ''}
                 </div>`;
           }
@@ -338,16 +385,16 @@ function calculateVancomycin() {
                 const minWeight = relevantItem.minWeight.toFixed(0);
                 const maxWeight = relevantItem.maxWeight === Infinity ? '&#8734;' : relevantItem.maxWeight.toFixed(0);
 
-                mdText = `<div style="background-color: #FFF4D6; border-left: 4px solid #D68910; border-radius: 8px; padding: 20px; margin-bottom: 15px;">`;
+                mdText = `<div style="background-color: #FFF4D6; border-left: 4px solid #D68910; border-radius: 8px; padding: 10px 12px 8px;">`;
                 mdText += `
-                  <div style="background-color: white; border-radius: 5px; padding: 15px; margin-bottom: 12px;">
-                    <div style="margin-bottom: 10px;">
-                      <span style="color: #D68910; font-weight: 600;">📊 Your Weight Range:</span>
-                      <span style="margin-left: 8px; font-size: 1.1rem; font-weight: 700;">${minWeight}&ndash;${maxWeight.replace('.9', '').replace('.1', '')} kg</span>
+                  <div style="background-color: white; border-radius: 5px; padding: 8px 12px; margin-bottom: 6px;">
+                    <div style="margin-bottom: 5px;">
+                      <span style="color: #D68910; font-weight: 600;">📊 Weight Range:</span>
+                      <span style="margin-left: 6px; font-weight: 700;">${minWeight}&ndash;${maxWeight.replace('.9', '').replace('.1', '')} kg</span>
                     </div>
                     <div>
                       <span style="color: #D68910; font-weight: 600;">💉 Maintenance Dose:</span>
-                      <span style="margin-left: 8px; font-size: 1.1rem; font-weight: 700;">${relevantItem.dose}</span>
+                      <span style="margin-left: 6px; font-weight: 700;">${relevantItem.dose}</span>
                     </div>
                   </div>`;
             }
@@ -402,22 +449,22 @@ function calculateVancomycin() {
       const ldAdmin = getAdminInstruction(ldData.roundedDose, ivAccess);
       if (ldAdmin) {
           ldAdminOutputHTML = `
-              <div style="background-color: #F8E8E8; border-left: 4px solid #800000; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; margin-bottom: 12px;">
-                  <strong style="color: #800000; font-size: 1.05rem;">Loading Dose: ${ldData.roundedDose.toLocaleString()} mg IV STAT</strong>
+              <div style="background-color: #F8E8E8; border-left: 4px solid #800000; border-radius: 8px; padding: 10px 12px 8px;">
+                <div style="margin-bottom: 6px;">
+                  <strong style="color: #800000;">Loading Dose: ${ldData.roundedDose.toLocaleString()} mg IV STAT</strong>
                 </div>
-                <div style="background-color: white; border-radius: 5px; padding: 12px; margin-bottom: 10px;">
-                  <div style="margin-bottom: 8px;">
+                <div style="background-color: white; border-radius: 5px; padding: 8px 12px;">
+                  <div style="margin-bottom: 5px;">
                     <span style="color: #800000; font-weight: 600;">📋 Dilution:</span>
-                    <span style="margin-left: 8px;">${ldAdmin.dilution}</span>
+                    <span style="margin-left: 6px;">${ldAdmin.dilution}</span>
                   </div>
-                  <div style="margin-bottom: 8px;">
+                  <div style="margin-bottom: 5px;">
                     <span style="color: #800000; font-weight: 600;">⏱️ Infusion Time:</span>
-                    <span style="margin-left: 8px;">${ldAdmin.time} hour${ldAdmin.time > 1 ? 's' : ''}</span>
+                    <span style="margin-left: 6px;">${ldAdmin.time} hour${ldAdmin.time > 1 ? 's' : ''}</span>
                   </div>
                   <div>
                     <span style="color: #800000; font-weight: 600;">⚕️ Max Concentration:</span>
-                    <span style="margin-left: 8px;">${ldAdmin.maxConc} (${ivAccess} line)</span>
+                    <span style="margin-left: 6px;">${ldAdmin.maxConc} (${ivAccess} line)</span>
                   </div>
                 </div>
               </div>`;
@@ -434,22 +481,22 @@ function calculateVancomycin() {
         const time         = mdAdmin.time;
 
         mdAdminOutputHTML = `
-              <div style="background-color: #FFF4D6; border-left: 4px solid #D68910; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; margin-bottom: 12px;">
-                  <strong style="color: #D68910; font-size: 1.05rem;">Maintenance Dose: ${fullDoseText}</strong>
+              <div style="background-color: #FFF4D6; border-left: 4px solid #D68910; border-radius: 8px; padding: 10px 12px 8px;">
+                <div style="margin-bottom: 6px;">
+                  <strong style="color: #D68910;">Maintenance Dose: ${fullDoseText}</strong>
                 </div>
-                <div style="background-color: white; border-radius: 5px; padding: 12px; margin-bottom: 10px;">
-                  <div style="margin-bottom: 8px;">
+                <div style="background-color: white; border-radius: 5px; padding: 8px 12px;">
+                  <div style="margin-bottom: 5px;">
                     <span style="color: #D68910; font-weight: 600;">📋 Dilution:</span>
-                    <span style="margin-left: 8px;">${mdAdmin.dilution} per dose</span>
+                    <span style="margin-left: 6px;">${mdAdmin.dilution} per dose</span>
                   </div>
-                  <div style="margin-bottom: 8px;">
+                  <div style="margin-bottom: 5px;">
                     <span style="color: #D68910; font-weight: 600;">⏱️ Infusion Time:</span>
-                    <span style="margin-left: 8px;">${time} hour${time !== 1 ? 's' : ''} per dose</span>
+                    <span style="margin-left: 6px;">${time} hour${time !== 1 ? 's' : ''} per dose</span>
                   </div>
                   <div>
                     <span style="color: #D68910; font-weight: 600;">⚕️ Max Concentration:</span>
-                    <span style="margin-left: 8px;">${mdAdmin.maxConc} (${ivAccess} line)</span>
+                    <span style="margin-left: 6px;">${mdAdmin.maxConc} (${ivAccess} line)</span>
                   </div>
                 </div>
               </div>`;
@@ -490,7 +537,7 @@ function calculateVancomycin() {
   let section41HTML = `<p><strong>${timingText}</strong></p>`;
   if (isMRSA && status === 'notHD') {
     section41HTML += `
-      <p style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; font-size: 0.9rem;">
+      <p style="margin-top: 8px; padding: 7px 10px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
         <span style="font-weight: 700;">Note for MRSA infection:</span> Refer to <span style="font-weight: 700;">Step 4.2</span> below to determine if you need a post-dose (Peak) level.
       </p>`;
   }
@@ -506,52 +553,48 @@ function calculateVancomycin() {
 
   if (showSection42) {
     section42HTML = `
-      <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 15px;">
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;">
 
         <!-- Left Card: Stable Renal Function -->
-        <div style="flex: 1; min-width: 300px; background-color: #f8f9fa; border-left: 4px solid #28a745; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px;">
-            <span style="font-size: 1.5rem; line-height: 1;">✅</span>
+        <div style="flex: 1; min-width: 220px; background-color: #f8f9fa; border-left: 4px solid #28a745; border-radius: 8px; padding: 11px 12px;">
+          <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.1rem; line-height: 1;">✅</span>
             <div>
-              <div style="font-weight: 700; font-size: 1.05rem; color: #000; line-height: 1.3;">Stable Renal Function</div>
-              <div style="color: #666; font-size: 0.9rem; margin-top: 2px;">(including stable CKD)</div>
+              <div style="font-weight: 700; color: #000; line-height: 1.3;">Stable Renal Function</div>
+              <div style="color: #666; font-size: 0.78rem; margin-top: 1px;">(including stable CKD)</div>
             </div>
           </div>
-          <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 8px 12px; margin-bottom: 12px; color: #155724; font-weight: 600; font-size: 0.9rem;">
+          <div style="background-color: #d4edda; border-radius: 4px; padding: 5px 9px; margin-bottom: 7px; color: #155724; font-weight: 600;">
             Post-dose level required
           </div>
-          <div style="margin-bottom: 12px; font-size: 0.95rem;"><strong>→ AUC-based monitoring</strong></div>
-          <div style="font-size: 0.95rem; margin-bottom: 8px;">
-            Take <span style="font-weight: 700; color: #28a745;">TWO</span> samples:
-          </div>
-          <ul style="margin-left: 20px; margin-top: 8px; margin-bottom: 0; font-size: 0.9rem; line-height: 1.6;">
+          <div style="margin-bottom: 6px;"><strong>→ AUC-based monitoring</strong></div>
+          <div style="margin-bottom: 4px;">Take <span style="font-weight: 700; color: #28a745;">TWO</span> samples:</div>
+          <ul style="margin-left: 16px; margin-top: 4px; margin-bottom: 0; line-height: 1.55;">
             <li><strong>Pre-dose (Trough):</strong> 30 min BEFORE ${doseReference}</li>
             <li><strong>Post-dose (Peak):</strong> 1 hr AFTER complete infusion</li>
           </ul>
         </div>
 
         <!-- Right Card: Unstable Renal Function -->
-        <div style="flex: 1; min-width: 300px; background-color: #f8f9fa; border-left: 4px solid #dc3545; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px;">
-            <span style="font-size: 1.5rem; line-height: 1;">❌</span>
+        <div style="flex: 1; min-width: 220px; background-color: #f8f9fa; border-left: 4px solid #dc3545; border-radius: 8px; padding: 11px 12px;">
+          <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+            <span style="font-size: 1.1rem; line-height: 1;">❌</span>
             <div>
-              <div style="font-weight: 700; font-size: 1.05rem; color: #000; line-height: 1.3;">Unstable Renal Function</div>
-              <div style="color: #666; font-size: 0.9rem; margin-top: 2px;">(e.g., AKI or HD)</div>
+              <div style="font-weight: 700; color: #000; line-height: 1.3;">Unstable Renal Function</div>
+              <div style="color: #666; font-size: 0.78rem; margin-top: 1px;">(e.g., AKI or HD)</div>
             </div>
           </div>
-          <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; padding: 8px 12px; margin-bottom: 12px; color: #721c24; font-weight: 600; font-size: 0.9rem;">
+          <div style="background-color: #f8d7da; border-radius: 4px; padding: 5px 9px; margin-bottom: 7px; color: #721c24; font-weight: 600;">
             Post-dose level NOT required
           </div>
-          <div style="margin-bottom: 12px; font-size: 0.95rem;"><strong>→ Trough-based monitoring</strong></div>
-          <div style="font-size: 0.95rem; margin-bottom: 8px;">
-            Take <span style="font-weight: 700; color: #dc3545;">ONE</span> sample:
-          </div>
-          <ul style="margin-left: 20px; margin-top: 8px; margin-bottom: 0; font-size: 0.9rem; line-height: 1.6;">
+          <div style="margin-bottom: 6px;"><strong>→ Trough-based monitoring</strong></div>
+          <div style="margin-bottom: 4px;">Take <span style="font-weight: 700; color: #dc3545;">ONE</span> sample:</div>
+          <ul style="margin-left: 16px; margin-top: 4px; margin-bottom: 0; line-height: 1.55;">
             <li><strong>Pre-dose (Trough):</strong> 30 min BEFORE ${doseReference}</li>
           </ul>
         </div>
       </div>
-      <p style="text-align: center; font-style: italic; color: var(--color-primary); font-size: 0.9rem; margin-top: 15px; margin-bottom: 10px;">
+      <p style="text-align: center; font-style: italic; color: var(--color-primary); margin-top: 8px; margin-bottom: 4px;">
         Please correlate clinically.
       </p>`;
 
@@ -584,7 +627,7 @@ function calculateVancomycin() {
   // -------------------------------------------------------
   const summaryHTML = `
       <ul>
-          <li><strong>Actual Body Weight:</strong> ${abw} kg</li>
+          <li><strong>Body Weight:</strong> ${abw} kg</li>
           <li><strong>Dialysis Status:</strong> ${document.getElementById('dialysisStatus').options[document.getElementById('dialysisStatus').selectedIndex].text}</li>
           ${status === 'HD' ? `<li><strong>Vancomycin Timing:</strong> ${document.getElementById('dialysisTiming').options[document.getElementById('dialysisTiming').selectedIndex].text.replace('Vancomycin started or planned to be given ', '')}</li>` : ''}
           ${status === 'notHD' && scr_input ? `<li><strong>Serum Creatinine:</strong> ${scr_input} µmol/L</li>` : ''}
@@ -720,7 +763,7 @@ function vancocopyClinicalNote() {
     if (crclNum < 30) {
       textToCopy += `- Dialysis Status: Not on HD\n`;
     }
-    const scrValue = document.getElementById('scr_input').value;
+    const scrValue = document.getElementById('crcl_scr') ? document.getElementById('crcl_scr').value : '';
     if (scrValue) {
       textToCopy += `- Cr: ${scrValue} umol/L\n`;
     }
