@@ -233,6 +233,98 @@
       .method-badge:hover .method-info-panel { display: block; }
     }
 
+    /* ── Built-in CrCl helper ── */
+    .crcl-helper-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 7px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82em;
+      font-weight: 600;
+      color: #800000;
+      background: #FEF0F0;
+      border: 1.5px solid #D9A0A0;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+      letter-spacing: 0.2px;
+    }
+    .crcl-helper-toggle:hover,
+    .crcl-helper-toggle.active { background: #800000; color: #fff; border-color: #800000; }
+
+    .crcl-helper-inner {
+      margin-top: 10px;
+      background: #FEF8F8;
+      border: 1.5px solid #E8CECE;
+      border-radius: 10px;
+      padding: 14px 16px 12px;
+    }
+    .crcl-helper-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .crcl-helper-field {
+      flex: 1;
+      min-width: 130px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .crcl-helper-field label {
+      font-size: 0.8em;
+      font-weight: 600;
+      color: #5a2020;
+      margin: 0;
+    }
+    .crcl-helper-field input[type="number"] {
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      border: 1px solid #D0B0B0;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.88em;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    .crcl-helper-field input[type="number"]:focus { border-color: #800000; outline: none; box-shadow: 0 0 0 2px rgba(128,0,0,0.12); }
+    .crcl-gender-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      height: 38px;
+    }
+    .crcl-gender-option {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.88em;
+      font-weight: 500;
+      color: #444;
+      cursor: pointer;
+      margin: 0;
+    }
+    .crcl-gender-option input[type="radio"] { accent-color: #800000; width: 15px; height: 15px; margin: 0; }
+    .crcl-helper-note {
+      font-size: 0.76em;
+      color: #9e6a6a;
+      margin: 10px 0 0;
+      font-style: italic;
+    }
+    .crcl-helper-result {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #fff;
+      border: 1.5px solid #800000;
+      border-radius: 7px;
+      font-size: 0.85em;
+      font-weight: 600;
+      color: #800000;
+    }
+
     /* Regimen sub-sections */
     .regimen-subsection { margin-bottom: 14px; }
     .regimen-subsection:last-of-type { margin-bottom: 0; }
@@ -323,7 +415,7 @@
     <form id="vancomycinForm">
 
       <div class="form-group">
-        <label for="abw">Actual Body Weight (ABW) (kg):</label>
+        <label for="abw">Body Weight (BW) (kg):</label>
         <input type="number" id="abw" step="0.1" placeholder="e.g., 70">
         <div id="abwWarning" class="warning-card" style="display:none; margin-top: 10px; font-style: normal;">
           <strong>⚠️ Weight entered is below the validated range for adult patients.</strong><br>
@@ -341,15 +433,40 @@
       </div>
 
       <div id="crclGroup" class="form-group" style="display:none;">
-        <div class="form-group">
-          <label for="scr_input">Serum Creatinine (μmol/L) (optional):</label>
-          <input type="number" id="scr_input" step="1" placeholder="e.g., 85">
-        </div>
         <label for="crcl">Creatinine Clearance (CrCl) (ml/min):</label>
         <input type="number" id="crcl" step="0.1" placeholder="e.g., 45">
-        <p class="input-footnote">
-          Need help? <a href="../calculators/renal-function.html" target="_blank">🔗 Renal Function (CrCl) Calculator</a>
-        </p>
+        <button type="button" class="crcl-helper-toggle" id="crclHelperToggle" onclick="toggleCrClHelper()">
+          🧮 Help me calculate CrCl
+        </button>
+        <div id="crclHelperPanel" style="display:none;">
+          <div class="crcl-helper-inner">
+            <div class="crcl-helper-row">
+              <div class="crcl-helper-field">
+                <label for="crcl_age">Age (years)</label>
+                <input type="number" id="crcl_age" step="1" min="18" placeholder="e.g., 65" oninput="calculateBuiltInCrCl()">
+              </div>
+              <div class="crcl-helper-field">
+                <label>Gender</label>
+                <div class="crcl-gender-row">
+                  <label class="crcl-gender-option">
+                    <input type="radio" name="crcl_gender" value="male" onchange="calculateBuiltInCrCl()">
+                    <span>Male</span>
+                  </label>
+                  <label class="crcl-gender-option">
+                    <input type="radio" name="crcl_gender" value="female" onchange="calculateBuiltInCrCl()">
+                    <span>Female</span>
+                  </label>
+                </div>
+              </div>
+              <div class="crcl-helper-field">
+                <label for="crcl_scr">Serum Creatinine (μmol/L)</label>
+                <input type="number" id="crcl_scr" step="1" min="1" placeholder="e.g., 85" oninput="calculateBuiltInCrCl()">
+              </div>
+            </div>
+            <p id="crclHelperNote" class="crcl-helper-note">Enter all three values above. CrCl will be auto-calculated using BW already entered.</p>
+            <div id="crclHelperResult" class="crcl-helper-result" style="display:none;"></div>
+          </div>
+        </div>
       </div>
 
       <div id="timingGroup" class="form-group" style="display:none;">
@@ -391,7 +508,7 @@
 
     <h3>Summary of Inputs</h3>
     <div id="v_summaryOutput" class="card"></div>
-<br>
+
     <h3>STEP 1: Loading Dose (LD)</h3>
     <div id="ldOutput" class="card"></div>
     <div class="note-card">
@@ -402,11 +519,11 @@
         <li id="ldFootnoteHD" style="display:none;">If HD occurs on the same day as the loading dose, administer a TOP-UP DOSE post-HD.</li>
       </ul>
     </div>
-<br>
+
     <h3>STEP 2: Maintenance Dose (MD) &amp; Frequency</h3>
     <div id="mdOutput" class="card"></div>
     <div id="mdFootnote" style="display:none;"></div>
-<br>
+
     <h3>STEP 3: Administration (Dilution &amp; Infusion Rate)</h3>
     <div id="adminOutput" class="card">
       <h4>3.1 Loading Dose Dilution &amp; Administration:</h4>
@@ -422,7 +539,7 @@
       </div>
       <a class="collapsible-header" onclick="toggleCollapsible('warningCollapse')">Step 3.3 – Special Warnings &amp; Adjustments</a>
       <div id="warningCollapse" class="collapsible-content">
-        <div class="card" style="background-color: var(--color-white); margin-bottom: 15px;">
+        <div class="card" style="background-color: var(--color-white); margin-bottom: 8px;">
           <div class="warning-title">
             <span class="icon">!</span> Vancomycin Infusion Reaction (VIR / "Red Man Syndrome")
           </div>
@@ -438,21 +555,21 @@
             </li>
           </ul>
         </div>
-        <div class="card" style="background-color: var(--color-white); margin-bottom: 15px;">
+        <div class="card" style="background-color: var(--color-white); margin-bottom: 8px;">
           <div class="warning-title">
             <span class="icon">!</span> Fluid Volume Considerations - High Dilution Volume Advisory
           </div>
-          <p style="margin-top: 5px;">For patients with fluid restrictions or heart failure, consider alternative dilution strategy or slower infusion rate.</p>
+          <p style="margin-top: 4px;">For patients with fluid restrictions or heart failure, consider alternative dilution strategy or slower infusion rate.</p>
         </div>
-        <div class="card" style="background-color: var(--color-white); margin-bottom: 15px;">
+        <div class="card" style="background-color: var(--color-white); margin-bottom: 0;">
           <div class="warning-title">
             <span class="icon">!</span> Phlebitis / Peripheral Line Irritation Risk
           </div>
-          <p style="margin-top: 5px;">Peripheral administration of vancomycin may cause local irritation or phlebitis, particularly at higher concentrations. Use the largest available vein and monitor the site for redness, pain, or swelling.</p>
+          <p style="margin-top: 4px;">Peripheral administration of vancomycin may cause local irritation or phlebitis, particularly at higher concentrations. Use the largest available vein and monitor the site for redness, pain, or swelling.</p>
         </div>
       </div>
     </div><!-- /adminOutput -->
-<br>
+
     <h3>STEP 4: Therapeutic Drug Monitoring (TDM) Guidance</h3>
     <div id="v_tdmOutput" class="card">
       <h4>4.1. When to Take the First TDM Sample</h4>
@@ -463,19 +580,17 @@
         💡 <strong>General Advisory:</strong>
         <ul>
           <li>If the sampling time falls after office hours (AOH), it is recommended to collect the sample the following morning.</li>
-<br>
-          <strong>Documentation Reminder:</strong>
-          <li>TDM results are meaningless unless:
-            <ol>
+          <li><strong>Documentation Reminder:</strong> TDM results are meaningless unless:
+            <ol style="margin-left: 16px; margin-top: 3px;">
               <li>The prescribed dose was correctly administered, and</li>
               <li>The exact timing of infusion and sampling is accurately recorded.</li>
             </ol>
           </li>
         </ul>
-        <p>Record all relevant details in the 📄 <a href="https://amshsgb.wixsite.com/my-site/_files/ugd/b064f1_41ed8df4c61f4c24a6bb2ebcff1cea7c.pdf" target="_blank">Vancomycin AUC Monitoring Form</a></p>
+        <p style="margin-top: 6px;">Record all relevant details in the 📄 <a href="https://amshsgb.wixsite.com/my-site/_files/ugd/b064f1_41ed8df4c61f4c24a6bb2ebcff1cea7c.pdf" target="_blank">Vancomycin AUC Monitoring Form</a></p>
       </div>
     </div><!-- /v_tdmOutput -->
-<br>
+
     <h3>STEP 5: Patient / Laboratory Monitoring</h3>
     <div class="card">
       <ul>
@@ -485,64 +600,64 @@
         <li>Monitor WBC, CRP &amp; Vital Signs for signs of improvement/deterioration.</li>
       </ul>
     </div>
-<br>
-    <h2 style="margin-top: 20px; color: var(--color-primary-dark);">Clinical Note Section (Auto-Generated)</h2>
-    <div class="input-note-style" style="margin-bottom: 20px;">
+
+    <h2 class="note-section-heading">Clinical Note Section (Auto-Generated)</h2>
+    <div class="input-note-style">
       Disclaimer! This note is intended as a template only — please review and adjust it based on your clinical assessment and professional judgement.
     </div>
 
     <div id="v_clinicalNoteContainer" class="card clinical-note-card">
       <div id="v_clinicalNoteContent">
 
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 10px;">
           <p style="margin: 0; font-size: 14px; font-family: Arial, sans-serif; font-weight: 700;">VANCOMYCIN THERAPY RECOMMENDATION</p>
-          <p style="margin: 0 0 15px 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">========================================</p>
+          <p style="margin: 0 0 8px 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">========================================</p>
           <p style="margin: 0; font-weight: 400; line-height: 1.6; font-size: 13px; font-family: Arial, sans-serif;">
             Received query from Dr <input type="text" id="dr_input" value="" placeholder="Name" style="border: none; border-bottom: 2px solid #FF6F00; background: transparent; width: 150px; padding: 2px 4px; font-family: Arial, sans-serif; font-size: 13px; font-weight: 600;"> regarding IV Vancomycin initiation for this patient.
           </p>
-          <p style="margin: 15px 0 0 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">PATIENT SUMMARY</p>
-          <div id="noteSummaryList" style="margin: 0 0 12px 0; padding-left: 0; font-size: 13px; font-family: Arial, sans-serif;"></div>
-          <p style="margin: 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">RECOMMENDED REGIMEN</p>
-          <div style="margin-bottom: 12px;">
-            <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 13px; font-family: Arial, sans-serif;">LOADING DOSE:</p>
-            <p id="noteLDRegimen" style="margin: 0 0 10px 0; line-height: 1.7; font-size: 13px; font-family: Arial, sans-serif;"></p>
-          </div>
-          <div style="margin-bottom: 12px;">
-            <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 13px; font-family: Arial, sans-serif;">MAINTENANCE DOSE:</p>
-            <p id="noteMDRegimen" style="margin: 0 0 0 0; line-height: 1.7; font-size: 13px; font-family: Arial, sans-serif;"></p>
-          </div>
-          <p style="margin: 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">TDM SAMPLING</p>
-          <div style="margin-bottom: 12px;">
-            <p id="noteTDM1" style="margin: 0 0 6px 0; line-height: 1.7; font-size: 13px; font-family: Arial, sans-serif;">- TDM instructions not generated.</p>
-            <p id="noteTDM2" style="margin: 0 0 0 0; line-height: 1.7; font-size: 13px; font-family: Arial, sans-serif;"></p>
-          </div>
-          <div style="font-size: 13px; line-height: 1.6; margin-top: 12px; font-family: Arial, sans-serif;">
-            <p style="margin: 0 0 8px 0; font-weight: 700;">IMPORTANT:</p>
-            <p style="margin: 0 0 6px 0;">- TDM blood sample should be obtained via venipuncture whenever possible, from the arm opposite to drug administration.</p>
-            <p style="margin: 0 0 0 0;">- Do not collect TDM samples from central lines (e.g. PICC, CVC, or other central venous catheters).</p>
-          </div>
-          <p style="margin: 15px 0 0 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
+          <p style="margin: 8px 0 0 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
         </div>
 
         <div style="margin-bottom: 10px;">
-          <p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">REMARKS</p>
-          <p style="margin: 0 0 6px 0; font-size: 13px; font-family: Arial, sans-serif;">- Monitor renal profile (RP) and urine output regularly.</p>
-          <p style="margin: 0 0 6px 0; font-size: 13px; font-family: Arial, sans-serif;">- Ensure the patient remains well hydrated while on Vancomycin.</p>
-          <p style="margin: 0 0 6px 0; font-size: 13px; font-family: Arial, sans-serif;">- Avoid concomitant nephrotoxic agents where possible.</p>
-          <p style="margin: 0 0 6px 0; font-size: 13px; font-family: Arial, sans-serif;">- Infusion rate must not exceed 10 mg/min to minimize infusion-related reactions.</p>
-          <p style="margin: 15px 0 0 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">========================================</p>
+          <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">PATIENT SUMMARY</p>
+          <div id="noteSummaryList" style="margin: 0 0 8px 0; padding-left: 0; font-size: 13px; font-family: Arial, sans-serif;"></div>
+          <p style="margin: 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">RECOMMENDED REGIMEN</p>
+          <div style="margin-bottom: 8px;">
+            <p style="margin: 0 0 4px 0; font-weight: 700; font-size: 13px; font-family: Arial, sans-serif;">LOADING DOSE:</p>
+            <p id="noteLDRegimen" style="margin: 0 0 6px 0; line-height: 1.6; font-size: 13px; font-family: Arial, sans-serif;"></p>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <p style="margin: 0 0 4px 0; font-weight: 700; font-size: 13px; font-family: Arial, sans-serif;">MAINTENANCE DOSE:</p>
+            <p id="noteMDRegimen" style="margin: 0; line-height: 1.6; font-size: 13px; font-family: Arial, sans-serif;"></p>
+          </div>
+          <p style="margin: 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">TDM SAMPLING</p>
+          <div style="margin-bottom: 8px;">
+            <p id="noteTDM1" style="margin: 0 0 4px 0; line-height: 1.6; font-size: 13px; font-family: Arial, sans-serif;">- TDM instructions not generated.</p>
+            <p id="noteTDM2" style="margin: 0; line-height: 1.6; font-size: 13px; font-family: Arial, sans-serif;"></p>
+          </div>
+          <div style="font-size: 13px; line-height: 1.55; margin-top: 8px; font-family: Arial, sans-serif;">
+            <p style="margin: 0 0 5px 0; font-weight: 700;">IMPORTANT:</p>
+            <p style="margin: 0 0 4px 0;">- TDM blood sample should be obtained via venipuncture whenever possible, from the arm opposite to drug administration.</p>
+            <p style="margin: 0;">- Do not collect TDM samples from central lines (e.g. PICC, CVC, or other central venous catheters).</p>
+          </div>
+          <p style="margin: 10px 0 0 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">----------------------------------------</p>
+        </div>
+
+        <div style="margin-bottom: 6px;">
+          <p style="margin: 0 0 6px 0; font-weight: 700; font-size: 14px; font-family: Arial, sans-serif;">REMARKS</p>
+          <p style="margin: 0 0 4px 0; font-size: 13px; font-family: Arial, sans-serif;">- Monitor renal profile (RP) and urine output regularly.</p>
+          <p style="margin: 0 0 4px 0; font-size: 13px; font-family: Arial, sans-serif;">- Ensure the patient remains well hydrated while on Vancomycin.</p>
+          <p style="margin: 0 0 4px 0; font-size: 13px; font-family: Arial, sans-serif;">- Avoid concomitant nephrotoxic agents where possible.</p>
+          <p style="margin: 0 0 4px 0; font-size: 13px; font-family: Arial, sans-serif;">- Infusion rate must not exceed 10 mg/min to minimize infusion-related reactions.</p>
+          <p style="margin: 10px 0 0 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: 700;">========================================</p>
         </div>
 
       </div><!-- /#v_clinicalNoteContent -->
@@ -832,6 +947,13 @@
 <script src="../assets/js/vancomycin.js"></script>
 <script src="../assets/js/tdm-sampling.js"></script>
 <script>
+
+  /* ── Collapsible sections ── */
+  function toggleCollapsible(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  }
 
   /* ── Tab switching ── */
   function switchTab(tab) {
