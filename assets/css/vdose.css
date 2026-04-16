@@ -761,39 +761,175 @@ h3 {
   }
 }
 
-/* --- Output and Content Hierarchy Styling --- */
+/* --- Output Section: Compact Design --- */
 
-/* 1. PRIMARY OUTPUT CONTENT (Summary of Inputs List, Dose/Frequency text) */
-/* Sets the main list/paragraph text inside the calculator steps to normal size (1rem) */
-#vancomycinOutput p,
-#vancomycinOutput li {
-    font-size: 1rem; 
-    font-weight: 400;
+/* Step headings — clearly larger than body */
+#vancomycinOutput h3 {
+  font-size: 1.0rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-top: 22px;
+  margin-bottom: 6px;
+  padding-left: 10px;
+  padding-bottom: 4px;
+  border-left-width: 3px;
 }
 
-/* 2. SUPPORTING TEXT (Notes, Footnotes, Disclaimer) */
-/* Use increased specificity to ensure these elements are smaller than 1rem */
+/* Sub-headings inside cards */
+#vancomycinOutput h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin: 10px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+/* Cards in results — less bottom padding */
+#vancomycinOutput .card {
+  padding: 11px 14px 8px;
+  margin-bottom: 6px;
+}
+
+/* Output boxes — restore container appearance, keep compact */
+#vancomycinOutput .output-box {
+  padding: 8px 12px;
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  background-color: var(--color-cream);
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 8px;
+}
+#vancomycinOutput .output-box strong {
+  font-size: 1em;
+}
+
+/* Space between 3.1 and 3.2 */
+#mdAdminOutput {
+  margin-top: 12px;
+}
+
+/* Space between 4.1 and 4.2 */
+#tdmSamplingOutput {
+  margin-top: 14px;
+}
+
+/* Note/advisory cards — flat when nested inside a .card */
+#vancomycinOutput .card > .note-card {
+  background: transparent;
+  border: none;
+  border-top: 1px dashed #ccc;
+  border-radius: 0;
+  padding: 8px 2px 2px;
+  margin: 8px 0 0;
+}
+
+/* Standalone note-cards between steps */
+#vancomycinOutput > .note-card {
+  padding: 9px 12px;
+  margin: 4px 0 6px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* Body text in results */
+#vancomycinOutput p,
+#vancomycinOutput li {
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+/* Note card text */
+#vancomycinOutput .note-card p,
+#vancomycinOutput .note-card li {
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+#vancomycinOutput .note-card ul {
+  margin-left: 14px;
+  margin-top: 3px;
+}
+
+/* Warning collapsible */
+#vancomycinOutput .collapsible-header {
+  font-size: 0.8rem;
+  padding: 7px 10px;
+  margin-top: 8px;
+  display: block;
+}
+#vancomycinOutput #warningCollapse {
+  padding: 10px;
+}
+#vancomycinOutput #warningCollapse .card {
+  padding: 9px 11px;
+  margin-bottom: 6px;
+}
+#warningCollapse p,
+#warningCollapse ul li {
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+.warning-title {
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+
+/* Clinical note heading + disclaimer strip */
+#vancomycinOutput h2.note-section-heading {
+  font-size: 1.0rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin: 22px 0 5px;
+  border-left: 3px solid var(--color-primary);
+  padding-left: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-light-grey);
+}
+#vancomycinOutput .input-note-style {
+  font-size: 0.75rem;
+  padding: 7px 11px;
+  margin: 5px 0 8px;
+}
+
+/* Clinical note card + copy button */
+#vancomycinOutput .clinical-note-card {
+  padding: 14px;
+  margin-top: 6px;
+}
+#vancomycinOutput .copy-button {
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  margin-top: 10px;
+}
+
+/* Disclaimer card at bottom */
+#vancomycinOutput .card.note-card {
+  background: var(--color-light-grey);
+  border: 1px solid #c8c8c8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+#vancomycinOutput .card.note-card ul li,
+#vancomycinOutput .card.note-card p {
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+#vancomycinOutput .card.note-card h3 {
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-top: 0;
+}
+
+/* Supporting footnotes globally */
 .note-card p,
 .note-card ul li,
 .input-footnote {
-    font-size: 0.85rem !important; /* Force smaller size for reminder notes/footnotes */
-    font-weight: 400;
-}
-
-/* 3. Ensure Disclaimer content is correctly set to the smallest size */
-.card.note-card ul li,
-.card.note-card p {
-    font-size: 0.8rem !important; /* Smallest size for the disclaimer content */
-    line-height: 1.4;
-}
-
-/* 4. Restore Heading Sizes (Ensuring they are not affected by p/li reductions) */
-#vancomycinOutput h3 {
-    font-size: 1.25rem; /* Restores standard H3 size */
-}
-#vancomycinOutput h4 {
-    font-size: 1.1rem; /* Restores standard H4 size */
-
+  font-size: 0.8rem;
+  font-weight: 400;
 }
 
 
