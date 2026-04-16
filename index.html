@@ -379,11 +379,17 @@
         .rock-tab-empty { text-align: center; color: #aaa; font-size: 0.88em; font-style: italic; padding: 48px 0; }
 
         /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            .rock-tab-bar { top: 64px; } /* header: 40px logo + 12px*2 padding */
+        }
         @media (max-width: 600px) {
             .rock-index-grid { grid-template-columns: 1fr; }
-            .rock-tab-bar { padding: 0 10px; }
+            .rock-tab-bar { padding: 0 10px; top: 64px; }
             .rock-tab { padding: 0 10px; font-size: 0.82em; } .rock-tab-sub { display: none; }
             .rock-tab-body { padding: 14px 12px; }
+        }
+        @media (max-width: 480px) {
+            .rock-tab-bar { top: 59px; } /* header: 35px logo + 12px*2 padding */
         }
 
         /* Mobile */
