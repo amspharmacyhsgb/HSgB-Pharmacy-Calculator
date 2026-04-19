@@ -279,6 +279,70 @@
         }
         .disc-proceed-btn.active:active { transform: translateY(0); }
 
+        /* Password row */
+        .disc-pw-row {
+            display: none;
+            margin-bottom: 12px;
+            animation: fadeSlideIn 0.25s ease;
+        }
+        .disc-pw-row.visible { display: block; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .disc-pw-label {
+            font-size: 0.82em;
+            font-weight: 600;
+            color: #37474F;
+            margin: 0 0 6px;
+            display: block;
+        }
+
+        .disc-pw-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .disc-pw-input {
+            flex: 1;
+            padding: 9px 14px;
+            border: 1.5px solid #c5d3e8;
+            border-radius: 7px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88em;
+            color: #263238;
+            background: #f7faff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            letter-spacing: 4px;
+        }
+        .disc-pw-input:focus {
+            border-color: #003d82;
+            box-shadow: 0 0 0 3px rgba(0,61,130,0.10);
+            background: #fff;
+        }
+        .disc-pw-input.error {
+            border-color: #d32f2f;
+            background: #fff5f5;
+            animation: shake 0.3s ease;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25%      { transform: translateX(-5px); }
+            75%      { transform: translateX(5px); }
+        }
+
+        .disc-pw-error {
+            font-size: 0.78em;
+            color: #d32f2f;
+            margin: 5px 0 0;
+            display: none;
+        }
+        .disc-pw-error.visible { display: block; }
+
         /* Main content hidden until proceed */
         #main-content { display: none; }
 
@@ -472,6 +536,16 @@
                         I have read and understood the disclaimer above, and I agree to use ROCK responsibly.
                     </span>
                 </label>
+
+                <div class="disc-pw-row" id="pw-row">
+                    <label class="disc-pw-label" for="pw-input">🔒 Enter access password to continue:</label>
+                    <div class="disc-pw-input-wrap">
+                        <input type="password" id="pw-input" class="disc-pw-input"
+                               placeholder="Password" maxlength="20"
+                               oninput="validatePassword()" autocomplete="off">
+                    </div>
+                    <p class="disc-pw-error" id="pw-error">Incorrect password. Please try again.</p>
+                </div>
 
                 <button class="disc-proceed-btn" id="proceed-btn" disabled onclick="proceedToApp()">
                     Proceed to ROCK →
@@ -683,9 +757,40 @@
     })();
 
     function toggleProceed(checkbox) {
-        const btn = document.getElementById('proceed-btn');
-        btn.disabled = !checkbox.checked;
-        btn.classList.toggle('active', checkbox.checked);
+        const pwRow = document.getElementById('pw-row');
+        const btn   = document.getElementById('proceed-btn');
+        if (checkbox.checked) {
+            pwRow.classList.add('visible');
+            document.getElementById('pw-input').focus();
+        } else {
+            pwRow.classList.remove('visible');
+            document.getElementById('pw-input').value = '';
+            document.getElementById('pw-error').classList.remove('visible');
+            document.getElementById('pw-input').classList.remove('error');
+        }
+        // Revalidate button state
+        validatePassword();
+    }
+
+    function validatePassword() {
+        const checkbox = document.getElementById('agree-checkbox');
+        const pw       = document.getElementById('pw-input').value;
+        const btn      = document.getElementById('proceed-btn');
+        const errEl    = document.getElementById('pw-error');
+        const inputEl  = document.getElementById('pw-input');
+
+        const ready = checkbox.checked && pw === '4114';
+        btn.disabled = !ready;
+        btn.classList.toggle('active', ready);
+
+        // Show error only if something was typed but it's wrong
+        if (pw.length > 0 && pw !== '4114') {
+            inputEl.classList.add('error');
+            errEl.classList.add('visible');
+        } else {
+            inputEl.classList.remove('error');
+            errEl.classList.remove('visible');
+        }
     }
 
     function switchTab(tab) {
