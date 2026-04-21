@@ -20,7 +20,7 @@ Please **do not replicate, distribute, or host** this calculator outside of Hosp
 
 - **Author:** [Izyana Munirah / Pharmacy Department]  
 - **Institution:** Hospital Sungai Buloh  
-- **Last updated:** Mar 2026  
+- **Last updated:** Apr 2026  
 - Updates and change logs should be recorded here as the calculator evolves.
 
 ---
@@ -29,6 +29,6 @@ Please **do not replicate, distribute, or host** this calculator outside of Hosp
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.0 | Mar 2026 | Initial release (HTML version) |
+| 1.0 | Apr 2026 | Initial release (HTML version) |
 
 ---
