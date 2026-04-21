@@ -38,6 +38,13 @@
             <span class="tab-label-sub">Refill Timeliness Monitor</span>
         </span>
     </button>
+    <button class="tab-btn" id="btn-apri" onclick="switchTab('apri')">
+        <span class="tab-icon">🔬</span>
+        <span class="tab-label-wrap">
+            <span class="tab-label-main">APRI Score</span>
+            <span class="tab-label-sub">Hepatic Fibrosis Risk</span>
+        </span>
+    </button>
     <div class="tab-bar-spacer"></div>
     <a class="tab-btn-back" href="../index.html" title="Back to ROCK main page">
         <svg width="15" height="15" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10.5L10 4l7 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 8.5V16a1 1 0 001 1h3v-4h2v4h3a1 1 0 001-1V8.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -260,6 +267,87 @@
 </div><!-- /container -->
 </div><!-- /outer-wrap -->
 </div><!-- /tab-pf -->
+
+
+<!-- ══════════════════════════════════════════════
+     TAB 3 — APRI Score
+══════════════════════════════════════════════ -->
+<div id="tab-apri" class="tab-content">
+<div class="outer-wrap">
+<div class="container">
+
+    <p class="page-title">🔬 APRI Score — AST to Platelet Ratio Index</p>
+    <p class="page-subtitle">Estimates the likelihood of significant hepatic fibrosis in patients with Hepatitis C. For use in MTAC RVD clinical assessment prior to initiating Hep C treatment.</p>
+
+    <div class="info-box" style="background:#E0F2F1; border-color:#00897B;">
+        <strong>Formula:</strong> APRI = [(AST ÷ AST ULN) × 100] ÷ Platelet count (×10⁹/L)<br>
+        <span style="color:#555; font-size:0.88em;">Reference: Malaysian Consensus Guideline on Antiretroviral Therapy 2022.</span>
+    </div>
+
+    <div class="card">
+        <div class="card-head" style="background: linear-gradient(135deg, #004D40, #00695C);">
+            <h2>Patient Parameters</h2>
+            <p>Enter the latest laboratory values</p>
+        </div>
+        <div class="card-body">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px;">
+
+                <div class="field">
+                    <label for="apri_ast">AST Level (U/L)</label>
+                    <input type="number" id="apri_ast" min="0" step="0.1" placeholder="e.g. 45">
+                </div>
+
+                <div class="field">
+                    <label for="apri_uln">AST Upper Limit of Normal — ULN (U/L)</label>
+                    <input type="number" id="apri_uln" min="1" step="0.1" value="35">
+                </div>
+
+                <div class="field">
+                    <label for="apri_plt">Platelet Count (×10⁹/L)</label>
+                    <input type="number" id="apri_plt" min="0" step="0.1" placeholder="e.g. 150">
+                </div>
+
+            </div>
+
+            <div id="apri_error" class="error-box"></div>
+
+            <button class="calc-btn" style="background: linear-gradient(135deg, #00897B, #004D40);" onclick="calculateAPRI()">
+                Calculate APRI Score
+            </button>
+        </div>
+    </div>
+
+    <!-- ── RESULT ── -->
+    <div id="apri_result" style="display:none;">
+        <div class="card">
+            <div class="card-head" id="apri_result_head" style="background: linear-gradient(135deg, #004D40, #00695C);">
+                <h2>APRI Score Result</h2>
+            </div>
+            <div class="card-body" style="text-align:center; padding: 28px 24px 30px;">
+                <div class="mpr-label" style="margin-bottom:6px;">APRI Score</div>
+                <div class="mpr-value" id="apri_score_display" style="color:#00695C;">—</div>
+                <div style="margin-top:14px;">
+                    <span class="mpr-badge" id="apri_badge">—</span>
+                </div>
+                <div id="apri_consult_note" style="display:none; margin-top:18px; background:#FFF3E0; border-left:4px solid #E65100; border-radius:8px; padding:12px 16px; text-align:left; font-size:0.90em; line-height:1.6; color:#BF360C;">
+                    ⚠️ <strong>Action Required:</strong> Consult ID Consultant before initiating Hepatitis C treatment.
+                </div>
+                <div style="margin-top:22px; background:#F4F5F7; border-radius:10px; padding:14px 18px; text-align:left; font-size:0.85em; color:#555; line-height:1.65;">
+                    <strong>Interpretation:</strong><br>
+                    APRI ≤ 1.0 — Significant fibrosis <strong>unlikely</strong><br>
+                    APRI &gt; 1.0 — Significant fibrosis <strong>likely</strong> → Consult ID Consultant before initiating Hep C treatment
+                </div>
+            </div>
+        </div>
+
+        <button class="reset-btn" style="width:100%; border:1.5px solid #B2DFDB; color:#00695C; margin-top:4px; margin-bottom:20px;" onclick="resetAPRI()">
+            ↺ &nbsp;Reset / New Calculation
+        </button>
+    </div>
+
+</div><!-- /container -->
+</div><!-- /outer-wrap -->
+</div><!-- /tab-apri -->
 
 
 <div class="disclaimer-section">
