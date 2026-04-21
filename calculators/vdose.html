@@ -144,6 +144,20 @@
     .disclaimer-section .less-bold   { font-weight: 600; color: #37474F; }
     .disclaimer-section .stronger-bold { font-weight: 700; color: #263238; }
     .disclaimer-section .footnote    { font-size: 0.9em; color: #78909C; font-style: italic; }
+    .disclaimer-credits { display: flex; flex-direction: column; gap: 5px; margin-bottom: 4px; }
+    .disclaimer-credits-row { display: flex; align-items: baseline; gap: 8px; }
+    .disclaimer-credits-label {
+        font-size: 0.9em;
+        font-weight: 700;
+        color: #800000;
+        white-space: nowrap;
+        min-width: 130px;
+        flex-shrink: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+    .disclaimer-credits-value { font-size: 0.9em; color: #444; line-height: 1.55; text-align: justify; }
+    .disclaimer-divider { border: none; border-top: 1px solid #c9a0a0; margin: 10px 0; }
 
     /* ── Mobile ── */
     @media (max-width: 768px) {
@@ -928,15 +942,30 @@
      FOOTER / DISCLAIMER
 ══════════════════════════════════════ -->
 <div class="disclaimer-section">
-  <p><span class="less-bold">Developed by:</span> Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.</p>
-  <p><span class="less-bold">In collaboration with:</span> Nur Farhana (TDM Pharmacy), Hannah Md Mahir, Fong Siew Li &amp; Muhammad Zulhafiz (AMS Pharmacists), PRIC, Medication Safety Team, JK IT &amp; Digital (Pharmacy Dept, HSgB).</p>
-  <p><span class="less-bold">Approved by:</span> Dr Syamhanin Adnan (Head of Pharmacy Dept, HSgB).</p>
-  <p><span class="less-bold">Launched:</span> March 2026.</p>
-  <p class="stronger-bold">For Hospital Sungai Buloh Staff Use Only.</p>
-  <p class="footnote">This calculator is developed for Hospital Sungai Buloh staff use only — for educational and clinical support purposes. Recommendation is based on the HSgB Vancomycin Protocol and may not cover all aspects of clinical practice; healthcare practitioners are encouraged to review patient details and professionally assess the relevance of this guide to each clinical situation. This tool is subject to periodic updates. We assume no responsibility for any party that referred to an outdated version.</p>
-  <p style="margin-top: 8px;">📝 <span class="less-bold">Feedback:</span> We welcome your feedback to improve this tool.
-    <a href="https://forms.gle/nDNDfC2ktjmumdSYA" target="_blank" rel="noopener noreferrer">Click here to submit feedback</a>
-  </p>
+    <div class="disclaimer-credits">
+        <div class="disclaimer-credits-row">
+            <span class="disclaimer-credits-label">Developed by</span>
+            <span class="disclaimer-credits-value">Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.</span>
+        </div>
+        <div class="disclaimer-credits-row">
+            <span class="disclaimer-credits-label">Collaborators</span>
+            <span class="disclaimer-credits-value">Nur Farhana (TDM Pharmacy), Hannah Md Mahir, Fong Siew Li &amp; Muhammad Zulhafiz (AMS Pharmacists), PRIC, Medication Safety Team, JK IT &amp; Digital (Pharmacy Dept, HSgB).</span>
+        </div>
+        <div class="disclaimer-credits-row">
+            <span class="disclaimer-credits-label">Approved by</span>
+            <span class="disclaimer-credits-value">Dr Syamhanin Adnan (Head of Pharmacy Dept, HSgB).</span>
+        </div>
+        <div class="disclaimer-credits-row">
+            <span class="disclaimer-credits-label">Launched</span>
+            <span class="disclaimer-credits-value">Apr 2026.</span>
+        </div>
+    </div>
+    <div class="disclaimer-divider"></div>
+    <p class="stronger-bold">For Hospital Sungai Buloh Staff Use Only.</p>
+    <p class="footnote" style="text-align:justify;">This calculator is developed for Hospital Sungai Buloh staff use only — for educational and clinical support purposes. Recommendation is based on the HSgB Vancomycin Protocol and may not cover all aspects of clinical practice; healthcare practitioners are encouraged to review patient details and professionally assess the relevance of this guide to each clinical situation. This tool is subject to periodic updates. We assume no responsibility for any party that referred to an outdated version.</p>
+    <p style="margin-top: 8px;">📝 <span class="less-bold">Feedback:</span> We welcome your feedback to improve this tool.
+        <a href="https://forms.gle/nDNDfC2ktjmumdSYA" target="_blank" rel="noopener noreferrer">Click here to submit feedback</a>
+    </p>
 </div>
 
 

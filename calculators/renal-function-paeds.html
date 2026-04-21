@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renal Function (Paeds) Calculator - HSgB</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo_HSB_HQ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1565C0;
+            color: #fff;
+            font-size: 0.7em;
+            font-weight: 700;
+            cursor: help;
+            margin-left: 6px;
+            vertical-align: middle;
+            position: relative;
+        }
+        .tooltip-icon .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            background: #333;
+            color: #fff;
+            text-align: left;
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 0.82em;
+            font-weight: 400;
+            width: 220px;
+            position: absolute;
+            left: 22px;
+            top: -4px;
+            z-index: 100;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            line-height: 1.45;
+        }
+        .tooltip-icon:hover .tooltip-text,
+        .tooltip-icon:focus .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header" onclick="window.location.href='../index.html'" role="banner">
+    <div class="header-left">
+        <div class="logo-container">
+            <img src="../assets/images/Logo_HSB_HQ.png" alt="Hospital Sungai Buloh Logo" class="logo-img">
+            <img src="../assets/images/Pharmacy_NEW_LOGO_1removebgpreview.png" alt="Pharmacy Department Logo" class="logo-pharmacy">
+        </div>
+        <div class="header-text">
+            <h1>HSgB Pharmacy Calculator</h1>
+            <p>Pharmacy Oncall Survival Kit - Quick dosing calculator & guide for Hosp Sungai Buloh staff</p>
+        </div>
+    </div>
+</div>
+
+<div class="container" role="main">
+    <div class="navigation">
+        <button class="nav-button-home" onclick="goHome()">HOME</button>
+        <button class="nav-button" onclick="clearForm()">CLEAR</button>
+    </div>
+
+    <h2>Renal Function Calculator (Paeds)</h2>
+    <p style="margin-top:-8px; margin-bottom:18px; color:#555; font-size:0.9em;">
+        Estimation of eGFR using Schwartz/Brion eGFR method
+    </p>
+
+    <div class="form-group">
+        <label for="paeds-gestational">
+            Gestational Status
+            <span class="tooltip-icon" tabindex="0" aria-label="Gestational status info">i
+                <span class="tooltip-text">Preterm: born at &lt;37 weeks gestation. Term: born at ≥37 weeks gestation.</span>
+            </span>
+        </label>
+        <select id="paeds-gestational" onchange="calculatePaedsEGFR()" aria-required="true">
+            <option value="">Select gestational status</option>
+            <option value="preterm">Preterm (&lt;37 weeks)</option>
+            <option value="term">Term (≥37 weeks)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="paeds-height">Height (cm)</label>
+        <input type="number" id="paeds-height" oninput="calculatePaedsEGFR()" aria-required="true" step="0.1" min="0" placeholder="e.g. 120">
+    </div>
+
+    <div class="form-group">
+        <label for="paeds-scr">Serum Creatinine (μmol/L)</label>
+        <input type="number" id="paeds-scr" oninput="calculatePaedsEGFR()" aria-required="true" step="0.1" min="0" placeholder="e.g. 45">
+    </div>
+
+    <div id="paeds-egfr-outputs" style="display:none;">
+        <h3 id="paeds-egfr-results-heading">Results</h3>
+
+        <div class="output-box-cream">
+            <div class="output-title">Estimated GFR (eGFR)</div>
+            <div class="output-value" id="paeds-egfr-result"></div>
+        </div>
+    </div>
+
+    <p class="footer-formula">
+        <b>Formula:</b> eGFR = (k × Height) / Serum Creatinine (μmol/L)<br>
+        *k = 29.2 for preterm infants; k = 39.8 for term infants/children.<br>
+        *Based on the Schwartz/Brion equation for paediatric eGFR estimation.<br>
+        ⚠️ <b>Note:</b> The Schwartz/Brion formula is validated for use in patients up to 18 years of age. Results beyond this age range should be interpreted with caution.
+    </p>
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/renal-function-paeds.js"></script>
+
+</body>
+</html>
