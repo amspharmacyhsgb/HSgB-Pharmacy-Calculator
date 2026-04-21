@@ -22,10 +22,12 @@ function setToday(id) {
    TAB SWITCHING
 ══════════════════════════════════ */
 function switchTab(tab) {
-    document.getElementById('tab-mpr').classList.toggle('active', tab === 'mpr');
-    document.getElementById('tab-pf').classList.toggle('active',  tab === 'pf');
-    document.getElementById('btn-mpr').className = 'tab-btn' + (tab === 'mpr' ? ' active-mpr' : '');
-    document.getElementById('btn-pf').className  = 'tab-btn' + (tab === 'pf'  ? ' active-pf'  : '');
+    document.getElementById('tab-mpr').classList.toggle('active',  tab === 'mpr');
+    document.getElementById('tab-pf').classList.toggle('active',   tab === 'pf');
+    document.getElementById('tab-apri').classList.toggle('active', tab === 'apri');
+    document.getElementById('btn-mpr').className  = 'tab-btn' + (tab === 'mpr'  ? ' active-mpr'  : '');
+    document.getElementById('btn-pf').className   = 'tab-btn' + (tab === 'pf'   ? ' active-pf'   : '');
+    document.getElementById('btn-apri').className = 'tab-btn' + (tab === 'apri' ? ' active-apri' : '');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -439,8 +441,74 @@ function pfReset() {
 }
 
 /* ══════════════════════════════════
-   INITIALISE
+   APRI SCORE CALCULATOR
 ══════════════════════════════════ */
+function calculateAPRI() {
+    const ast = parseFloat(document.getElementById('apri_ast').value);
+    const uln = parseFloat(document.getElementById('apri_uln').value);
+    const plt = parseFloat(document.getElementById('apri_plt').value);
+    const errBox = document.getElementById('apri_error');
+
+    // Validation
+    errBox.style.display = 'none';
+    errBox.textContent = '';
+
+    if (isNaN(ast) || isNaN(uln) || isNaN(plt)) {
+        errBox.textContent = 'Please fill in all fields before calculating.';
+        errBox.style.display = 'block';
+        return;
+    }
+    if (ast <= 0 || uln <= 0 || plt <= 0) {
+        errBox.textContent = 'All values must be greater than zero.';
+        errBox.style.display = 'block';
+        return;
+    }
+
+    // Formula: APRI = [(AST / ULN) × 100] / Platelet
+    const apri = ((ast / uln) * 100) / plt;
+    const apriRounded = apri.toFixed(2);
+
+    const scoreEl   = document.getElementById('apri_score_display');
+    const badgeEl   = document.getElementById('apri_badge');
+    const noteEl    = document.getElementById('apri_consult_note');
+    const headEl    = document.getElementById('apri_result_head');
+
+    scoreEl.textContent = apriRounded;
+
+    if (apri > 1.0) {
+        // Significant fibrosis likely
+        scoreEl.style.color = '#C62828';
+        badgeEl.textContent = 'Significant Fibrosis Likely';
+        badgeEl.className   = 'mpr-badge poor';
+        noteEl.style.display = 'block';
+        headEl.style.background = 'linear-gradient(135deg, #B71C1C, #C62828)';
+    } else {
+        // Unlikely
+        scoreEl.style.color = '#1B5E20';
+        badgeEl.textContent = 'Significant Fibrosis Unlikely';
+        badgeEl.className   = 'mpr-badge optimal';
+        noteEl.style.display = 'none';
+        headEl.style.background = 'linear-gradient(135deg, #004D40, #00695C)';
+    }
+
+    document.getElementById('apri_result').style.display = 'block';
+    setTimeout(() => {
+        const el = document.getElementById('apri_result');
+        const offset = el.getBoundingClientRect().top + window.scrollY - 210;
+        window.scrollTo({ top: offset, behavior: 'smooth' });
+    }, 50);
+}
+
+function resetAPRI() {
+    document.getElementById('apri_ast').value = '';
+    document.getElementById('apri_uln').value = '35';
+    document.getElementById('apri_plt').value = '';
+    document.getElementById('apri_error').style.display = 'none';
+    document.getElementById('apri_result').style.display = 'none';
+    document.getElementById('apri_ast').focus();
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     mAddRow(); mAddRow(); mAddRow();
     pfAddRow(); pfAddRow(); pfAddRow();
