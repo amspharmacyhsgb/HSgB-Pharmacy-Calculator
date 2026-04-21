@@ -354,8 +354,41 @@ input[type="date"], input[type="number"], input[type="text"] {
 .disclaimer-section .less-bold { font-weight: 600; color: #333; }
 .disclaimer-section .stronger-bold { font-weight: 700; color: #263238; }
 .disclaimer-section .footnote { font-size: 0.9em; color: #888; margin-top: 6px; }
-.disclaimer-section a { color: #1565C0; font-weight: 600; text-decoration: none; }
+.disclaimer-section a { color: #00695C; font-weight: 600; text-decoration: none; }
 .disclaimer-section a:hover { text-decoration: underline; }
+
+.disclaimer-credits {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 4px;
+}
+.disclaimer-credits-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+.disclaimer-credits-label {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #004D40;
+    white-space: nowrap;
+    min-width: 130px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+.disclaimer-credits-value {
+    font-size: 0.9em;
+    color: #444;
+    line-height: 1.55;
+    text-align: justify;
+}
+.disclaimer-divider {
+    border: none;
+    border-top: 1px solid #b2dfdb;
+    margin: 10px 0;
+}
 
 /* ── ACCESSIBILITY ── */
 button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {

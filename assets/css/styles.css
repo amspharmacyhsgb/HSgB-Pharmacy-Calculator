@@ -513,6 +513,43 @@ select:focus {
     font-weight: 600;
 }
 
+.disclaimer-credits {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 4px;
+}
+
+.disclaimer-credits-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.disclaimer-credits-label {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #1565C0;
+    white-space: nowrap;
+    min-width: 130px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.disclaimer-credits-value {
+    font-size: 0.9em;
+    color: #444;
+    line-height: 1.55;
+    text-align: justify;
+}
+
+.disclaimer-divider {
+    border: none;
+    border-top: 1px solid #d8dde4;
+    margin: 10px 0;
+}
+
 /* Utility Classes */
 .hidden {
     display: none;
