@@ -941,3 +941,15 @@ h3 {
 
 
 
+
+/* Copyright footer */
+.copyright-footer {
+    background: #ececec;
+    border-top: 1px solid #800000;
+    padding: 13px 20px;
+    text-align: center;
+    font-size: 0.68em;
+    color: #757575;
+    line-height: 1.5;
+    font-family: 'Poppins', sans-serif;
+}
