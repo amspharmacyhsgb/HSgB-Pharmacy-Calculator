@@ -577,6 +577,14 @@ function renderCalcCell(rows) {
         });
         card.appendChild(partsDiv);
 
+        // Subtle rounding / annotation note
+        if (row.note) {
+            const nt = document.createElement('div');
+            nt.style.cssText = 'font-size:0.76em;font-weight:500;font-style:italic;color:#90a4ae;padding-top:1px;';
+            nt.textContent = '※ ' + row.note;
+            card.appendChild(nt);
+        }
+
         // Frequency
         if (row.freq) {
             const fs = document.createElement('div');
@@ -1461,9 +1469,8 @@ function calcPred(w, ageM) {
     const tabStr    = '= ' + tabCount + ' ' + tabPlural + ' of 5mg';
 
     const wasRounded = Math.abs(dose - doseExact) > 0.01;
-    const doseLabel  = wasRounded
-        ? fmg(dose) + ' per dose  (rounded from ' + fmg(doseExact) + ' to nearest 2.5 mg)'
-        : fmg(dose) + ' per dose';
+    const doseLabel  = fmg(dose) + ' per dose';
+    const roundNote  = wasRounded ? 'Rounded from ' + fmg(doseExact) + ' to nearest 2.5 mg' : null;
 
     setOutput({
         drugName: 'Prednisolone',
@@ -1478,6 +1485,7 @@ function calcPred(w, ageM) {
                 { text: doseLabel },
                 { text: tabStr, badge: true, badgeClass: 'vbadge-tab' }
             ],
+            note: roundNote,
             freq: 'Once daily × 3–5 days'
         }],
         maxSingle: '40 mg',
