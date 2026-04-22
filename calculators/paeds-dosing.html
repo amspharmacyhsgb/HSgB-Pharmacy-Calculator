@@ -98,29 +98,32 @@
             background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
             padding: 16px 22px; color: white;
         }
-        .output-header h4 { margin: 0 0 3px; font-size: 1.15em; font-weight: 700; }
-        .output-header p  { margin: 0; font-size: 0.85em; opacity: 0.8; }
+        .output-header h4 { margin: 0 0 6px; font-size: 1.15em; font-weight: 700; }
+        .output-header p  {
+            display: inline-flex; align-items: center; gap: 6px; margin: 0;
+            background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.45);
+            border-radius: 20px; padding: 3px 12px;
+            font-size: 0.75em; font-weight: 700; letter-spacing: 0.01em; color: #fff;
+        }
 
         .out-row {
-            display: flex; align-items: stretch;
-            border-bottom: 1px solid #e8eaf6; min-height: 50px;
+            display: flex; flex-direction: column;
+            border-bottom: 1px solid #e8eaf6; padding: 10px 16px 12px;
         }
         .out-row:last-child { border-bottom: none; }
         .out-label {
-            min-width: 210px; max-width: 210px; padding: 12px 16px;
-            font-size: 0.84em; font-weight: 600; color: #546e7a;
-            background: #f5f7ff; border-right: 2px solid #e8eaf6;
-            display: flex; align-items: center;
+            font-size: 0.68em; font-weight: 700; letter-spacing: 0.07em;
+            text-transform: uppercase; color: #90a4ae; margin-bottom: 5px;
         }
         .out-value {
-            flex: 1; padding: 12px 18px; font-size: 0.84em; color: #1a237e;
-            font-weight: 600; display: flex; align-items: flex-start;
+            font-size: 0.86em; font-weight: 600; color: #1a237e;
+            display: flex; align-items: flex-start;
             flex-wrap: wrap; gap: 6px; flex-direction: column;
         }
         .out-value.normal   { font-weight: 500; color: #37474f; }
-        .out-value.highlight{ font-weight: 700; color: #0d47a1; background: #fff8e1; }
-        .out-value.warning  { color: #546e7a; font-size: 0.84em; font-weight: 500; background: #ffffff; flex-direction: row; align-items: center; }
-        .out-value.blocked  { color: #b71c1c; font-weight: 700; background: #fce4ec; }
+        .out-value.highlight{ font-weight: 700; color: #0d47a1; background: #fff8e1; border-radius: 8px; padding: 8px 10px; }
+        .out-value.warning  { color: #546e7a; font-size: 0.84em; font-weight: 500; }
+        .out-value.blocked  { color: #b71c1c; font-weight: 700; background: #fce4ec; border-radius: 8px; padding: 8px 10px; }
 
         /* Formulation badges by type */
         .fbadge {
@@ -153,6 +156,14 @@
             width: 100%; display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
             font-size: 0.97em; padding: 2px 0;
         }
+
+        /* Individual calc category cards */
+        .calc-card {
+            width: 100%; background: #fff8e1; border: 1px solid #ffe082;
+            border-radius: 8px; padding: 9px 12px; display: flex;
+            flex-direction: column; gap: 5px;
+        }
+        .calc-card + .calc-card { margin-top: 6px; }
         .calc-sub-label {
             font-size: 0.8em; font-weight: 700;
             border-radius: 20px; padding: 2px 10px; white-space: nowrap;
@@ -358,7 +369,7 @@
 
                 <div class="out-row">
                     <div class="out-label">Formulation (HSgB)</div>
-                    <div class="out-value normal" id="out-formulation" style="flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px;"></div>
+                    <div class="out-value normal" id="out-formulation" style="flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px;padding:0;"></div>
                 </div>
 
                 <div class="out-row">
@@ -378,7 +389,7 @@
 
                 <div class="out-row">
                     <div class="out-label">Calculated Dose &amp; Frequency</div>
-                    <div class="out-value highlight" id="out-calc-dose"></div>
+                    <div class="out-value" id="out-calc-dose" style="gap:0;"></div>
                 </div>
 
                 <div class="out-row">
@@ -483,7 +494,7 @@ function patientLabel() {
     const w  = document.getElementById('pt-weight').value;
     const av = document.getElementById('pt-age-val').value;
     const au = document.getElementById('pt-age-unit').value;
-    return (w && av) ? `Patient: ${w} kg  |  ${av} ${au}` : `Patient: ${w || '—'} kg`;
+    return (w && av) ? `🧒 ${w} kg  |  ${av} ${au}` : `🧒 ${w || '—'} kg`;
 }
 
 const AGE_REQUIRED_DRUGS = new Set(['ibu', 'chlor', 'diph', 'brm']);
@@ -525,23 +536,18 @@ function renderFormulations(formArr) {
     });
 }
 
-// ── Render calculated dose cell with sub-rows ──
-// rows = [ { label?, parts: [ {text, badge?, badgeClass?} ], freq? } ]
+// ── Render calculated dose cell — each row as its own card ──
+// rows = [ { label?, labelClass?, parts: [ {text, badge?, badgeClass?} ], freq? } ]
 function renderCalcCell(rows) {
     const el = document.getElementById('out-calc-dose');
     el.innerHTML = '';
-    rows.forEach((row, ri) => {
-        if (ri > 0) {
-            const div = document.createElement('div');
-            div.className = 'calc-divider';
-            el.appendChild(div);
-        }
-        const sub = document.createElement('div');
-        sub.className = 'calc-sub';
+    rows.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'calc-card';
 
+        // Label badge
         if (row.label) {
             const lbl = document.createElement('span');
-            // Use explicit labelClass if provided, otherwise auto-colour by keyword
             let cls = 'calc-sub-label';
             if (row.labelClass) {
                 cls += ' ' + row.labelClass;
@@ -552,35 +558,34 @@ function renderCalcCell(rows) {
             }
             lbl.className = cls;
             lbl.textContent = row.label;
-            sub.appendChild(lbl);
-            // Force dose content onto the next line below the label badge
-            const br = document.createElement('div');
-            br.style.cssText = 'flex-basis:100%;height:0;';
-            sub.appendChild(br);
+            card.appendChild(lbl);
         }
 
+        // Dose parts
+        const partsDiv = document.createElement('div');
+        partsDiv.className = 'calc-sub';
+        partsDiv.style.cssText = 'font-size:0.97em;font-weight:700;color:#0d47a1;';
         row.parts.forEach(p => {
             if (p.badge) {
                 const b = document.createElement('span');
                 b.className = 'vbadge ' + (p.badgeClass || '');
                 b.textContent = p.text;
-                sub.appendChild(b);
+                partsDiv.appendChild(b);
             } else {
-                sub.appendChild(document.createTextNode(p.text + ' '));
+                partsDiv.appendChild(document.createTextNode(p.text + ' '));
             }
         });
+        card.appendChild(partsDiv);
 
-        el.appendChild(sub);
-
+        // Frequency
         if (row.freq) {
-            const hr = document.createElement('div');
-            hr.style.cssText = 'width:100%;height:1px;background:#c5cae9;margin:5px 0 4px;';
-            el.appendChild(hr);
             const fs = document.createElement('div');
-            fs.style.cssText = 'font-size:0.84em;font-weight:600;font-style:italic;color:#1a1a1a;padding-left:2px;';
+            fs.style.cssText = 'font-size:0.83em;font-weight:600;font-style:italic;color:#455a64;border-top:1px solid #ffe082;padding-top:5px;margin-top:2px;';
             fs.textContent = '🕐 ' + row.freq;
-            el.appendChild(fs);
+            card.appendChild(fs);
         }
+
+        el.appendChild(card);
     });
 }
 
@@ -721,8 +726,8 @@ function scrollToOutput() {
 // Restore calc cell class after it may have been set to 'blocked'
 function resetCalcClass() {
     const el = document.getElementById('out-calc-dose');
-    el.className = 'out-value highlight';
-    el.style.cssText = '';
+    el.className = 'out-value';
+    el.style.cssText = 'gap:0;';
 }
 
 // (severity toggle removed — no-op kept for safety)
@@ -1014,19 +1019,19 @@ function calcDiph(w, ageM) {
         route: 'Oral',
         indication: 'Cough (antihistamine)',
         doseRange: [
-            { label: 'Simplified Dosing Guide', labelClass: 'label-opt1', items: [
+            { label: 'Option 1 — Simplified dosing', labelClass: 'label-opt1', items: [
                 { text: '< 2 years: Not recommended',                                                         match: ageYears < 2 },
                 { text: '2–9 years: Age (years) = mL of Bena Paeds syrup',                                   match: ageYears >= 2 && ageYears <= 9 },
                 { text: '10–11 years: 10 mL Bena Paeds  OR  5 mL Bena Adults',                               match: ageYears >= 10 && ageYears <= 11 },
                 { text: '12–17 years: Bena Adults 6–10 mL (increase with age)',                               match: ageYears >= 12 && ageYears <= 17 },
                 { text: '≥ 18 years: 10–15 mL Bena Adults (standard adult dose)',                             match: ageYears >= 18 }
             ]},
-            { label: 'By age — Option 2', labelClass: 'label-age', items: [
+            { label: 'Option 2 — By age', labelClass: 'label-age', items: [
                 { text: '2–5 yrs: 7 mg TDS–QID  (Max: 56 mg/day)',      match: ageM < 72 },
                 { text: '6–12 yrs: 7–14 mg TDS–QID  (Max: 84 mg/day)', match: ageM >= 72 && ageM < 156 },
                 { text: '>12 yrs: 14–28 mg TDS–QID  (Max: 168 mg/day)', match: ageM >= 156 }
             ]},
-            { label: 'By body weight', items: [
+            { label: 'Option 3 — By body weight (1–2 mg/kg)', items: [
                 { text: '1–2 mg/kg/dose,  Every 6–8 hours (TDS–QID)  (Max: 28 mg/dose)', match: true }
             ]}
         ],
@@ -1323,8 +1328,7 @@ function calcAug(w, ageM) {
                     { text: '15–20 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true }
                 ]},
                 { label: 'Moderate – Severe *', labelClass: 'label-sev', items: [
-                    { text: '25–30 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true },
-                    { text: '* Based on HSgB Paeds ID department consensus (expert opinion)' }
+                    { text: '25–30 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true }
                 ]}
             ],
             calcRows: [
@@ -1382,7 +1386,7 @@ function calcAug(w, ageM) {
             calcEl.className = 'out-value normal';
             calcEl.style.cssText = 'background:#fce4ec; color:#b71c1c; font-weight:700; font-size:0.95em; gap:4px; flex-direction:column;';
             calcEl.innerHTML = '<span>🚫 Weight &lt;25 kg — Tablet not suitable</span>'
-                + '<span style="font-size:0.86em; font-weight:500; color:#c62828;">Please switch to <strong>Syrup</strong> formulation in the dropdown above and recalculate.</span>';
+                + '<span style="font-size:0.86em; font-weight:500; color:#c62828;">Please select <strong>Syrup</strong> formulation and recalculate.</span>';
 
             document.getElementById('out-max-limits').textContent     = '—';
             document.getElementById('out-footnote-row').style.display = 'none';
