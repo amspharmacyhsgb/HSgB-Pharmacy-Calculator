@@ -466,6 +466,9 @@
             .disc-header img { height: 36px; }
             .disc-body { align-items: flex-start; }
         }
+
+        /* Hide the common.js footer while the disclaimer gate is active */
+        .disclaimer-section { display: none !important; }
     </style>
 </head>
 <body>
@@ -760,6 +763,11 @@
         if (sessionStorage.getItem('rock_agreed') === '1') {
             document.getElementById('disclaimer-page').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
+            // Reveal footer (hidden during gate)
+            document.addEventListener('DOMContentLoaded', function () {
+                var f = document.querySelector('.disclaimer-section');
+                if (f) f.style.cssText = 'display: block !important';
+            });
         }
     })();
 
@@ -825,6 +833,9 @@
                     main.style.opacity = '1';
                 });
             });
+            // Reveal footer now that main content is visible
+            var f = document.querySelector('.disclaimer-section');
+            if (f) f.style.cssText = 'display: block !important';
             window.scrollTo(0, 0);
         }, 300);
     }
