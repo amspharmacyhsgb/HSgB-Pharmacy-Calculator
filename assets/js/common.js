@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="disclaimer-credits-row">
                     <span class="disclaimer-credits-label">Collaborators</span>
-                    <span class="disclaimer-credits-value">Hannah Md Mahir, Fong Siew Li &amp; Muhammad Zulhafiz (AMS Pharmacists), PRIC; Chuo Sing Kiat &amp; Shreeni (Paeds Clinical Pharmacists); Izha &amp; Arthur — JK IT &amp; Digital (Pharmacy Dept, HSgB).</span>
+                    <span class="disclaimer-credits-value">Hannah Md Mahir, Fong Siew Li &amp; Muhammad Zulhafiz (AMS Pharmacists), PRIC, Chuo Sing Kiat &amp; Shreeni (Paeds Clinical Pharmacists); Izha &amp; Arthur - JK IT &amp; Digital (Pharmacy Dept, HSgB).</span>
                 </div>
                 <div class="disclaimer-credits-row">
                     <span class="disclaimer-credits-label">Approved by</span>
@@ -219,14 +219,22 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="disclaimer-divider"></div>
             <p class="stronger-bold">For Hosp Sungai Buloh Staff Use Only.</p>
-            <p class="footnote" style="text-align:justify;">
-                This guide/calculator provides general advice based on published evidence and expert opinion for standardisation of practice in HSgB. This guide may not cover all aspects of clinical practice, thus healthcare practitioners are encouraged to review patient details and professionally assess the relevance of this guide to each clinical situation. This guide is subject to periodic updates. We assume no responsibility for any party that referred to an outdated version.
+            <p class="footnote">
+                This calculation kit provides general guidance based on published evidence and expert opinion to support standardised practice in Hosp Sungai Buloh. It may not cover all clinical scenarios. Healthcare practitioners should review individual patient details and use professional judgment when applying this guide.
             </p>
             <p style="margin-top: 12px; font-size: 0.9em;">
-                <span class="less-bold">📝 Feedback:</span> We welcome your feedback to improve this tool.
+                <span class="less-bold">📝 Feedback:</span> We welcome your feedback to improve this tool. 
                 <a href="https://forms.gle/XW6NgKrCZLiQV4xp6" target="_blank" rel="noopener noreferrer" style="color: #1565C0; font-weight: 600; text-decoration: none;">Click here to submit feedback</a>
             </p>
         `;
         document.body.appendChild(disclaimer);
+    }
+
+    // Add copyright footer if it doesn't exist
+    if (!document.querySelector('.copyright-footer')) {
+        const copyrightFooter = document.createElement('div');
+        copyrightFooter.className = 'copyright-footer';
+        copyrightFooter.innerHTML = `© Pharmacy Department, Hospital Sungai Buloh. All rights reserved. Unauthorised reproduction, modification or distribution is prohibited.`;
+        document.body.appendChild(copyrightFooter);
     }
 });

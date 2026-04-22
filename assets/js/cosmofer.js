@@ -3,8 +3,25 @@
 // Debounce timer for scroll
 let cosmoferScrollTimer = null;
 
+function updateCosmoferRadioStyle() {
+    const selected = document.querySelector('input[name="cosmofer-indication"]:checked')?.value;
+    ['blood-loss', 'ida'].forEach(val => {
+        const label = document.getElementById(`cosmofer-radio-label-${val}`);
+        if (label) {
+            if (selected === val) {
+                label.style.borderColor = '#003d82';
+                label.style.background = '#e8f0fe';
+            } else {
+                label.style.borderColor = '#e0e0e0';
+                label.style.background = '#f8f9fb';
+            }
+        }
+    });
+}
+
 function calculateCosmofer() {
-    const indication = getSelectValue('cosmofer-indication');
+    const indicationInput = document.querySelector('input[name="cosmofer-indication"]:checked');
+    const indication = indicationInput ? indicationInput.value : '';
     const bw = getNumericValue('cosmofer-bw');
     const targetHb = getNumericValue('cosmofer-target-hb');
     const currentHb = getNumericValue('cosmofer-current-hb');
@@ -65,26 +82,65 @@ function calculateCosmofer() {
     setTextContent('cosmofer-calculated-footnote', calculatedFootnote);
 
     // Round to nearest 100 mg
-    const roundedDose = Math.ceil(finalDose / 100) * 100;
+    const roundedDose = Math.round(finalDose / 100) * 100;
     setTextContent('cosmofer-final-dose', `${roundedDose} mg`);
 
     // Calculate dose per body weight
     const dosePerBw = roundedDose / bw;
     setTextContent('cosmofer-dose-per-bw', `${formatNumber(dosePerBw, 2)} mg/kg`);
 
-    // Determine remarks with detailed dosing split
-    let remarks = '';
+    const splitAlert = document.getElementById('cosmofer-split-alert');
+    const remarksCard = document.getElementById('cosmofer-remarks-card');
+
     if (dosePerBw <= 20) {
-        remarks = 'Dose is ≤ 20 mg/kg - may be administered as a single dose';
+        // Hide alert card, show normal remarks
+        if (splitAlert) splitAlert.style.display = 'none';
+        if (remarksCard) remarksCard.style.display = 'block';
+        setHTMLContent('cosmofer-remarks', 'Dose is ≤ 20 mg/kg — may be administered as a single dose');
     } else {
         // Round first dose (20 mg/kg) down to nearest 100 mg
         const firstDoseRaw = bw * 20;
         const firstDose = Math.floor(firstDoseRaw / 100) * 100;
         const remainder = roundedDose - firstDose;
-        remarks = `Dose is > 20 mg/kg, suggest to administer ${firstDose} mg (20 mg/kg) in the 1st infusion, then the remainder (${remainder} mg) in the 2nd infusion.<br><br>`;
-        remarks += '<div onclick="scrollToGapRule()" style="background: #FFF9E6; border: 2px solid #FFB74D; border-radius: 8px; padding: 10px; margin-top: 8px; color: #E65100; font-weight: 600; cursor: pointer; transition: background 0.3s;" onmouseover="this.style.background=\'#FFF3D6\'" onmouseout="this.style.background=\'#FFF9E6\'">📌 Refer to Gap Rule for Multiple CosmoFer® (IV Iron Dextran) Infusions (Click to view)</div>';
+        const rawDays = (firstDose / 100) * 1.16;
+        const lowerDays = Math.round(rawDays);
+        const upperDays = Math.ceil(lowerDays / 7) * 7;
+        const gapLabel = lowerDays === upperDays
+            ? `~${lowerDays} days`
+            : `~${lowerDays}–${upperDays} days`;
+
+        // Hide remarks, show alert card
+        if (remarksCard) remarksCard.style.display = 'none';
+        if (splitAlert) {
+            splitAlert.style.display = 'block';
+            splitAlert.innerHTML = `
+                <div style="background: linear-gradient(135deg, #fff3e0, #fff8e1); border: 2px solid #f57c00; border-left: 5px solid #e65100; border-radius: 10px; padding: 14px;">
+                    <div style="font-size:0.85em; font-weight:700; color:#bf360c; margin-bottom:12px;">
+                        ⚠️ Dose exceeds 20 mg/kg — must be split across two separate infusions
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                        <div style="background:white; border-radius:8px; padding:10px 12px; border:1px solid #ffcc80; text-align:center;">
+                            <div style="font-size:0.65em; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:3px;">1st Infusion</div>
+                            <div style="font-size:1.1em; font-weight:700; color:#bf360c;">${firstDose} mg</div>
+                            <div style="font-size:0.68em; color:#777; margin-top:2px;">Administer today</div>
+                        </div>
+                        <div style="background:white; border-radius:8px; padding:10px 12px; border:1px solid #ffcc80; text-align:center;">
+                            <div style="font-size:0.65em; font-weight:700; text-transform:uppercase; color:#888; margin-bottom:3px;">2nd Infusion</div>
+                            <div style="font-size:1.1em; font-weight:700; color:#bf360c;">${remainder} mg</div>
+                            <div style="font-size:0.68em; color:#777; margin-top:2px;">After waiting period</div>
+                        </div>
+                    </div>
+                    <div style="background:#e65100; color:white; border-radius:6px; padding:8px 12px; font-size:0.78em; font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+                        ⏱ <span style="opacity:0.85; font-weight:400;">Wait before 2nd infusion:</span>&nbsp;${gapLabel} after 1st dose
+                    </div>
+                    <div onclick="scrollToIntervalGuide()" style="background:white; border:1px solid #e0e0e0; border-radius:8px; padding:8px 12px; font-size:0.75em; color:#555; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <span style="color:#003d82; font-size:0.85em;">▶</span>
+                        📌 Interval Between Infusions — view reference guide
+                    </div>
+                </div>
+            `;
+        }
     }
-    setHTMLContent('cosmofer-remarks', remarks);
     
     // Scroll to results after a short delay (800ms)
     cosmoferScrollTimer = setTimeout(() => {
@@ -92,20 +148,22 @@ function calculateCosmofer() {
     }, 800);
 }
 
-// Function to scroll to and expand Gap Rule section
-function scrollToGapRule() {
+// Function to scroll to and expand interval guide section
+function scrollToIntervalGuide() {
     const gapRuleContent = document.getElementById('gap-rule');
     const gapRuleIcon = document.getElementById('gap-rule-icon');
     
-    // Expand the section
     if (gapRuleContent && gapRuleIcon) {
         gapRuleContent.style.display = 'block';
         gapRuleIcon.textContent = '▼';
     }
     
-    // Scroll to the section
     const gapRuleHeader = document.querySelector('[onclick="toggleSection(\'gap-rule\')"]');
     if (gapRuleHeader) {
         gapRuleHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
+
+// Keep old name as alias for any residual references
+function scrollToGapRule() { scrollToIntervalGuide(); }
+
