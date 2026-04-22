@@ -30,62 +30,77 @@
     </div>
     
     <h2>Iron Dextran (Cosmofer) Dose Calculator</h2>
-    
-    <div class="form-group">
-        <label for="cosmofer-indication">Indication</label>
-        <select id="cosmofer-indication" onchange="calculateCosmofer()" aria-required="true">
-            <option value="">Select an Indication</option>
-            <option value="blood-loss">Blood loss, Eg: During labour</option>
-            <option value="ida">Iron Deficiency Anaemia (IDA)</option>
-        </select>
-        <p id="cosmofer-ida-footnote" class="footnote" style="display:none;">Additional dose: 500 mg</p>
-    </div>
-    
-    <div class="form-group">
-        <label for="cosmofer-bw">Body Weight (kg)</label>
-        <input type="number" id="cosmofer-bw" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0">
-        <div class="shaded-box-pink" style="font-size:0.8em;">
-            i) In pregnancy, use pre-pregnancy body weight.<br>
-            ii) In obese patients (BMI &gt; 30kg/m²), use <a href="body-weight.html">Ideal Body Weight (IBW)</a>.
+
+    <div style="background:#f8faff; border:1px solid #dce6f7; border-radius:12px; padding:14px 16px; margin-bottom:16px;">
+
+        <!-- Indication -->
+        <div style="margin-bottom:10px;">
+            <label style="display:block; font-size:0.78em; font-weight:600; color:#555; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:5px;">Indication</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+                <label style="display:flex; align-items:center; gap:7px; background:white; border:2px solid #e0e0e0; border-radius:9px; padding:8px 10px; cursor:pointer; transition:border-color 0.2s, background 0.2s;" id="cosmofer-radio-label-blood-loss">
+                    <input type="radio" name="cosmofer-indication" value="blood-loss" onchange="calculateCosmofer(); updateCosmoferRadioStyle();" style="accent-color:#003d82; width:14px; height:14px; flex-shrink:0;">
+                    <span style="font-size:0.79em; font-weight:500; line-height:1.3;">Blood loss<br><span style="font-weight:400; color:#888; font-size:0.88em;">e.g. During labour</span></span>
+                </label>
+                <label style="display:flex; align-items:center; gap:7px; background:white; border:2px solid #e0e0e0; border-radius:9px; padding:8px 10px; cursor:pointer; transition:border-color 0.2s, background 0.2s;" id="cosmofer-radio-label-ida">
+                    <input type="radio" name="cosmofer-indication" value="ida" onchange="calculateCosmofer(); updateCosmoferRadioStyle();" style="accent-color:#003d82; width:14px; height:14px; flex-shrink:0;">
+                    <span style="font-size:0.79em; font-weight:500; line-height:1.3;">Iron Deficiency Anaemia<br><span style="font-weight:400; color:#888; font-size:0.88em;">(IDA)</span></span>
+                </label>
+            </div>
+            <p id="cosmofer-ida-footnote" class="footnote" style="display:none; margin-top:4px;">Additional dose: 500 mg</p>
         </div>
-    </div>
-    
-    <div class="form-group">
-        <label for="cosmofer-target-hb">Target Hb (g/dL)</label>
-        <input type="number" id="cosmofer-target-hb" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0">
-    </div>
-    
-    <div class="form-group">
-        <label for="cosmofer-current-hb">Current Hb (g/dL)</label>
-        <input type="number" id="cosmofer-current-hb" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0">
+
+        <!-- Body Weight -->
+        <div style="margin-bottom:10px;">
+            <label for="cosmofer-bw" style="display:block; font-size:0.78em; font-weight:600; color:#555; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Body Weight (kg)</label>
+            <input type="number" id="cosmofer-bw" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0" style="padding:9px 12px; font-size:0.92em;">
+            <div class="shaded-box-pink" style="font-size:0.72em; margin-top:5px; padding:6px 10px;">
+                i) In <strong>pregnancy</strong>, use pre-pregnancy body weight.<br>
+                ii) In <strong>obese</strong> patients (BMI &gt; 30kg/m²), use <a href="body-weight.html">Ideal Body Weight (IBW)</a>.
+            </div>
+        </div>
+
+        <!-- Target Hb + Current Hb side by side -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+                <label for="cosmofer-target-hb" style="display:block; font-size:0.78em; font-weight:600; color:#555; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Target Hb (g/dL)</label>
+                <input type="number" id="cosmofer-target-hb" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0" style="padding:9px 12px; font-size:0.92em;">
+            </div>
+            <div>
+                <label for="cosmofer-current-hb" style="display:block; font-size:0.78em; font-weight:600; color:#555; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Current Hb (g/dL)</label>
+                <input type="number" id="cosmofer-current-hb" oninput="calculateCosmofer()" aria-required="true" step="0.1" min="0" style="padding:9px 12px; font-size:0.92em;">
+            </div>
+        </div>
+
     </div>
 
     <div id="cosmofer-outputs" style="display:none;">
         <h3 id="cosmofer-results-heading">Results</h3>
         
-        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
-            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Summary of Input</div>
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 9px 15px; border: none; margin-bottom: 6px;">
+            <div class="sub-output-title" style="font-size: 0.85em; color: #666; margin-bottom: 3px;">Summary of Input</div>
             <div class="sub-output-value" id="cosmofer-summary" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
         </div>
         
-        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
-            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Calculated dose (mg)</div>
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 9px 15px; border: none; margin-bottom: 6px;">
+            <div class="sub-output-title" style="font-size: 0.85em; color: #666; margin-bottom: 3px;">Calculated dose (mg)</div>
             <div class="sub-output-value" id="cosmofer-calculated-dose" style="font-size: 0.95em; font-weight: 600; color: #1a237e;"></div>
-            <p id="cosmofer-calculated-footnote" class="footnote" style="margin-top: 4px; color: #666;"></p>
+            <p id="cosmofer-calculated-footnote" class="footnote" style="margin-top: 3px; color: #666;"></p>
         </div>
 
-        <div class="output-box-cream">
-            <div class="output-title">Final Dose of Cosmofer (Test Dose Included)</div>
-            <div class="output-value" id="cosmofer-final-dose"></div>
-            <p class="footnote">*Dose rounded to the nearest 100 mg</p>
+        <div class="output-box-cream" style="padding: 8px 15px 8px; margin: 4px 0 6px;">
+            <div class="output-title" style="font-size: 0.85em; line-height: 1.2;">Final Dose of Cosmofer<br><span style="font-size: 0.78em; font-weight: 400; color: rgba(255,255,255,0.75);">(Test Dose Included)</span></div>
+            <div class="output-value" id="cosmofer-final-dose" style="font-size: 1.4em; margin-top: 3px;"></div>
+            <p class="footnote" style="margin-top: 2px; margin-bottom: 0; font-size: 0.66em;">*Dose rounded to the nearest 100 mg</p>
         </div>
 
-        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
-            <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Dose per Body Weight (mg/kg)</div>
+        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 9px 15px; border: none; margin-bottom: 6px;">
+            <div class="sub-output-title" style="font-size: 0.85em; color: #666; margin-bottom: 3px;">Dose per Body Weight (mg/kg)</div>
             <div class="sub-output-value" id="cosmofer-dose-per-bw" style="font-size: 0.95em; font-weight: 600; color: #1a237e;"></div>
         </div>
 
-        <div class="sub-output-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
+        <div id="cosmofer-split-alert" style="display:none; margin-bottom: 12px;"></div>
+
+        <div class="sub-output-card" id="cosmofer-remarks-card" style="background: linear-gradient(to bottom, #F4F4F4, var(--white)); padding: 12px 15px; border: none;">
             <div class="sub-output-title" style="font-size: 0.9em; color: #666; margin-bottom: 6px;">Remarks</div>
             <div class="sub-output-value" id="cosmofer-remarks" style="font-size: 0.85em; font-weight: 500; color: #1a237e;"></div>
         </div>
@@ -139,7 +154,7 @@
     <!-- Gap Rule Section - Standalone -->
     <div class="info-card">
         <div class="expandable-header" onclick="toggleSection('gap-rule')">
-            <span class="info-card-title">📌 Gap Rule for Multiple CosmoFer® (IV Iron Dextran) Infusions</span>
+            <span class="info-card-title">📌 Interval Between Infusions for Multiple CosmoFer® Doses</span>
             <span class="expand-icon" id="gap-rule-icon">▼</span>
         </div>
         
