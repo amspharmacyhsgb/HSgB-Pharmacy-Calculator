@@ -96,14 +96,14 @@
         }
         .output-header {
             background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            padding: 16px 22px; color: white;
+            padding: 10px 16px; color: white;
         }
-        .output-header h4 { margin: 0 0 6px; font-size: 1.15em; font-weight: 700; }
+        .output-header h4 { margin: 0 0 5px; font-size: 0.97em; font-weight: 700; }
         .output-header p  {
             display: inline-flex; align-items: center; gap: 6px; margin: 0;
             background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.45);
-            border-radius: 20px; padding: 3px 12px;
-            font-size: 0.75em; font-weight: 700; letter-spacing: 0.01em; color: #fff;
+            border-radius: 20px; padding: 2px 10px;
+            font-size: 0.70em; font-weight: 700; letter-spacing: 0.01em; color: #fff;
         }
 
         .out-row {
@@ -120,9 +120,9 @@
             display: flex; align-items: flex-start;
             flex-wrap: wrap; gap: 6px; flex-direction: column;
         }
-        .out-value.normal   { font-weight: 500; color: #37474f; }
+        .out-value.normal   { font-size: 0.78em; font-weight: 500; color: #37474f; }
         .out-value.highlight{ font-weight: 700; color: #0d47a1; background: #fff8e1; border-radius: 8px; padding: 8px 10px; }
-        .out-value.warning  { color: #546e7a; font-size: 0.84em; font-weight: 500; }
+        .out-value.warning  { color: #546e7a; font-size: 0.78em; font-weight: 500; }
         .out-value.blocked  { color: #b71c1c; font-weight: 700; background: #fce4ec; border-radius: 8px; padding: 8px 10px; }
 
         /* Formulation badges by type */
@@ -228,22 +228,34 @@
             border-left: 3px solid #f9a825; border-radius: 4px; padding: 4px 10px; margin-top: 4px;
         }
 
-        /* Augmentin severity toggle */
-
-        /* ══ AUGMENTIN RADIO BUTTONS ══ */
-        .aug-radio-group { display: flex; flex-direction: row; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
-        .aug-radio-label {
-            display: flex; align-items: center; gap: 8px;
-            padding: 7px 12px; border: 1.5px solid #cfd8dc; border-radius: 20px;
-            cursor: pointer; transition: border-color 0.2s, background 0.2s;
-            background: #f9fafb; flex: 1; min-width: 120px;
+        /* ══ DRUG COUNT BADGE ══ */
+        .drug-count-badge {
+            display: inline-flex; align-items: center;
+            background: #eceff1; color: #607d8b;
+            border: 1px solid #cfd8dc; border-radius: 20px;
+            padding: 1px 10px; font-size: 0.68em; font-weight: 600;
+            margin-left: 8px; vertical-align: middle; letter-spacing: 0.01em;
+            transition: background 0.2s, color 0.2s;
         }
-        .aug-radio-label:hover { border-color: #1565C0; background: #e3f2fd; }
-        .aug-radio-label input[type="radio"] { accent-color: #1565C0; width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
-        .aug-radio-label:has(input:checked) { border-color: #1565C0; background: #e8f0fe; }
-        .aug-radio-text { display: flex; flex-direction: column; gap: 0; }
-        .aug-radio-title { font-size: 0.84em; font-weight: 700; color: #1a237e; }
-        .aug-radio-sub   { font-size: 0.72em; font-weight: 400; color: #78909c; }
+        .drug-count-badge.has-selection {
+            background: #1a237e; color: #e8eaf6; border-color: #1a237e;
+        }
+
+        /* ══ OUTPUT GRID (multi-drug side-by-side) ══ */
+        #output-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        #output-grid .output-card {
+            flex: 1 1 280px;
+            min-width: 270px;
+            margin-bottom: 0;
+        }
+        @media (max-width: 620px) {
+            #output-grid .output-card { min-width: 100%; flex-basis: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -306,18 +318,19 @@
 
     <!-- ② SELECT DRUG -->
     <div class="calc-section">
-        <h3>② Select Drug</h3>
+        <h3>② Select Drug <span class="drug-count-badge" id="drug-count-badge">tap to select</span></h3>
 
         <div class="drug-tabs">
-            <div class="drug-tab" onclick="selectDrug('pcm',this)">Paracetamol <span class="brand">(PCM)</span></div>
-            <div class="drug-tab" onclick="selectDrug('ibu',this)">Ibuprofen</div>
-            <div class="drug-tab" onclick="selectDrug('pred',this)">Prednisolone</div>
-            <div class="drug-tab" onclick="selectDrug('chlor',this)">Chlorpheniramine <span class="brand">(Piriton)</span></div>
-            <div class="drug-tab" onclick="selectDrug('diph',this)">Diphenhydramine <span class="brand">(Benadryl)</span></div>
-            <div class="drug-tab" onclick="selectDrug('brm',this)">Bromhexine</div>
-            <div class="drug-tab" onclick="selectDrug('amox',this)">Amoxicillin</div>
-            <div class="drug-tab" onclick="selectDrug('ampi',this)">Ampicillin</div>
-            <div class="drug-tab" onclick="selectDrug('aug',this)">Amox/Clav <span class="brand">(Augmentin)</span></div>
+            <div class="drug-tab" onclick="toggleDrug('pcm',this)">Paracetamol <span class="brand">(PCM)</span></div>
+            <div class="drug-tab" onclick="toggleDrug('ibu',this)">Ibuprofen</div>
+            <div class="drug-tab" onclick="toggleDrug('pred',this)">Prednisolone</div>
+            <div class="drug-tab" onclick="toggleDrug('chlor',this)">Chlorpheniramine <span class="brand">(Piriton)</span></div>
+            <div class="drug-tab" onclick="toggleDrug('diph',this)">Diphenhydramine <span class="brand">(Benadryl)</span></div>
+            <div class="drug-tab" onclick="toggleDrug('brm',this)">Bromhexine</div>
+            <div class="drug-tab" onclick="toggleDrug('amox',this)">Amoxicillin</div>
+            <div class="drug-tab" onclick="toggleDrug('ampi',this)">Ampicillin</div>
+            <div class="drug-tab" onclick="toggleDrug('aug-syr',this)">Amox/Clav Syrup <span class="brand">(Augmentin)</span></div>
+            <div class="drug-tab" onclick="toggleDrug('aug-tab',this)">Amox/Clav Tablet <span class="brand">(Augmentin)</span></div>
         </div>
 
         <!-- Sub-option panels — only drugs needing indication selector -->
@@ -329,86 +342,13 @@
         <div class="drug-panel" id="panel-amox"></div>
         <div class="drug-panel" id="panel-ampi"></div>
 
-        <div class="drug-panel" id="panel-aug">
-            <div class="drug-extra">
-                <label>Formulation</label>
-                <div class="aug-radio-group">
-                    <label class="aug-radio-label">
-                        <input type="radio" name="aug-formulation" value="syr" onchange="toggleAugNote(); scheduleCalc();">
-                        <span class="aug-radio-text">
-                            <span class="aug-radio-title">&#x1F944; Syrup &mdash; 228mg/5ml</span>
-                            <span class="aug-radio-sub">Amox 200mg + Clav 28.5mg per 5ml</span>
-                        </span>
-                    </label>
-                    <label class="aug-radio-label">
-                        <input type="radio" name="aug-formulation" value="tab" onchange="toggleAugNote(); scheduleCalc();">
-                        <span class="aug-radio-text">
-                            <span class="aug-radio-title">&#x1F48A; Tablet &mdash; 625mg</span>
-                            <span class="aug-radio-sub">Amox 500mg + Clav 125mg</span>
-                        </span>
-                    </label>
-                </div>
-            </div>
-            <div id="aug-tab-note" style="display:none; background:#fff3e0; border-left:4px solid #f57c00; border-radius:6px; padding:9px 14px; font-size:0.84em; color:#5d4037; font-weight:600; margin-bottom:10px;">
-                💡 Augmentin Tablet dose is weight-based. Children &lt;25 kg should use the Syrup formulation.
-            </div>
-        </div>
-
         <div class="drug-panel" id="panel-pred"></div>
 
     </div>
 
     <!-- ④ OUTPUT -->
-    <div id="output-section">
-        <div class="output-card">
-            <div class="output-header">
-                <h4 id="out-drug-name">—</h4>
-                <p id="out-patient-info">—</p>
-            </div>
-            <div class="output-body">
-
-                <div class="out-row">
-                    <div class="out-label">Formulation (HSgB)</div>
-                    <div class="out-value normal" id="out-formulation" style="flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px;padding:0;"></div>
-                </div>
-
-                <div class="out-row">
-                    <div class="out-label">Route</div>
-                    <div class="out-value normal" id="out-route"></div>
-                </div>
-
-                <div class="out-row">
-                    <div class="out-label">Common Indication (HSgB)</div>
-                    <div class="out-value normal" id="out-indication"></div>
-                </div>
-
-                <div class="out-row">
-                    <div class="out-label">Dose Range &amp; Frequency</div>
-                    <div class="out-value normal" id="out-dose-range"></div>
-                </div>
-
-                <div class="out-row">
-                    <div class="out-label">Calculated Dose &amp; Frequency</div>
-                    <div class="out-value" id="out-calc-dose" style="gap:0;"></div>
-                </div>
-
-                <div class="out-row">
-                    <div class="out-label">Dosing Limits</div>
-                    <div class="out-value normal" id="out-max-limits"></div>
-                </div>
-
-                <div class="out-row" id="out-footnote-row" style="display:none;">
-                    <div class="out-label">Footnote</div>
-                    <div class="out-value normal" id="out-footnote"></div>
-                </div>
-
-                <div class="out-row" id="out-remarks-row" style="display:none;">
-                    <div class="out-label">Remarks</div>
-                    <div class="out-value warning" id="out-remarks"></div>
-                </div>
-
-            </div>
-        </div>
+    <div id="output-section" style="display:none;">
+        <div id="output-grid"></div>
     </div>
 
 </div>
@@ -447,26 +387,131 @@
 'use strict';
 
 // ══════════════════════════════════════════════════════
-//  DRUG SELECTION
+//  DRUG SELECTION — multi-select (up to 4)
 // ══════════════════════════════════════════════════════
-let selectedDrug = null;
+let selectedDrugs = new Set();
 
-function selectDrug(drug, el) {
-    document.querySelectorAll('.drug-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.drug-panel').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('panel-' + drug).classList.add('active');
-    selectedDrug = drug;
+const DRUG_COLORS = {
+    pcm:       '#F57F17',
+    ibu:       '#E65100',
+    pred:      '#6A1B9A',
+    chlor:     '#C2185B',
+    diph:      '#880E4F',
+    brm:       '#00695C',
+    amox:      '#1565C0',
+    ampi:      '#0277BD',
+    'aug-syr': '#2E7D32',
+    'aug-tab': '#33691E',
+};
+
+function toggleDrug(drug, el) {
+    if (selectedDrugs.has(drug)) {
+        selectedDrugs.delete(drug);
+        el.classList.remove('active');
+        el.style.background = '';
+        el.style.borderColor = '';
+        el.style.color = '';
+        const brand = el.querySelector('.brand');
+        if (brand) brand.style.color = '';
+    } else {
+        selectedDrugs.add(drug);
+        el.classList.add('active');
+        const c = DRUG_COLORS[drug] || '#1a237e';
+        el.style.background  = c;
+        el.style.borderColor = c;
+        el.style.color       = 'white';
+        const brand = el.querySelector('.brand');
+        if (brand) brand.style.color = 'rgba(255,255,255,0.75)';
+    }
+
+    updateDrugCountBadge();
     document.getElementById('output-section').style.display = 'none';
     _doseRangeOpen = true;
-    resetSevRow();
     updateAgeUI();
-    // Reset Augmentin formulation to blank when switching away
-    if (drug !== 'aug') {
-        document.querySelectorAll('input[name="aug-formulation"]').forEach(r => r.checked = false);
-        document.getElementById('aug-tab-note').style.display = 'none';
-    }
     scheduleCalc();
+}
+
+function updateDrugCountBadge() {
+    const badge = document.getElementById('drug-count-badge');
+    const n = selectedDrugs.size;
+    if (n === 0) {
+        badge.textContent = 'tap to select';
+        badge.classList.remove('has-selection');
+    } else {
+        badge.textContent = n + ' selected';
+        badge.classList.add('has-selection');
+    }
+}
+
+// ══════════════════════════════════════════════════════
+//  DYNAMIC OUTPUT CARD FACTORY
+// ══════════════════════════════════════════════════════
+function makeOutputCard(color) {
+    color = color || '#1a237e';
+    const card = document.createElement('div');
+    card.className = 'output-card';
+    card.innerHTML =
+        '<div class="output-header" style="background:' + color + ';">' +
+            '<h4 class="rc-drug-name">\u2014</h4>' +
+            '<p class="rc-patient-info">\u2014</p>' +
+        '</div>' +
+        '<div class="output-body">' +
+            '<div class="out-row">' +
+                '<div class="out-label">Formulation (HSgB)</div>' +
+                '<div class="out-value normal rc-formulation" style="flex-direction:row;align-items:center;flex-wrap:wrap;gap:8px;padding:0;"></div>' +
+            '</div>' +
+            '<div class="out-row">' +
+                '<div class="out-label">Route</div>' +
+                '<div class="out-value normal rc-route"></div>' +
+            '</div>' +
+            '<div class="out-row">' +
+                '<div class="out-label">Common Indication (HSgB)</div>' +
+                '<div class="out-value normal rc-indication"></div>' +
+            '</div>' +
+            '<div class="out-row">' +
+                '<div class="out-label">Dose Range &amp; Frequency</div>' +
+                '<div class="out-value normal rc-dose-range"></div>' +
+            '</div>' +
+            '<div class="out-row">' +
+                '<div class="out-label">Calculated Dose &amp; Frequency</div>' +
+                '<div class="out-value rc-calc-dose" style="gap:0;"></div>' +
+            '</div>' +
+            '<div class="out-row">' +
+                '<div class="out-label">Dosing Limits</div>' +
+                '<div class="out-value normal rc-max-limits"></div>' +
+            '</div>' +
+            '<div class="out-row rc-footnote-row" style="display:none;">' +
+                '<div class="out-label">Footnote</div>' +
+                '<div class="out-value normal rc-footnote"></div>' +
+            '</div>' +
+            '<div class="out-row rc-remarks-row" style="display:none;">' +
+                '<div class="out-label">Remarks</div>' +
+                '<div class="out-value warning rc-remarks"></div>' +
+            '</div>' +
+        '</div>';
+
+    const refs = {
+        'out-drug-name':    card.querySelector('.rc-drug-name'),
+        'out-patient-info': card.querySelector('.rc-patient-info'),
+        'out-formulation':  card.querySelector('.rc-formulation'),
+        'out-route':        card.querySelector('.rc-route'),
+        'out-indication':   card.querySelector('.rc-indication'),
+        'out-dose-range':   card.querySelector('.rc-dose-range'),
+        'out-calc-dose':    card.querySelector('.rc-calc-dose'),
+        'out-max-limits':   card.querySelector('.rc-max-limits'),
+        'out-footnote-row': card.querySelector('.rc-footnote-row'),
+        'out-footnote':     card.querySelector('.rc-footnote'),
+        'out-remarks-row':  card.querySelector('.rc-remarks-row'),
+        'out-remarks':      card.querySelector('.rc-remarks'),
+    };
+
+    return { card, refs };
+}
+
+// Active refs for the card currently being rendered
+let _currentRefs = null;
+function getRef(id) {
+    return _currentRefs ? _currentRefs[id] : document.getElementById(id);
 }
 
 // ══════════════════════════════════════════════════════
@@ -499,7 +544,7 @@ function patientLabel() {
 
 const AGE_REQUIRED_DRUGS = new Set(['ibu', 'chlor', 'diph', 'brm']);
 
-function needsAge() { return AGE_REQUIRED_DRUGS.has(selectedDrug); }
+function needsAge() { return [...selectedDrugs].some(d => AGE_REQUIRED_DRUGS.has(d)); }
 
 function updateAgeUI() {
     const required = needsAge();
@@ -526,7 +571,7 @@ function validateInputs(silent) {
 // formArr = [ { text, type } ]  type: 'syr' | 'tab' | 'cap'
 const FBADGE_ICON = { syr: '🥄', tab: '💊', cap: '💊', pink: '🥄', mag: '🥄' };
 function renderFormulations(formArr) {
-    const el = document.getElementById('out-formulation');
+    const el = getRef('out-formulation');
     el.innerHTML = '';
     formArr.forEach(f => {
         const b = document.createElement('span');
@@ -539,7 +584,7 @@ function renderFormulations(formArr) {
 // ── Render calculated dose cell — each row as its own card ──
 // rows = [ { label?, labelClass?, parts: [ {text, badge?, badgeClass?} ], freq? } ]
 function renderCalcCell(rows) {
-    const el = document.getElementById('out-calc-dose');
+    const el = getRef('out-calc-dose');
     el.innerHTML = '';
     rows.forEach(row => {
         const card = document.createElement('div');
@@ -601,7 +646,7 @@ function renderCalcCell(rows) {
 // groups = [ { label, labelClass?, items: [{text, match?}] } ]
 let _doseRangeOpen = true;
 function renderDoseRange(groups) {
-    const el = document.getElementById('out-dose-range');
+    const el = getRef('out-dose-range');
     el.innerHTML = '';
 
     // Toggle button
@@ -650,17 +695,17 @@ function renderDoseRange(groups) {
 // ── Main setOutput ──
 function setOutput(opts) {
     // opts: { drugName, formulations, route, indication, doseRangeHtml, calcRows, maxSingle, maxDaily, footnote, remarks }
-    document.getElementById('out-drug-name').textContent    = opts.drugName;
-    document.getElementById('out-patient-info').textContent = patientLabel();
+    getRef('out-drug-name').textContent    = opts.drugName;
+    getRef('out-patient-info').textContent = patientLabel();
 
     renderFormulations(opts.formulations);
-    document.getElementById('out-route').textContent       = opts.route || 'Oral';
-    document.getElementById('out-indication').textContent  = opts.indication;
+    getRef('out-route').textContent       = opts.route || 'Oral';
+    getRef('out-indication').textContent  = opts.indication;
     renderDoseRange(opts.doseRange || []);
     renderCalcCell(opts.calcRows);
 
     // Dosing limits — show only what's provided
-    const limEl = document.getElementById('out-max-limits');
+    const limEl = getRef('out-max-limits');
     limEl.innerHTML = '';
     if (opts.maxSingle) {
         const s = document.createElement('div'); s.textContent = 'Max single dose: ' + opts.maxSingle; limEl.appendChild(s);
@@ -670,15 +715,15 @@ function setOutput(opts) {
     }
     if (!opts.maxSingle && !opts.maxDaily) limEl.textContent = '—';
 
-    const fnRow = document.getElementById('out-footnote-row');
+    const fnRow = getRef('out-footnote-row');
     if (opts.footnote) {
-        document.getElementById('out-footnote').innerHTML = `<span class="footnote-text">${opts.footnote}</span>`;
+        getRef('out-footnote').innerHTML = `<span class="footnote-text">${opts.footnote}</span>`;
         fnRow.style.display = 'flex';
     } else { fnRow.style.display = 'none'; }
 
-    const rmRow = document.getElementById('out-remarks-row');
+    const rmRow = getRef('out-remarks-row');
     if (opts.remarks) {
-        const rmEl = document.getElementById('out-remarks');
+        const rmEl = getRef('out-remarks');
         const sentences = opts.remarks.split('\n').map(s => s.trim()).filter(Boolean);
         if (sentences.length > 1) {
             rmEl.innerHTML = '<ul style="margin:0;padding-left:18px;">' +
@@ -689,37 +734,29 @@ function setOutput(opts) {
         }
         rmRow.style.display = 'flex';
     } else { rmRow.style.display = 'none'; }
-
-    const out = document.getElementById('output-section');
-    out.style.display = 'block';
-    setTimeout(scrollToOutput, 120);
 }
 
 // ── Show blocked output (for antihistamines < 2yr, ibu < 6mo) ──
 function showBlocked(drugName, reason) {
-    document.getElementById('out-drug-name').textContent    = drugName;
-    document.getElementById('out-patient-info').textContent = patientLabel();
+    getRef('out-drug-name').textContent    = drugName;
+    getRef('out-patient-info').textContent = patientLabel();
 
-    document.getElementById('out-formulation').innerHTML  = '—';
-    document.getElementById('out-route').textContent      = '—';
-    document.getElementById('out-indication').textContent = '—';
-    document.getElementById('out-dose-range').innerHTML   = '—';
+    getRef('out-formulation').innerHTML  = '—';
+    getRef('out-route').textContent      = '—';
+    getRef('out-indication').textContent = '—';
+    getRef('out-dose-range').innerHTML   = '—';
 
-    const el = document.getElementById('out-calc-dose');
+    const el = getRef('out-calc-dose');
     el.className = 'out-value blocked';
     el.textContent = '🚫 Cannot calculate — see Remarks';
 
-    document.getElementById('out-max-limits').textContent = '—';
+    getRef('out-max-limits').textContent = '—';
 
-    document.getElementById('out-footnote-row').style.display = 'none';
+    getRef('out-footnote-row').style.display = 'none';
 
-    const rmRow = document.getElementById('out-remarks-row');
-    document.getElementById('out-remarks').textContent = reason;
+    const rmRow = getRef('out-remarks-row');
+    getRef('out-remarks').textContent = reason;
     rmRow.style.display = 'flex';
-
-    const out = document.getElementById('output-section');
-    out.style.display = 'block';
-    setTimeout(scrollToOutput, 120);
 }
 
 // ── Scroll output into view, offset by sticky header height ──
@@ -733,8 +770,9 @@ function scrollToOutput() {
 
 // Restore calc cell class after it may have been set to 'blocked'
 function resetCalcClass() {
-    const el = document.getElementById('out-calc-dose');
-    el.className = 'out-value';
+    const el = getRef('out-calc-dose');
+    if (!el) return;
+    el.className = 'out-value rc-calc-dose';
     el.style.cssText = 'gap:0;';
 }
 
@@ -752,7 +790,7 @@ function scheduleCalc() {
         const av = parseFloat(document.getElementById('pt-age-val').value);
         const weightOk = !isNaN(w) && w > 0;
         const ageOk    = !isNaN(av) && av >= 0;
-        if (weightOk && (ageOk || !needsAge())) {
+        if (weightOk && selectedDrugs.size > 0 && (ageOk || !needsAge())) {
             document.getElementById('age-warning-bar').style.display = ageOk && getAgeMonths() < 24 ? 'block' : 'none';
             calculate(true);
         }
@@ -771,14 +809,29 @@ document.addEventListener('DOMContentLoaded', () => {
 //  DISPATCHER
 // ══════════════════════════════════════════════════════
 function calculate(silent) {
-    if (!selectedDrug) return;
+    if (selectedDrugs.size === 0) return;
     if (!validateInputs(silent)) return;
-    resetCalcClass();
+
+    const grid = document.getElementById('output-grid');
+    grid.innerHTML = '';
+
     const w    = getWeight();
     const ageM = getAgeMonths();
     const map  = { pcm: calcPCM, ibu: calcIbu, chlor: calcChlor, diph: calcDiph,
-                   brm: calcBrm, amox: calcAmox, ampi: calcAmpi, aug: calcAug, pred: calcPred };
-    map[selectedDrug](w, ageM);
+                   brm: calcBrm, amox: calcAmox, ampi: calcAmpi,
+                   'aug-syr': calcAugSyr, 'aug-tab': calcAugTab, pred: calcPred };
+
+    selectedDrugs.forEach(drug => {
+        const { card, refs } = makeOutputCard(DRUG_COLORS[drug] || '#1a237e');
+        grid.appendChild(card);
+        _currentRefs = refs;
+        resetCalcClass();
+        map[drug](w, ageM);
+    });
+
+    _currentRefs = null;
+    document.getElementById('output-section').style.display = 'block';
+    setTimeout(scrollToOutput, 120);
 }
 
 function clearAll() {
@@ -788,12 +841,20 @@ function clearAll() {
     document.getElementById('pt-age-unit').value = 'years';
     document.getElementById('output-section').style.display  = 'none';
     document.getElementById('age-warning-bar').style.display = 'none';
-    // Deselect drug tab and panel
-    document.querySelectorAll('.drug-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('output-grid').innerHTML = '';
+    // Deselect all drug tabs
+    document.querySelectorAll('.drug-tab').forEach(t => {
+        t.classList.remove('active');
+        t.style.background = '';
+        t.style.borderColor = '';
+        t.style.color = '';
+        const brand = t.querySelector('.brand');
+        if (brand) brand.style.color = '';
+    });
     document.querySelectorAll('.drug-panel').forEach(p => p.classList.remove('active'));
-    selectedDrug = null;
-    resetSevRow();
-    resetCalcClass();
+    selectedDrugs.clear();
+    updateDrugCountBadge();
+    _currentRefs = null;
     updateAgeUI();
 }
 
@@ -1292,156 +1353,140 @@ function calcAmpi(w, ageM) {
 }
 
 // ══════════════════════════════════════════════════════
-//  8. AMOXYCILLIN/CLAVULANATE (Augmentin)
+//  8a. AMOXYCILLIN/CLAVULANATE — SYRUP (Augmentin)
 // ══════════════════════════════════════════════════════
-function toggleAugNote() {
-    const form = document.querySelector('input[name="aug-formulation"]:checked')?.value || '';
-    document.getElementById('aug-tab-note').style.display = form === 'tab' ? 'block' : 'none';
-}
-
-function calcAug(w, ageM) {
-    const form = document.querySelector('input[name="aug-formulation"]:checked')?.value || '';
-
-    // Always reset the severity toggle visibility
+function calcAugSyr(w, ageM) {
     resetSevRow();
 
-    if (!form) {
-        document.getElementById('output-section').style.display = 'none';
-        return;
-    }
+    const MAX_SYR     = 1000;
+    const mildMin     = clamp(15 * w, MAX_SYR);
+    const mildMax     = clamp(20 * w, MAX_SYR);
+    const mildVmin    = mildMin * 5 / 228;
+    const mildVmax    = mildMax * 5 / 228;
+    const mildAmoxMin = Math.round(mildMin * 200 / 228);
+    const mildAmoxMax = Math.round(mildMax * 200 / 228);
+    const sevMin      = clamp(25 * w, MAX_SYR);
+    const sevMax      = clamp(30 * w, MAX_SYR);
+    const sevVmin     = sevMin * 5 / 228;
+    const sevVmax     = sevMax * 5 / 228;
+    const sevAmoxMin  = Math.round(sevMin * 200 / 228);
+    const sevAmoxMax  = Math.round(sevMax * 200 / 228);
 
-    if (form === 'syr') {
-        // ── SYRUP — show both severity tiers simultaneously ──
-        const MAX_SYR     = 1000;
-        const mildMin     = clamp(15 * w, MAX_SYR);
-        const mildMax     = clamp(20 * w, MAX_SYR);
-        const mildVmin    = mildMin * 5 / 228;
-        const mildVmax    = mildMax * 5 / 228;
-        const mildAmoxMin = Math.round(mildMin * 200 / 228);
-        const mildAmoxMax = Math.round(mildMax * 200 / 228);
-        const sevMin      = clamp(25 * w, MAX_SYR);
-        const sevMax      = clamp(30 * w, MAX_SYR);
-        const sevVmin     = sevMin * 5 / 228;
-        const sevVmax     = sevMax * 5 / 228;
-        const sevAmoxMin  = Math.round(sevMin * 200 / 228);
-        const sevAmoxMax  = Math.round(sevMax * 200 / 228);
+    setOutput({
+        drugName: 'Amoxycillin/Clavulanate — Syrup (Augmentin)',
+        formulations: [{ text: '228mg/5ml Syrup  (Amox 200mg + Clav 28.5mg per 5ml)', type: 'syr' }],
+        route: 'Oral',
+        indication: 'Treatment of susceptible infections',
+        doseRange: [
+            { label: 'Mild – Moderate', labelClass: 'label-teal', items: [
+                { text: '15–20 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true }
+            ]},
+            { label: 'Moderate – Severe', labelClass: 'label-sev', items: [
+                { text: '25–30 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true }
+            ]}
+        ],
+        calcRows: [
+            {
+                label: 'Mild – Moderate',
+                labelClass: 'label-teal',
+                parts: [
+                    { text: fmg(mildMin) + ' – ' + fmg(mildMax) + ' Augmentin/dose' },
+                    { text: '= ' + fml(mildVmin) + ' – ' + fml(mildVmax) + ' of 228mg/5ml Syr', badge: true },
+                    { text: '≈ Amox ' + mildAmoxMin + '–' + mildAmoxMax + ' mg', badge: true, badgeClass: 'vbadge-tab' }
+                ],
+                freq: 'Every 12 hours (BD)'
+            },
+            {
+                label: 'Moderate – Severe',
+                labelClass: 'label-sev',
+                parts: [
+                    { text: fmg(sevMin) + ' – ' + fmg(sevMax) + ' Augmentin/dose' },
+                    { text: '= ' + fml(sevVmin) + ' – ' + fml(sevVmax) + ' of 228mg/5ml Syr', badge: true },
+                    { text: '≈ Amox ' + sevAmoxMin + '–' + sevAmoxMax + ' mg', badge: true, badgeClass: 'vbadge-tab' }
+                ],
+                freq: 'Every 12 hours (BD)'
+            }
+        ],
+        maxSingle: '1000 mg Augmentin/dose  (= 875 mg Amoxycillin = 22 ml)',
+        maxDaily:  '',
+        footnote:  '',
+        remarks:   'Refer to DIAMS — HSgB Paediatric Antimicrobial Dose Quick Guide for more information (e.g. renal dose adjustment, etc).'
+    });
+}
 
-        setOutput({
-            drugName: 'Amoxycillin/Clavulanate — Syrup (Augmentin)',
-            formulations: [{ text: '228mg/5ml Syrup  (Amox 200mg + Clav 28.5mg per 5ml)', type: 'syr' }],
-            route: 'Oral',
-            indication: 'Treatment of susceptible infections',
-            doseRange: [
-                { label: 'Mild – Moderate', labelClass: 'label-teal', items: [
-                    { text: '15–20 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true }
-                ]},
-                { label: 'Moderate – Severe *', labelClass: 'label-sev', items: [
-                    { text: '25–30 mg/kg/dose Augmentin,  Every 12 hours (BD)', match: true }
-                ]}
-            ],
-            calcRows: [
-                {
-                    label: 'Mild – Moderate',
-                    labelClass: 'label-teal',
-                    parts: [
-                        { text: fmg(mildMin) + ' – ' + fmg(mildMax) + ' Augmentin/dose' },
-                        { text: '= ' + fml(mildVmin) + ' – ' + fml(mildVmax) + ' of 228mg/5ml Syr', badge: true },
-                        { text: '≈ Amox ' + mildAmoxMin + '–' + mildAmoxMax + ' mg', badge: true, badgeClass: 'vbadge-tab' }
-                    ],
-                    freq: 'Every 12 hours (BD)'
-                },
-                {
-                    label: 'Moderate – Severe *',
-                    labelClass: 'label-sev',
-                    parts: [
-                        { text: fmg(sevMin) + ' – ' + fmg(sevMax) + ' Augmentin/dose' },
-                        { text: '= ' + fml(sevVmin) + ' – ' + fml(sevVmax) + ' of 228mg/5ml Syr', badge: true },
-                        { text: '≈ Amox ' + sevAmoxMin + '–' + sevAmoxMax + ' mg', badge: true, badgeClass: 'vbadge-tab' }
-                    ],
-                    freq: 'Every 12 hours (BD)'
-                }
-            ],
-            maxSingle: '1000 mg Augmentin/dose  (= 875 mg Amoxycillin = 22 ml)',
-            maxDaily:  '',
-            footnote:  '* The 30 mg/kg/dose for moderate–severe infections (including pneumonia) is based on HSgB Paeds Infectious Diseases (ID) department consensus, founded on expert opinion.',
-            remarks:   'Refer to DIAMS — HSgB Paediatric Antimicrobial Dose Quick Guide for more information (e.g. renal dose adjustment, etc).'
-        });
+// ══════════════════════════════════════════════════════
+//  8b. AMOXYCILLIN/CLAVULANATE — TABLET (Augmentin)
+// ══════════════════════════════════════════════════════
+function calcAugTab(w, ageM) {
+    resetSevRow();
+    resetCalcClass();
+
+    if (w < 25) {
+        getRef('out-drug-name').textContent    = 'Amoxycillin/Clavulanate — Tablet (Augmentin)';
+        getRef('out-patient-info').textContent = patientLabel();
+
+        const formEl = getRef('out-formulation');
+        formEl.innerHTML = '';
+        const b = document.createElement('span');
+        b.className = 'fbadge fbadge-tab';
+        b.innerHTML = '<span class="fbadge-icon">💊</span>625mg Tablet';
+        formEl.appendChild(b);
+
+        getRef('out-route').textContent      = 'Oral';
+        getRef('out-indication').textContent = 'Treatment of susceptible infections';
+        renderDoseRange([{ label: 'By weight band', items: [
+            { text: '<25 kg: Use Syrup formulation', match: true },
+            { text: '25–<40 kg: 625 mg q12H (BD)' },
+            { text: '≥40 kg: 625 mg q8H (TDS)' }
+        ]}]);
+
+        const calcEl = getRef('out-calc-dose');
+        calcEl.className = 'out-value normal';
+        calcEl.style.cssText = 'background:#fce4ec; color:#b71c1c; font-weight:700; font-size:0.95em; gap:4px; flex-direction:column;';
+        calcEl.innerHTML = '<span>🚫 Weight &lt;25 kg — Tablet not suitable</span>'
+            + '<span style="font-size:0.86em; font-weight:500; color:#c62828;">Please select <strong>Syrup</strong> formulation instead.</span>';
+
+        getRef('out-max-limits').textContent     = '—';
+        getRef('out-footnote-row').style.display = 'none';
+
+        const rmRow  = getRef('out-remarks-row');
+        const rmEl25 = getRef('out-remarks');
+        const rm25sentences = [
+            'Children <25 kg should receive the Syrup formulation (228mg/5ml).',
+            'Dose is derived from 20–40 mg/kg/day of Amoxycillin/Clavulanate (4:1 ratio) in divided doses.'
+        ];
+        rmEl25.innerHTML = '<ul style="margin:0;padding-left:18px;">' +
+            rm25sentences.map(s => `<li style="margin-bottom:4px;">${s}</li>`).join('') + '</ul>';
+        rmRow.style.display = 'flex';
 
     } else {
-        // ── TABLET ──
-        resetCalcClass();
+        const weightBand = w < 40 ? '25–<40 kg' : '≥40 kg';
+        const freq       = w < 40 ? 'Every 12 hours (BD)' : 'Every 8 hours (TDS)';
 
-        if (w < 25) {
-            document.getElementById('out-drug-name').textContent    = 'Amoxycillin/Clavulanate — Tablet (Augmentin)';
-            document.getElementById('out-patient-info').textContent = patientLabel();
-
-            const formEl = document.getElementById('out-formulation');
-            formEl.innerHTML = '';
-            const b = document.createElement('span');
-            b.className = 'fbadge fbadge-tab';
-            b.innerHTML = '<span class="fbadge-icon">💊</span>625mg Tablet';
-            formEl.appendChild(b);
-
-            document.getElementById('out-route').textContent      = 'Oral';
-            document.getElementById('out-indication').textContent = 'Treatment of susceptible infections';
-            renderDoseRange([{ label: 'By weight band', items: [
-                { text: '<25 kg: Use Syrup formulation', match: true },
-                { text: '25–<40 kg: 625 mg q12H (BD)' },
-                { text: '≥40 kg: 625 mg q8H (TDS)' }
-            ]}]);
-
-            const calcEl = document.getElementById('out-calc-dose');
-            calcEl.className = 'out-value normal';
-            calcEl.style.cssText = 'background:#fce4ec; color:#b71c1c; font-weight:700; font-size:0.95em; gap:4px; flex-direction:column;';
-            calcEl.innerHTML = '<span>🚫 Weight &lt;25 kg — Tablet not suitable</span>'
-                + '<span style="font-size:0.86em; font-weight:500; color:#c62828;">Please select <strong>Syrup</strong> formulation and recalculate.</span>';
-
-            document.getElementById('out-max-limits').textContent     = '—';
-            document.getElementById('out-footnote-row').style.display = 'none';
-
-            const rmRow = document.getElementById('out-remarks-row');
-            const rmEl25 = document.getElementById('out-remarks');
-            const rm25sentences = [
-                'Children <25 kg should receive the Syrup formulation (228mg/5ml).',
-                'Dose is derived from 20–40 mg/kg/day of Amoxycillin/Clavulanate (4:1 ratio) in divided doses.'
-            ];
-            rmEl25.innerHTML = '<ul style="margin:0;padding-left:18px;">' +
-                rm25sentences.map(s => `<li style="margin-bottom:4px;">${s}</li>`).join('') + '</ul>';
-            rmRow.style.display = 'flex';
-
-            document.getElementById('output-section').style.display = 'block';
-            setTimeout(scrollToOutput, 120);
-
-        } else {
-            const weightBand = w < 40 ? '25–<40 kg' : '≥40 kg';
-            const freq       = w < 40 ? 'Every 12 hours (BD)' : 'Every 8 hours (TDS)';
-            const dosesDay   = w < 40 ? 2 : 3;
-
-            setOutput({
-                drugName: 'Amoxycillin/Clavulanate — Tablet (Augmentin)',
-                formulations: [{ text: '625mg Tablet  (Amox 500mg + Clav 125mg)', type: 'tab' }],
-                route: 'Oral',
-                indication: 'Treatment of susceptible infections',
-                doseRange: [{ label: 'By weight band', items: [
-                    { text: '<25 kg: Use Syrup formulation' },
-                    { text: '25–<40 kg: 625 mg q12H (BD)',  match: w >= 25 && w < 40 },
-                    { text: '≥40 kg: 625 mg q8H (TDS)',     match: w >= 40 }
-                ]}],
-                calcRows: [{
-                    label: weightBand,
-                    parts: [
-                        { text: '625 mg Augmentin per dose  (1 tablet)' },
-                        { text: '= 1 × 625mg Tablet', badge: true, badgeClass: 'vbadge-tab' },
-                        { text: 'Amox 500 mg + Clav 125 mg', badge: true }
-                    ],
-                    freq
-                }],
-                maxSingle: '625 mg Augmentin  (= 500 mg Amoxicillin = 1 tablet)',
-                maxDaily:  '',
-                footnote:  '',
-                remarks:   'Dose is derived from 20–40 mg/kg/day of Amoxycillin/Clavulanate (4:1 ratio) in divided doses.\nRefer to DIAMS — HSgB Paediatric Antimicrobial Dose Quick Guide for more information (e.g. renal dose adjustment, etc).'
-            });
-        }
+        setOutput({
+            drugName: 'Amoxycillin/Clavulanate — Tablet (Augmentin)',
+            formulations: [{ text: '625mg Tablet  (Amox 500mg + Clav 125mg)', type: 'tab' }],
+            route: 'Oral',
+            indication: 'Treatment of susceptible infections',
+            doseRange: [{ label: 'By weight band', items: [
+                { text: '<25 kg: Use Syrup formulation' },
+                { text: '25–<40 kg: 625 mg q12H (BD)',  match: w >= 25 && w < 40 },
+                { text: '≥40 kg: 625 mg q8H (TDS)',     match: w >= 40 }
+            ]}],
+            calcRows: [{
+                label: weightBand,
+                parts: [
+                    { text: '625 mg Augmentin per dose  (1 tablet)' },
+                    { text: '= 1 × 625mg Tablet', badge: true, badgeClass: 'vbadge-tab' },
+                    { text: 'Amox 500 mg + Clav 125 mg', badge: true }
+                ],
+                freq
+            }],
+            maxSingle: '625 mg Augmentin  (= 500 mg Amoxicillin = 1 tablet)',
+            maxDaily:  '',
+            footnote:  '',
+            remarks:   'Dose is derived from 20–40 mg/kg/day of Amoxycillin/Clavulanate (4:1 ratio) in divided doses.\nRefer to DIAMS — HSgB Paediatric Antimicrobial Dose Quick Guide for more information (e.g. renal dose adjustment, etc).'
+        });
     }
 }
 
