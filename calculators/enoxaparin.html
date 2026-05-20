@@ -28,32 +28,44 @@
         <button class="nav-button-home" onclick="goHome()">HOME</button>
         <button class="nav-button" onclick="clearForm()">CLEAR</button>
     </div>
-    
+
     <h2>Anticoagulant (Clexane/Arixtra) Dose Calculator</h2>
-    
+
     <div class="form-group">
         <label for="enox-indication">Indication</label>
         <select id="enox-indication" onchange="updateEnoxaparinUI()" aria-required="true">
             <option value="">Select an Indication</option>
             <option value="pregnant-prophylaxis">Thromboprophylaxis for Pregnant Women</option>
-            <option value="vte-prophylaxis">VTE Prophylaxis in Medical or Non-major Orthopaedic Surgery Patients</option>
-            <option value="major-ortho-prophylaxis">VTE Prophylaxis in Major Orthopaedic Surgery (THA, TKA, Hip Fracture)</option>
+            <option value="standard-vte-prophylaxis">Standard VTE Prophylaxis</option>
             <option value="dvt-pe-treatment">DVT or PE Treatment</option>
             <option value="acs-treatment">ACS Treatment</option>
         </select>
         <p id="enox-treatment-footnote" class="footnote" style="display:none;">S/C Clexane Dose: 1 mg/kg BD</p>
     </div>
-    
+
     <div class="form-group">
         <label for="enox-bw">Body Weight (kg)</label>
         <input type="number" id="enox-bw" oninput="updateEnoxaparinUI()" aria-required="true" step="0.1" min="0">
         <p id="enox-weight-range-footnote" class="footnote"></p>
     </div>
-    
+
+    <div class="form-group" id="enox-bmi-group" style="display:none;">
+        <label for="enox-bmi">BMI (kg/m²) <span style="font-weight: 400; font-size: 0.9em; color: #666;">(Optional — enter if BMI ≥40)</span></label>
+        <input type="number" id="enox-bmi" oninput="updateEnoxaparinUI()" step="0.1" min="0" max="100" placeholder="e.g. 42">
+    </div>
+
     <div id="enoxaparin-output" style="display:none;">
         <h3 id="enox-results-heading">Dosage Recommendation</h3>
         <p style="margin-top: 20px;">For a body weight of <b id="enox-bw-display"></b> kg:</p>
         <div id="enoxaparin-result-card"></div>
+    </div>
+
+    <div style="margin-top: 32px; padding: 16px 20px; background: #F5F7FA; border-radius: 10px; border-top: 3px solid var(--primary-blue);">
+        <p style="font-size: 0.85em; font-weight: 700; color: #333; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.05em;">References</p>
+        <ul style="margin: 0; padding-left: 18px; font-size: 0.85em; color: #444; line-height: 1.8;">
+            <li><a href="../assets/pdfs/COVID_-_Inj__Anticoagulant_Dosing_Guide__Jan_2022_.pdf" target="_blank" rel="noopener noreferrer">HSgB Anticoagulant Chart for COVID-19 Cases (Jan 2022)</a></li>
+            <li><a href="../assets/images/Pregnancy_thromboprophylaxis_dosing_guide2.png" target="_blank" rel="noopener noreferrer">RCOG Green-top Guideline No. 37a — Weight-Based Enoxaparin Dose for Thromboprophylaxis in Pregnancy</a></li>
+        </ul>
     </div>
 </div>
 
