@@ -281,11 +281,9 @@
 
         /* Password row */
         .disc-pw-row {
-            display: none;
+            display: block;
             margin-bottom: 12px;
-            animation: fadeSlideIn 0.25s ease;
         }
-        .disc-pw-row.visible { display: block; }
 
         @keyframes fadeSlideIn {
             from { opacity: 0; transform: translateY(-6px); }
@@ -383,9 +381,7 @@
         .rock-tab-main  { font-size: 1.0em; font-weight: 700; line-height: 1.2; text-align: left; }
         .rock-tab-sub   { font-size: 0.82em; font-weight: 500; opacity: 0.75; line-height: 1.2; white-space: normal; text-align: left; }
 
-        #tab-rock.active        { color: #003d82; background: #EEF3FA; border-color: #c0cfe8; border-bottom: 3px solid #003d82; box-shadow: 0 -3px 8px rgba(0,61,130,0.10); z-index: 1; }
-        #tab-vdose.active       { color: #7B0C2A; background: #F9EEF1; border-color: #e0bfc8; border-bottom: 3px solid #7B0C2A; box-shadow: 0 -3px 8px rgba(123,12,42,0.10); z-index: 1; }
-        #tab-pharmatrace.active { color: #00574B; background: #E8F5F3; border-color: #b0d4cf; border-bottom: 3px solid #00574B; box-shadow: 0 -3px 8px rgba(0,87,75,0.10); z-index: 1; }
+        #tab-rock.active { color: #003d82; background: #EEF3FA; border-color: #c0cfe8; border-bottom: 3px solid #003d82; box-shadow: 0 -3px 8px rgba(0,61,130,0.10); z-index: 1; }
 
         .rock-tab-body {
             background: #f5f5f5;
@@ -533,15 +529,8 @@
 
                 <hr class="disc-divider">
 
-                <label class="disc-agree-row" for="agree-checkbox">
-                    <input type="checkbox" id="agree-checkbox" onchange="toggleProceed(this)">
-                    <span class="disc-agree-label">
-                        I have read and understood the disclaimer above, and I agree to use ROCK responsibly.
-                    </span>
-                </label>
-
                 <div class="disc-pw-row" id="pw-row">
-                    <label class="disc-pw-label" for="pw-input">🔒 Enter access password to continue:</label>
+                    <label class="disc-pw-label" for="pw-input">🔒 Key in the password if you have read and understood the disclaimer above:</label>
                     <div class="disc-pw-input-wrap">
                         <input type="password" id="pw-input" class="disc-pw-input"
                                placeholder="Password" maxlength="20"
@@ -581,25 +570,11 @@
 
     <!-- ── TAB BAR ── -->
     <div class="rock-tab-bar">
-        <button class="rock-tab active" id="tab-rock" onclick="switchTab('rock')">
+        <button class="rock-tab active" id="tab-rock">
             <span class="rock-tab-icon">🧮</span>
             <span class="rock-tab-label">
                 <span class="rock-tab-main">ROCK</span>
                 <span class="rock-tab-sub">Rx On-call Calculation Kit</span>
-            </span>
-        </button>
-        <button class="rock-tab" id="tab-vdose" onclick="switchTab('vdose')">
-            <span class="rock-tab-icon">🩺</span>
-            <span class="rock-tab-label">
-                <span class="rock-tab-main">VDOSE</span>
-                <span class="rock-tab-sub">Vancomycin Dosing &amp; Optimisation Support Engine</span>
-            </span>
-        </button>
-        <button class="rock-tab" id="tab-pharmatrace" onclick="switchTab('pharmatrace')">
-            <span class="rock-tab-icon">🗓️</span>
-            <span class="rock-tab-label">
-                <span class="rock-tab-main">PharmaTrace</span>
-                <span class="rock-tab-sub">Pharmacy Adherence Tracing Tool | MTAC RVD</span>
             </span>
         </button>
     </div>
@@ -624,13 +599,13 @@
                     </a>
                     <a href="calculators/renal-function-paeds.html" class="rock-card" style="border-left-color:#1565C0;">
                         <p class="rock-card-title">Renal Function (Paeds)</p>
-                        <p class="rock-card-sub">Estimation of eGFR using Schwartz/Brion eGFR method</p>
+                        <p class="rock-card-sub">eGFR via Schwartz/Brion method</p>
                     </a>
                 </div>
             </div>
 
             <div class="rock-cat-section">
-                <p class="rock-cat-label" style="color:#5B1E8A;">IV Therapy</p>
+                <p class="rock-cat-label" style="color:#5B1E8A;">Injectable Therapy</p>
                 <div class="rock-cards-stack">
                     <a href="calculators/cosmofer.html" class="rock-card" style="border-left-color:#7B1FA2;">
                         <p class="rock-card-title">Iron Dextran (Cosmofer) Dose</p>
@@ -711,46 +686,6 @@
 
         </div><!-- /ROCK TAB -->
 
-        <!-- ── VDOSE TAB ── -->
-        <div id="content-vdose" class="rock-tab-content">
-            <a href="calculators/vdose.html" class="rock-card" style="border-left-color:#800000;">
-                <p class="rock-card-title">VDOSE</p>
-                <p class="rock-card-sub">Vancomycin Dosing &amp; Optimisation Support Engine — includes two modules:</p>
-                <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
-                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
-                        <p style="font-size:0.82em;font-weight:600;color:#800000;margin:0;">Vancomycin Dose Calculator</p>
-                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Initial dosing recommendation, administration guide, TDM guidance &amp; clinical note template</p>
-                    </div>
-                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
-                        <p style="font-size:0.82em;font-weight:600;color:#800000;margin:0;">Vancomycin TDM Sampling Guide</p>
-                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Calculates optimal TDM sampling times &amp; generates a clinical note template</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- ── PHARMATRACE TAB ── -->
-        <div id="content-pharmatrace" class="rock-tab-content">
-            <a href="calculators/pharmatrace-hsgb.html" class="rock-card" style="border-left-color:#00574B;">
-                <p class="rock-card-title">PharmaTrace</p>
-                <p class="rock-card-sub">Pharmacy adherence tracing tool for MTAC RVD — includes three modules:</p>
-                <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
-                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
-                        <p style="font-size:0.82em;font-weight:600;color:#00574B;margin:0;">💊 MPRx — Medication Possession Ratio</p>
-                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Calculates medication adherence based on days supplied vs days elapsed</p>
-                    </div>
-                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
-                        <p style="font-size:0.82em;font-weight:600;color:#00574B;margin:0;">🚩 PickupFlag — Refill Timeliness Monitor</p>
-                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">Flags late or missed medication pickups based on expected refill dates</p>
-                    </div>
-                    <div style="background:#f5f5f5;border-radius:6px;padding:8px 12px;">
-                        <p style="font-size:0.82em;font-weight:600;color:#00574B;margin:0;">🔬 APRI Score — Hepatic Fibrosis Risk</p>
-                        <p style="font-size:0.75em;color:#7a8fa6;margin:3px 0 0;line-height:1.4;">AST to Platelet Ratio Index for hepatic fibrosis assessment in Hep C patients</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
     </div><!-- /rock-tab-inner -->
     </div><!-- /rock-tab-body -->
 
@@ -771,30 +706,13 @@
         }
     })();
 
-    function toggleProceed(checkbox) {
-        const pwRow = document.getElementById('pw-row');
-        const btn   = document.getElementById('proceed-btn');
-        if (checkbox.checked) {
-            pwRow.classList.add('visible');
-            document.getElementById('pw-input').focus();
-        } else {
-            pwRow.classList.remove('visible');
-            document.getElementById('pw-input').value = '';
-            document.getElementById('pw-error').classList.remove('visible');
-            document.getElementById('pw-input').classList.remove('error');
-        }
-        // Revalidate button state
-        validatePassword();
-    }
-
     function validatePassword() {
-        const checkbox = document.getElementById('agree-checkbox');
-        const pw       = document.getElementById('pw-input').value;
-        const btn      = document.getElementById('proceed-btn');
-        const errEl    = document.getElementById('pw-error');
-        const inputEl  = document.getElementById('pw-input');
+        const pw      = document.getElementById('pw-input').value;
+        const btn     = document.getElementById('proceed-btn');
+        const errEl   = document.getElementById('pw-error');
+        const inputEl = document.getElementById('pw-input');
 
-        const ready = checkbox.checked && pw === '4114';
+        const ready = pw === '4114';
         btn.disabled = !ready;
         btn.classList.toggle('active', ready);
 
@@ -806,14 +724,6 @@
             inputEl.classList.remove('error');
             errEl.classList.remove('visible');
         }
-    }
-
-    function switchTab(tab) {
-        ['rock', 'vdose', 'pharmatrace'].forEach(function(t) {
-            document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-            document.getElementById('content-' + t).classList.toggle('active', t === tab);
-        });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function proceedToApp() {
