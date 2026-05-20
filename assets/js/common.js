@@ -185,20 +185,13 @@ function generateInputSummary(inputs) {
 
 // Initialize disclaimer on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Pages that manage their own headers — skip overwriting them
-    const skipHeaderPages = ['vdose.html', 'pharmatrace-hsgb.html'];
-    const currentPage = window.location.pathname.split('/').pop();
-    const shouldSkipHeader = skipHeaderPages.includes(currentPage);
-
-    // Update header text if header exists (ROCK pages only)
-    if (!shouldSkipHeader) {
-        const headerTitle = document.querySelector('.header-text h1');
-        const headerSubtitle = document.querySelector('.header-text p');
-        
-        if (headerTitle && headerSubtitle) {
-            headerTitle.textContent = 'HSgB Pharmacy Calculator';
-            headerSubtitle.textContent = 'Rx On-call Calculation Kit (ROCK) for Pharmacists';
-        }
+    // Update header text if header exists
+    const headerTitle = document.querySelector('.header-text h1');
+    const headerSubtitle = document.querySelector('.header-text p');
+    
+    if (headerTitle && headerSubtitle) {
+        headerTitle.textContent = 'HSgB Pharmacy Calculator';
+        headerSubtitle.textContent = 'Rx On-call Calculation Kit (ROCK) for Pharmacists';
     }
     
     // Add disclaimer to the page if it doesn't exist
@@ -206,19 +199,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const disclaimer = document.createElement('div');
         disclaimer.className = 'disclaimer-section';
         disclaimer.innerHTML = `
-            <p><span class="less-bold">Prepared by:</span> Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.<br>
-            <span class="less-bold">In collaboration with:</span> Hannah Md Mahir & Fong Siew Li (AMS Pharmacists) & PRIC.<br>
-            <span class="less-bold">Approved by:</span> Dr Syamhanin Adnan (Head of Pharmacy Dept, Hospital Sungai Buloh)</p>
-            <p style="margin-top: 8px;"><span class="less-bold">Launched:</span> Mar 2026.</p>
-            <p class="stronger-bold">For Hosp Sungai Buloh Staff Use Only.</p>
-            <p class="footnote">
-                This guide/calculator provides general advice based on published evidence and expert opinion for standardisation of practice in HSgB. This guide may not cover all aspects of clinical practice, thus healthcare practitioners are encouraged to review patient details and professionally assess the relevance of this guide to each clinical situation. This guide is subject to periodic updates. We assume no responsibility for any party that referred to an outdated version.
-            </p>
-            <p style="margin-top: 12px; font-size: 0.9em;">
-                <span class="less-bold">📝 Feedback:</span> We welcome your feedback to improve this tool. 
+            <div class="disclaimer-credits">
+                <div class="disclaimer-credits-row">
+                    <span class="disclaimer-credits-label">Developed by</span>
+                    <span class="disclaimer-credits-value">Izyana Munirah Idham (AMS Pharmacist), Hospital Sungai Buloh.</span>
+                </div>
+                <div class="disclaimer-credits-row">
+                    <span class="disclaimer-credits-label">Collaborators</span>
+                    <span class="disclaimer-credits-value">Hannah Md Mahir, Fong Siew Li, Muhammad Zulhafiz (AMS Pharmacists), PRIC, Chuo Sing Kiat, Shreeni, Izha &amp; Arthur (JK IT &amp; Digital, Pharmacy Dept, HSgB).</span>
+                </div>
+                <div class="disclaimer-credits-row">
+                    <span class="disclaimer-credits-label">Approved by</span>
+                    <span class="disclaimer-credits-value">Dr Syamhanin Adnan (Head of Pharmacy Dept, HSgB).</span>
+                </div>
+                <div class="disclaimer-credits-row">
+                    <span class="disclaimer-credits-label">Launched</span>
+                    <span class="disclaimer-credits-value">May 2026.</span>
+                </div>
+            </div>
+            <div class="disclaimer-divider"></div>
+            <p class="stronger-bold">For Hospital Sungai Buloh Staff Use Only.</p>
+            <p class="footnote">This guide/calculator provides general advice based on published evidence and expert opinion for standardisation of practice in HSgB. It may not cover all clinical scenarios. Healthcare practitioners are encouraged to review individual patient details and apply professional judgement before acting on any output. This guide is subject to periodic updates. We assume no responsibility for any party that referred to an outdated version.</p>
+            <p style="margin-top: 8px;">📝 <span class="less-bold">Feedback:</span> We welcome your feedback to improve this tool.
                 <a href="https://forms.gle/XW6NgKrCZLiQV4xp6" target="_blank" rel="noopener noreferrer" style="color: #1565C0; font-weight: 600; text-decoration: none;">Click here to submit feedback</a>
             </p>
         `;
         document.body.appendChild(disclaimer);
+
+        const copyright = document.createElement('div');
+        copyright.className = 'copyright-footer';
+        copyright.style.borderTopColor = '#1565C0';
+        copyright.textContent = '© Pharmacy Department, Hospital Sungai Buloh. All rights reserved. Unauthorised reproduction, modification or distribution is prohibited.';
+        document.body.appendChild(copyright);
     }
 });
